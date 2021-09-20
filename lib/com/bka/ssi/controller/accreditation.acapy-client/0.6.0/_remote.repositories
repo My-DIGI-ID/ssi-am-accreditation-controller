@@ -1,0 +1,7 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Wed Sep 08 13:19:53 CEST 2021
+accreditation.acapy-client-0.6.0.pom>=
+accreditation.acapy-client-0.6.0-sources.jar>=
+accreditation.acapy-client-0.6.0-javadoc.jar>=
+accreditation.acapy-client-0.6.0.jar>=
+accreditation.acapy-client-0.6.0-tests.jar>=
