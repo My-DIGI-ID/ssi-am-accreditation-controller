@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidCsvFileException;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidCsvFileFormatException;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
-import com.bka.ssi.controller.accreditation.company.application.testutils.BuildEmployeeCompositeInputDTO;
+import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeInputDtoBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -24,11 +24,12 @@ public class CsvBuilderTest {
 
     private final static Logger logger = LoggerFactory.getLogger(CsvBuilderTest.class);
     private static CsvBuilder csvBuilder;
-    private static BuildEmployeeCompositeInputDTO employeeCompositeInputDTOBuilder;
+    private static EmployeeInputDtoBuilder employeeInputDtoBuilder;
     private final List<String> header = Arrays
         .asList("title", "firstName", "lastName", "email", "primaryPhoneNumber",
             "secondaryPhoneNumber", "employeeId", "employeeState", "position", "companyName",
             "companyStreet", "companyPostalCode", "companyCity");
+
     private final String validCsvSeparatedByCommaWithColumnName =
         "title,firstName,lastName,email,primaryPhoneNumber,secondaryPhoneNumber,employeeId,employeeState,position,companyName,companyStreet,companyPostalCode,companyCity\n" +
             "Mr.,Test,Dummy,test@example.com,123456789,987654321,asdfgljhlh-123445,INTERNAL,Consultant,TheCompany,BakerStreet,10001,London";
@@ -50,7 +51,7 @@ public class CsvBuilderTest {
     @BeforeAll
     static void setUp() {
         csvBuilder = new CsvBuilder(logger);
-        employeeCompositeInputDTOBuilder = new BuildEmployeeCompositeInputDTO();
+        employeeInputDtoBuilder = new EmployeeInputDtoBuilder();
     }
 
     @Test
@@ -205,10 +206,10 @@ public class CsvBuilderTest {
 
     @Test
     void getHeaderFromDto() {
-        employeeCompositeInputDTOBuilder.reset();
+        employeeInputDtoBuilder.reset();
 
         EmployeeInputDto employeeInputDto =
-            employeeCompositeInputDTOBuilder.build();
+            employeeInputDtoBuilder.build();
 
         try {
             List<String> header =

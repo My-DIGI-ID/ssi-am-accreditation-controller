@@ -2,65 +2,54 @@ package com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.commo
 
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class CredentialMetadataMongoDbValue {
 
-    @Field("type")
-    private String type;
+    @Field("issuedBy")
+    private String issuedBy;
 
-    @Field("id")
-    private String id;
-
-    @Field("did")
-    private String did;
-
-    @Field("partyCreated")
-    private Date partyCreated;
+    @Field("issuedAt")
+    private ZonedDateTime issuedAt;
 
     @Field("partyPersonalDataDeleted")
-    private Date partyPersonalDataDeleted;
+    private ZonedDateTime partyPersonalDataDeleted;
+
+    @Field("credentialType")
+    private String credentialType;
 
     public CredentialMetadataMongoDbValue() {
     }
 
-    public String getType() {
-        return type;
+    public String getIssuedBy() {
+        return issuedBy;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setIssuedBy(String issuedBy) {
+        this.issuedBy = issuedBy;
     }
 
-    public String getId() {
-        return id;
+    public ZonedDateTime getIssuedAt() {
+        return issuedAt;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setIssuedAt(ZonedDateTime issuedAt) {
+        this.issuedAt = issuedAt;
     }
 
-    public String getDid() {
-        return did;
-    }
-
-    public void setDid(String did) {
-        this.did = did;
-    }
-
-    public Date getPartyCreated() {
-        return partyCreated;
-    }
-
-    public void setPartyCreated(Date partyCreated) {
-        this.partyCreated = partyCreated;
-    }
-
-    public Date getPartyPersonalDataDeleted() {
+    public ZonedDateTime getPartyPersonalDataDeleted() {
         return partyPersonalDataDeleted;
     }
 
-    public void setPartyPersonalDataDeleted(Date partyPersonalDataDeleted) {
+    public void setPartyPersonalDataDeleted(ZonedDateTime partyPersonalDataDeleted) {
         this.partyPersonalDataDeleted = partyPersonalDataDeleted;
+    }
+
+    public String getCredentialType() {
+        return credentialType;
+    }
+
+    public void setCredentialType(String credentialType) {
+        this.credentialType = credentialType;
     }
 }

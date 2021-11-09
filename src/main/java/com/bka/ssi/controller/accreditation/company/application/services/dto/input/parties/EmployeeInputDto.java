@@ -11,10 +11,9 @@ import javax.validation.constraints.Size;
 
 public class EmployeeInputDto {
 
-    /* TODO - Implement characters escape annotation, add to String fields */
+    /* TODO - Implement characters escape annotation */
     /* TODO - Validation of PostalCode and PhoneNumbers */
     /* TODO - companySubject? */
-    /* TODO - companyCity, employeeId can be null? */
 
     @Size(max = 50)
     @NoForbiddenCharacters
@@ -64,6 +63,7 @@ public class EmployeeInputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     @NoForbiddenCharacters
     @CsvBindByName(column = "employeeState")
     @CsvBindByPosition(position = 7)
@@ -75,8 +75,9 @@ public class EmployeeInputDto {
     @CsvBindByPosition(position = 8)
     private String position;
 
-    @Size(max = 100)
+    @Size(max = 200)
     @NotNull
+    @NotEmpty
     @NoForbiddenCharacters
     @CsvBindByName(column = "companyName")
     @CsvBindByPosition(position = 9)
@@ -84,6 +85,7 @@ public class EmployeeInputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     @NoForbiddenCharacters
     @CsvBindByName(column = "companyStreet")
     @CsvBindByPosition(position = 10)
@@ -91,11 +93,14 @@ public class EmployeeInputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     @CsvBindByName(column = "companyPostalCode")
     @CsvBindByPosition(position = 11)
     private String companyPostalCode;
 
     @Size(max = 50)
+    @NotNull
+    @NotEmpty
     @NoForbiddenCharacters
     @CsvBindByName(column = "companyCity")
     @CsvBindByPosition(position = 12)

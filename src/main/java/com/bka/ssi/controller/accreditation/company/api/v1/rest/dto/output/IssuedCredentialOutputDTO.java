@@ -1,6 +1,8 @@
 package com.bka.ssi.controller.accreditation.company.api.v1.rest.dto.output;
 
-import java.util.Date;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.ZonedDateTime;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -13,5 +15,6 @@ public class IssuedCredentialOutputDTO {
     private String id;
 
     @NotNull
-    private Date issuanceDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private ZonedDateTime issuanceDate;
 }

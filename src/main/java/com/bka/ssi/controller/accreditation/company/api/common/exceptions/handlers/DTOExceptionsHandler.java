@@ -31,9 +31,11 @@ public class DTOExceptionsHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<RestErrorResponse> handleMethodArgumentNotValidException(
         MethodArgumentNotValidException ex, HttpServletRequest request) {
-        
+
         RestErrorResponse response = restErrorResponseFactory
             .create(ex.getBindingResult().getFieldErrors(), HttpStatus.BAD_REQUEST, request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
@@ -48,6 +50,8 @@ public class DTOExceptionsHandler {
         /* ToDo - make use of restErrorResponseFactory */
         RestErrorResponse response = new RestErrorResponse(HttpStatus.BAD_REQUEST,
             ex.getMessage(), request.getRequestURI());
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

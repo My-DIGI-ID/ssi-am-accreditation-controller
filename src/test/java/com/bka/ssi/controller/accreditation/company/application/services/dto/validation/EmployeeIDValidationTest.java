@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import com.bka.ssi.controller.accreditation.company.aop.utils.i18nMessageBuilder;
+import com.bka.ssi.controller.accreditation.company.aop.utilities.i18nMessageBuilder;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.employeeID.EmployeeIDPatternValidator;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.employeeID.MatchPatternEmployeeID;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.validation.ConstraintValidatorContext;
-
 
 public class EmployeeIDValidationTest {
 

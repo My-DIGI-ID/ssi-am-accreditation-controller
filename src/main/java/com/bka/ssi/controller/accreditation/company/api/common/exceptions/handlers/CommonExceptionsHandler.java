@@ -38,6 +38,8 @@ public class CommonExceptionsHandler {
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.not_implemented_exception_placeholder",
             HttpStatus.NOT_IMPLEMENTED, request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.NOT_IMPLEMENTED);
     }
@@ -46,10 +48,12 @@ public class CommonExceptionsHandler {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<RestErrorResponse> handleUnauthorizedException(UnauthorizedException ex,
         HttpServletRequest request) {
-        
+
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.unauthorized_exception_placeholder", HttpStatus.FORBIDDEN,
             request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
@@ -62,6 +66,8 @@ public class CommonExceptionsHandler {
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.unauthenticated_exception_placeholder",
             HttpStatus.UNAUTHORIZED, request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
@@ -70,12 +76,13 @@ public class CommonExceptionsHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<RestErrorResponse> handleUnknownException(Exception ex,
         HttpServletRequest request) {
-        logger.debug(ex.getMessage());
 
         RestErrorResponse response =
             restErrorResponseFactory
                 .create("message.common.rest.error.unknown_exception_placeholder",
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -88,6 +95,8 @@ public class CommonExceptionsHandler {
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.not_found_exception_placeholder",
             HttpStatus.NOT_FOUND, request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
@@ -100,6 +109,23 @@ public class CommonExceptionsHandler {
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.already_exists_exception_placeholder",
             HttpStatus.CONFLICT, request);
+
+        logger.debug(ex.getMessage());
+        logger.error(new LogOutput(response).toString());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class,
+        IllegalAccessException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<RestErrorResponse> handleIllegalFallbackException(Exception ex,
+        HttpServletRequest request) {
+
+        RestErrorResponse response = restErrorResponseFactory.create(
+            "message.common.rest.error.illegal_fallback_exception_placeholder",
+            HttpStatus.CONFLICT, request);
+
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }

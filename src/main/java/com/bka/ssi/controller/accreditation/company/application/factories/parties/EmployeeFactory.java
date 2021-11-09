@@ -1,11 +1,12 @@
 package com.bka.ssi.controller.accreditation.company.application.factories.parties;
 
-import com.bka.ssi.controller.accreditation.company.application.factories.Factory;
+import com.bka.ssi.controller.accreditation.company.application.factories.PartyFactory;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.ValidationService;
 import com.bka.ssi.controller.accreditation.company.application.utilities.CsvBuilder;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.EmployeeCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
+import com.bka.ssi.controller.accreditation.company.domain.enums.CredentialType;
 import com.bka.ssi.controller.accreditation.company.domain.values.Address;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialMetadata;
@@ -15,16 +16,16 @@ import com.bka.ssi.controller.accreditation.company.domain.values.IdentityManage
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
 import com.bka.ssi.controller.accreditation.company.domain.values.Position;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@Service
-public class EmployeeFactory implements Factory<EmployeeInputDto, Employee> {
+@Component
+public class EmployeeFactory implements PartyFactory<EmployeeInputDto, Employee> {
 
     /* ToDo - Set header and separator per env? */
     private final List<String> expectedEmployeeCsvHeader = Arrays.asList("title", "firstName",
@@ -32,18 +33,27 @@ public class EmployeeFactory implements Factory<EmployeeInputDto, Employee> {
         "employeeState", "position", "companyName", "companyStreet", "companyPostalCode",
         "companyCity");
     private final char csvSeparator = ',';
-    @Autowired
+
     private CsvBuilder csvBuilder;
-    @Autowired
     private ValidationService validationService;
-    @Autowired
     private Logger logger;
+
+    public EmployeeFactory(
+        CsvBuilder csvBuilder,
+        ValidationService validationService, Logger logger) {
+        this.csvBuilder = csvBuilder;
+        this.validationService = validationService;
+        this.logger = logger;
+    }
 
     /* ToDo - Throw AlreadyExistsException in case employee exists */
 
     @Override
-    public Employee create(EmployeeInputDto input) throws Exception {
+    public Employee create(EmployeeInputDto input, String userName) throws Exception {
+        logger.debug("Creating an employee from EmployeeInputDto");
+
         if (input == null) {
+            // throw exception instead?
             return null;
         } else {
             Persona persona = input.getTitle() == null ?
@@ -63,9 +73,7 @@ public class EmployeeFactory implements Factory<EmployeeInputDto, Employee> {
             /* ToDo - Get reference, username and email by JWT token handler */
             IdentityManagement identityManagement = new IdentityManagement("", "", "");
 
-            /* ToDo - What about houseNumber and doorNumber? */
-            Address employerAddress = input.getCompanyCity() == null ?
-                new Address(input.getCompanyPostalCode(), input.getCompanyStreet()) :
+            Address employerAddress =
                 new Address(input.getCompanyPostalCode(), input.getCompanyCity(),
                     input.getCompanyStreet());
 
@@ -82,20 +90,22 @@ public class EmployeeFactory implements Factory<EmployeeInputDto, Employee> {
                 new EmployeeCredential(input.getEmployeeId(), input.getEmployeeState(),
                     persona, contactInformation, identityManagement, employer, position);
 
-            /* ToDo - Set credentialMetadata here? */
-            CredentialMetadata credentialMetadata = new CredentialMetadata();
+            CredentialMetadata credentialMetadata = new CredentialMetadata(CredentialType.EMPLOYEE);
             CredentialOffer<EmployeeCredential> credentialOffer =
                 new CredentialOffer<>(credentialMetadata, employeeCredential);
 
-            Employee employee = new Employee(credentialOffer);
+            Employee employee = new Employee(credentialOffer, userName, ZonedDateTime.now());
 
             return employee;
         }
     }
 
     @Override
-    public List<Employee> create(MultipartFile input) throws Exception {
+    public List<Employee> create(MultipartFile input, String userName) throws Exception {
+        logger.debug("Creating employees from csv");
+
         if (input == null) {
+            // throw exception instead?
             return null;
         } else {
             List<Employee> employees = new ArrayList<>();
@@ -111,7 +121,7 @@ public class EmployeeFactory implements Factory<EmployeeInputDto, Employee> {
 
                 if (this.validationService.validate(dtos)) {
                     for (EmployeeInputDto dto : dtos) {
-                        employees.add(this.create(dto));
+                        employees.add(this.create(dto, userName));
                     }
                 }
             }

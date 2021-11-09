@@ -1,7 +1,7 @@
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.parties;
 
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.abstractions.CredentialMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.ContactInformationMongoDbValue;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.CredentialMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.PersonaMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.ValidityTimeframeDbValue;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -26,8 +26,8 @@ public class GuestCredentialMongoDbValue extends CredentialMongoDbValue {
     @Field("location")
     private String location;
 
-    @Field("issuedBy")
-    private String issuedBy;
+    @Field("invitedBy")
+    private String invitedBy;
 
     @Field("referenceBasisId")
     private String referenceBasisId;
@@ -86,12 +86,12 @@ public class GuestCredentialMongoDbValue extends CredentialMongoDbValue {
         this.location = location;
     }
 
-    public String getIssuedBy() {
-        return issuedBy;
+    public String getInvitedBy() {
+        return invitedBy;
     }
 
-    public void setIssuedBy(String issuedBy) {
-        this.issuedBy = issuedBy;
+    public void setInvitedBy(String invitedBy) {
+        this.invitedBy = invitedBy;
     }
 
     public String getReferenceBasisId() {

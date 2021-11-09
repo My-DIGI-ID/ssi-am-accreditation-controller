@@ -2,6 +2,7 @@ package com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.accredi
 
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationOpenOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationPrivateOutputDto;
+import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationQrCodeOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.GuestOpenOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.GuestPrivateOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.parties.GuestOutputDtoMapper;
@@ -21,48 +22,68 @@ public class GuestAccreditationOutputDtoMapper {
         this.logger = logger;
     }
 
-    public GuestAccreditationOpenOutputDto toGuestAccreditationOpenOutputDto(
+    public GuestAccreditationOpenOutputDto entityToOpenDto(
         GuestAccreditation guestAccreditation) {
-        logger.debug("Mapping GuestAccreditation to OpenOutputDto");
+        logger.debug("Mapping GuestAccreditation to GuestAccreditationOpenOutputDto");
+
         if (guestAccreditation == null) {
             // throw instead
             return null;
         } else {
-            GuestAccreditationOpenOutputDto output = new GuestAccreditationOpenOutputDto();
+            GuestAccreditationOpenOutputDto dto = new GuestAccreditationOpenOutputDto();
 
             GuestOpenOutputDto guest = guestOutputDtoMapper
-                .guestToGuestOpenOutputDto(guestAccreditation.getParty());
+                .entityToOpenDto(guestAccreditation.getParty());
 
-            output.setId(guestAccreditation.getId());
-            output.setInvitationLink(guestAccreditation.getInvitationLink());
-            output.setInvitationEmail(guestAccreditation.getInvitationEmail());
-            output.setStatus(guestAccreditation.getStatus());
-            output.setGuest(guest);
-            output.setConnectionQrCode(guestAccreditation.getConnectionQrCode());
-            
-            return output;
+            dto.setId(guestAccreditation.getId());
+            dto.setGuest(guest);
+            dto.setStatus(guestAccreditation.getStatus().getName());
+            dto.setInvitedBy(guestAccreditation.getInvitedBy());
+            dto.setInvitedAt(guestAccreditation.getInvitedAt());
+            dto.setInvitationUrl(guestAccreditation.getInvitationUrl());
+            dto.setInvitationEmail(guestAccreditation.getInvitationEmail());
+            dto.setInvitationQrCode(guestAccreditation.getInvitationQrCode());
+
+            return dto;
         }
     }
 
-    public GuestAccreditationPrivateOutputDto toGuestAccreditationPrivateOutputDto(
+    public GuestAccreditationPrivateOutputDto entityToPrivateDto(
         GuestAccreditation guestAccreditation) {
+        logger.debug("Mapping GuestAccreditation to GuestAccreditationPrivateOutputDto");
+
         if (guestAccreditation == null) {
             // throw instead
             return null;
         } else {
-            GuestAccreditationPrivateOutputDto output = new GuestAccreditationPrivateOutputDto();
+            GuestAccreditationPrivateOutputDto dto = new GuestAccreditationPrivateOutputDto();
 
             GuestPrivateOutputDto guest = guestOutputDtoMapper
-                .guestToGuestPrivateOutputDto(guestAccreditation.getParty());
+                .entityToPrivateDto(guestAccreditation.getParty());
 
-            output.setId(guestAccreditation.getId());
-            output.setInvitationLink(guestAccreditation.getInvitationLink());
-            output.setInvitationEmail(guestAccreditation.getInvitationEmail());
-            output.setStatus(guestAccreditation.getStatus());
-            output.setGuest(guest);
+            dto.setId(guestAccreditation.getId());
+            dto.setStatus(guestAccreditation.getStatus().getName());
+            dto.setGuest(guest);
+            dto.setInvitationUrl(guestAccreditation.getInvitationUrl());
+            dto.setInvitationEmail(guestAccreditation.getInvitationEmail());
+            dto.setInvitationQrCode(guestAccreditation.getInvitationQrCode());
 
-            return output;
+            return dto;
         }
     }
 
+    public GuestAccreditationQrCodeOutputDto entityToQrCodeDto(GuestAccreditation accreditation) {
+        logger.debug("Mapping GuestAccreditation to GuestAccreditationQrCodeOutputDto");
+
+        if (accreditation == null) {
+            // throw instead
+            return null;
+        } else {
+            GuestAccreditationQrCodeOutputDto dto = new GuestAccreditationQrCodeOutputDto();
+
+            dto.setInvitationQrCode(accreditation.getInvitationQrCode());
+
+            return dto;
+        }
+    }
 }

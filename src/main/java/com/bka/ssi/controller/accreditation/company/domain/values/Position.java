@@ -4,7 +4,6 @@ public class Position {
 
     private String name;
 
-    /* TODO - Values invariants checks to be added as part of functional stories */
     public Position(String name) {
         this.name = name;
     }

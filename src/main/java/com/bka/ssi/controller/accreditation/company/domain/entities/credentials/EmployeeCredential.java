@@ -1,16 +1,18 @@
 package com.bka.ssi.controller.accreditation.company.domain.entities.credentials;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.abstractions.credential.Credential;
+import com.bka.ssi.controller.accreditation.company.domain.values.Address;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Employer;
 import com.bka.ssi.controller.accreditation.company.domain.values.IdentityManagement;
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
 import com.bka.ssi.controller.accreditation.company.domain.values.Position;
 
+import java.util.ArrayList;
+
 public class EmployeeCredential extends Credential {
 
     private String employeeId;
-    /* ToDo - Use enum EmployeeStatus? */
     private String employeeState;
     private Persona persona;
     private ContactInformation contactInformation;
@@ -42,6 +44,52 @@ public class EmployeeCredential extends Credential {
         this.identityManagement = identityManagement;
         this.employer = employer;
         this.position = position;
+    }
+
+    @Override
+    public Credential createEmptyCredential() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Credential createEmptyCredentialForDataCleanup() {
+        this.employeeId = "deleted";
+        this.employeeState = "deleted";
+
+        this.persona = new Persona(
+            "deleted",
+            "deleted",
+            "deleted"
+        );
+
+        this.contactInformation = new ContactInformation(
+            new ArrayList<>(),
+            new ArrayList<>()
+        );
+
+        this.identityManagement = new IdentityManagement(
+            "deleted",
+            "deleted",
+            "deleted"
+        );
+
+        this.employer = new Employer(
+            "deleted",
+            new Address(
+                "deleted",
+                "deleted",
+                "deleted",
+                "deleted",
+                "deleted",
+                "deleted"
+            ),
+            "deleted",
+            "deleted"
+        );
+
+        this.position = new Position("deleted");
+
+        return this;
     }
 
     public String getEmployeeId() {

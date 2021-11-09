@@ -9,7 +9,6 @@ public class Address {
     private String houseNumber;
     private String doorNumber;
 
-    /* TODO - Values invariants checks to be added as part of functional stories */
     public Address(String postalCode, String country, String city, String street,
         String houseNumber, String doorNumber) {
         this.postalCode = postalCode;

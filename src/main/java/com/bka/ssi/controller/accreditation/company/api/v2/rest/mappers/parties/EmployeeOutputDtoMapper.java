@@ -2,6 +2,7 @@ package com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.parties
 
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.EmployeeOutputDto;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
+import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,22 +10,26 @@ import java.util.List;
 @Service
 public class EmployeeOutputDtoMapper {
 
-    public EmployeeOutputDto employeeToEmployeePartyOutputDto(
-        Employee employee) {
+    private final Logger logger;
+
+    public EmployeeOutputDtoMapper(Logger logger) {
+        this.logger = logger;
+    }
+
+    public EmployeeOutputDto entityToDto(Employee employee) {
+        logger.debug("Mapping Employee to EmployeeOutputDto");
+
         if (employee == null) {
             return null;
         } else {
-            EmployeeOutputDto output = new EmployeeOutputDto();
+            EmployeeOutputDto dto = new EmployeeOutputDto();
 
-            output.setId(employee.getId());
-            output.setTitle(employee.getCredentialOffer().getCredential().getPersona().getTitle());
-            output.setFirstName(
+            dto.setId(employee.getId());
+            dto.setTitle(employee.getCredentialOffer().getCredential().getPersona().getTitle());
+            dto.setFirstName(
                 employee.getCredentialOffer().getCredential().getPersona().getFirstName());
-            output.setLastName(
+            dto.setLastName(
                 employee.getCredentialOffer().getCredential().getPersona().getLastName());
-            output.setEmail(
-                employee.getCredentialOffer().getCredential().getContactInformation().getEmails()
-                    .get(0));
 
             String email;
             List<String> emails = employee
@@ -39,7 +44,7 @@ public class EmployeeOutputDtoMapper {
                 email = null;
             }
 
-            output.setEmail(email);
+            dto.setEmail(email);
 
             String primaryPhoneNumber;
             String secondaryPhoneNumber;
@@ -62,26 +67,29 @@ public class EmployeeOutputDtoMapper {
                 secondaryPhoneNumber = null;
             }
 
-            output.setPrimaryPhoneNumber(primaryPhoneNumber);
-            output.setSecondaryPhoneNumber(secondaryPhoneNumber);
+            dto.setPrimaryPhoneNumber(primaryPhoneNumber);
+            dto.setSecondaryPhoneNumber(secondaryPhoneNumber);
 
-            output.setEmployeeId(employee.getCredentialOffer().getCredential().getEmployeeId());
-            output
+            dto.setEmployeeId(employee.getCredentialOffer().getCredential().getEmployeeId());
+            dto
                 .setEmployeeState(employee.getCredentialOffer().getCredential().getEmployeeState());
-            output
+            dto
                 .setPosition(employee.getCredentialOffer().getCredential().getPosition().getName());
-            output.setCompanyName(
+            dto.setCompanyName(
                 employee.getCredentialOffer().getCredential().getEmployer().getName());
-            output.setCompanyStreet(
+            dto.setCompanyStreet(
                 employee.getCredentialOffer().getCredential().getEmployer().getAddress()
                     .getStreet());
-            output.setCompanyPostalCode(
+            dto.setCompanyPostalCode(
                 employee.getCredentialOffer().getCredential().getEmployer().getAddress()
                     .getPostalCode());
-            output.setCompanyCity(
+            dto.setCompanyCity(
                 employee.getCredentialOffer().getCredential().getEmployer().getAddress().getCity());
 
-            return output;
+            dto.setCreatedBy(employee.getCreatedBy());
+            dto.setCreatedAt(employee.getCreatedAt());
+
+            return dto;
         }
     }
 }

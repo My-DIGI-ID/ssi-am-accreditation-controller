@@ -26,7 +26,6 @@ public class GuestSecurityFacade {
     @Before("@annotation(com.bka.ssi.controller.accreditation.company.application.security.facade.GuestProtectedTransaction)")
     public void protectedTransaction() throws Exception {
         String passedToken = bearerTokenParser.getToken();
-        authenticationService.verifyGuestAccessToken(passedToken);
+        this.authenticationService.verifyGuestAccessToken(passedToken);
     }
-
 }

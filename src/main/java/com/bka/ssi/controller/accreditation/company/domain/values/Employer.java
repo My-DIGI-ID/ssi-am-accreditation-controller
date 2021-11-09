@@ -4,7 +4,6 @@ public class Employer extends Company {
 
     private String proofOfOwnership;
 
-    /* TODO - Values invariants checks to be added as part of functional stories */
     public Employer(String name, Address address, String subject, String proofOfOwnership) {
         super(name, address, subject);
 

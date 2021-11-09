@@ -4,7 +4,7 @@ import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -49,7 +49,7 @@ public class GuestInputDto {
     @CsvBindByPosition(position = 5)
     private String secondaryPhoneNumber;
 
-    @Size(max = 100)
+    @Size(max = 200)
     @NotNull
     @NotEmpty
     @CsvBindByName(column = "companyName")
@@ -71,28 +71,16 @@ public class GuestInputDto {
     private String location;
 
     @NotNull
-    @CsvBindByName(column = "validFromDate")
+    @CsvBindByName(column = "validFrom")
     @CsvBindByPosition(position = 9)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private Date validFromDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private ZonedDateTime validFrom;
 
     @NotNull
-    @CsvBindByName(column = "validFromTime")
+    @CsvBindByName(column = "validUntil")
     @CsvBindByPosition(position = 10)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private Date validFromTime;
-
-    @NotNull
-    @CsvBindByName(column = "validUntilDate")
-    @CsvBindByPosition(position = 11)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private Date validUntilDate;
-
-    @NotNull
-    @CsvBindByName(column = "validUntilTime")
-    @CsvBindByPosition(position = 12)
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private Date validUntilTime;
+    private ZonedDateTime validUntil;
 
     public String getFirstName() {
         return firstName;
@@ -130,20 +118,11 @@ public class GuestInputDto {
         return location;
     }
 
-    public Date getValidFromDate() {
-        return validFromDate;
+    public ZonedDateTime getValidFrom() {
+        return validFrom;
     }
 
-    public Date getValidFromTime() {
-        return validFromTime;
+    public ZonedDateTime getValidUntil() {
+        return validUntil;
     }
-
-    public Date getValidUntilDate() {
-        return validUntilDate;
-    }
-
-    public Date getValidUntilTime() {
-        return validUntilTime;
-    }
-
 }

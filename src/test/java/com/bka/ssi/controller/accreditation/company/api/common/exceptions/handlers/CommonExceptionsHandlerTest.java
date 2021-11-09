@@ -279,4 +279,44 @@ class CommonExceptionsHandlerTest {
         assertEquals(response.getBody().getMessage(), "No message available");
         assertNotEquals(response.getBody().getTimestamp(), null);
     }
+
+    @Test
+    void handleIllegalArgumentExceptionException() {
+        // given
+        IllegalArgumentException exception = new IllegalArgumentException();
+        Mockito.when(
+            messageSource
+                .getMessage("message.common.rest.error.illegal_fallback_exception_placeholder",
+                    null, Locale.ENGLISH)).thenReturn("Public error message");
+
+        // when
+        response = handler.handleIllegalFallbackException(exception, request);
+
+        // then
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
+        assertEquals(response.getBody().getPath(), "/test/api/endpoint");
+        assertEquals(response.getBody().getStatus(), 409);
+        assertEquals(response.getBody().getMessage(), "Public error message");
+        assertNotEquals(response.getBody().getTimestamp(), null);
+    }
+
+    @Test
+    void handleIllegalArgumentExceptionWithoutMessage() {
+        // given
+        IllegalArgumentException exception = new IllegalArgumentException();
+        Mockito.when(
+            messageSource
+                .getMessage("message.common.rest.error.illegal_fallback_exception_placeholder",
+                    null, Locale.ENGLISH)).thenThrow(new NoSuchMessageException("No message"));
+
+        // when
+        response = handler.handleIllegalFallbackException(exception, request);
+
+        // then
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
+        assertEquals(response.getBody().getPath(), "/test/api/endpoint");
+        assertEquals(response.getBody().getStatus(), 409);
+        assertEquals(response.getBody().getMessage(), "No message available");
+        assertNotEquals(response.getBody().getTimestamp(), null);
+    }
 }

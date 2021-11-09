@@ -1,0 +1,366 @@
+{
+  "header-component": {
+    "logout-button": {
+      "title": "Ausloggen",
+      "aria-label": "Ausloggen"
+    },
+    "company-name": "SSI Zugangsmanagement"
+  },
+  "employee": {
+    "employee-overview-component": {
+      "table-title": "Mitarbeiterübersicht",
+      "table-add-button": "Mitarbeiter anlegen",
+      "table-search": "Suche",
+      "table-tab-invited": "Einladungen",
+      "table-tab-active": "Aktive Mitarbeiter-Credentials",
+      "table-tab-all": "Alle",
+      "table-headers": {
+        "reference-number": "Mitarbeiterreferenz",
+        "first-name": "Vorname",
+        "last-name": "Nachname",
+        "location": "Niederlassung",
+        "status": "Status",
+        "download-email": "Einladungsmail herunterladen",
+        "action-menu": {
+          "go-to-employee-details": "Mitarbeiter-Informationen anzeigen"
+        }
+      },
+      "empty-table-message": "Keine Daten entsprechen Ihrer Auswahl"
+    },
+    "employee-add-component": {
+      "button": {
+        "back": "Zurück",
+        "employee-csv-upload": "DATEI HOCHLADEN",
+        "send": "SENDEN"
+      },
+      "employee-csv-upload": {
+        "title": "Massenupload",
+        "description": "Hier können Sie die Informationen mehrerer Mitarbeiter gebündelt in einer .csv Datei hochladen. Die Daten in der .csv Datei müssen der Vorlage folgen.",
+        "description-2": "Die .csv Vorlage finden Sie",
+        "description-2-link": "hier",
+        "upload-component": {
+          "area-text": "Sie können eine .csv Datei per Drag & Drop, oder durch klicken auf 'Datei hochladen' hinzufügen.",
+          "drop-file": "Drag & Drop um Datei hochzuladen",
+          "upload-button": "Datei hochladen"
+        }
+      },
+      "form": {
+        "employee-information": {
+          "title": "Mitarbeiterinformation",
+          "field": {
+            "first-name": "Vorname",
+            "last-name": "Nachname",
+            "title": "Anrede",
+            "email-address": "E-Mail-Adresse",
+            "primary-phone": "Telefonnummer",
+            "secondary-phone": "Alternative Telefonnummer"
+          }
+        },
+        "employee-occupation": {
+          "title": "Beschäftigung",
+          "field": {
+            "employee-status": "Mitarbeiterstatus",
+            "employee-role": "Tätigkeit",
+            "employee-id": "Mitarbeiterreferenz"
+          }
+        },
+        "company-location": {
+          "title": "Firmenanschrift",
+          "field": {
+            "company-name": "Firmenname",
+            "company-street": "Straße",
+            "company-postal-code": "Postleitzahl",
+            "company-city": "Stadt",
+            "company-reference": "Firmenreferenz"
+          }
+        },
+        "error": {
+          "max-length": {
+            "first-name": "Achtung: Vorname ist auf 50 Zeichen begrenzt",
+            "last-name": "Achtung: Nachname ist auf 50 Zeichen begrenzt",
+            "title": "Achtung: Anrede ist auf 50 Zeichen begrenzt",
+            "employee-role": "Achtung: Tätigkeit ist auf 50 Zeichen begrenzt",
+            "employee-id": "Achtung: Mitarbeiterreferenz ist auf 50 Zeichen begrenzt",
+            "company-name": "Achtung: Firmenname ist auf 100 Zeichen begrenzt",
+            "company-street": "Achtung: Straße ist auf 50 Zeichen begrenzt",
+            "company-postal-code": "Achtung: Postleitzahl ist auf 50 Zeichen begrenzt",
+            "company-city": "Achtung: Stadt ist auf 50 Zeichen begrenzt",
+            "company-reference": "Achtung: Firmenreferenz ist auf 50 Zeichen begrenzt"
+          },
+          "required": {
+            "first-name": "Achtung: Vorname ist erforderlich",
+            "last-name": "Achtung: Nachname ist erforderlich",
+            "email-address": "Achtung: Email ist erforderlich",
+            "primary-phone": "Achtung: Die Telefonnummer ist erforderlich",
+            "employee-status": "Achtung: Mitarbeiterstatus ist erforderlich",
+            "company-name": "Achtung: Firmenname ist erforderlich",
+            "company-street": "Achtung: Straße ist erforderlich",
+            "company-postal-code": "Achtung: Postleitzahl ist erforderlich",
+            "company-city": "Achtung: Stadt ist erforderlich",
+            "company-reference": "Achtung: Vorname ist erforderlich"
+          },
+          "forbidden-characters": {
+            "first-name": "Achtung: Vorname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "last-name": "Achtung: Nachname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "title": "Achtung: Anrede kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "primary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
+            "secondary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
+            "employee-role": "Achtung: Tätigkeit kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "employee-id": "Achtung: Mitarbeiterreferenz kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "company-name": "Achtung: Firmenname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "company-street": "Achtung: Straße kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "company-postal-code": "Achtung: Postleitzahl kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "company-city": "Achtung: Stadt kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "company-reference": "Achtung: Firmenreferenz kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &"
+          },
+          "format": {
+            "email-address": "Achtung: Bitte geben Sie eine gültige E-Mail Adresse an"
+          }
+        }
+      }
+    },
+    "employee-creation-status-component": {
+      "success": {
+        "header": "Mitarbeiter erfolgreich hinzugefügt",
+        "text": "Folgende Mitarbeiter wurden erfolgreich hinzugefügt."
+      },
+      "error": {
+        "header": "Mitarbeiter konnte nicht hinzugefügt werden",
+        "text": "Das System konnte die CSV Datei nicht verarbeiten. Es wurden keine Mitarbeiter hinzugefügt. \n Stellen Sie sicher, dass die CSV Datei im richtigen Format ist und laden Sie die CSV Datei erneut hoch",
+        "note": "Keine weiteren Mitarbeiter wurden hinzugefügt."
+      },
+      "button": {
+        "add-another-employee": "Einen weiteren Mitarbeiter hinzufügen",
+        "back-to-the-overview": "Zurück zur Übersicht"
+      }
+    }
+  },
+  "guest": {
+    "guest-welcome-component": {
+      "title": "Willkommen!",
+      "subtitle-1": "Um unsere Gäste zu empfangen verwenden wir digitale Gästeausweise.",
+      "subtitle-2": "Diese basieren auf selbstbestimmen Identitäten auch 'Self-Sovereign Identity', kurz: SSI genannt.",
+      "first-step": {
+        "title": "Was Sie zu Beginn benötigen",
+        "item-1-title": "Smartphone",
+        "item-1-description": "Sie benötigen ein NFC fähiges Smartphone. Die meisten neueren Android Smartphones, sowie iPhone 6 oder neuer sind unterstützt.",
+        "item-2-title": "Personalausweis",
+        "item-2-description": "Sie benötigen Ihren physischen Personalausweis sowie entweder Ihren 5-Stelligen 'Transport-PIN' oder Ihren 6- stelligen 'Ausweis-PIN'.",
+        "item-3-title": "Wallet App",
+        "item-3-description": "Sie benötigen die 'ID Wallet' App aus dem Apple App Store oder dem Google Play Store.",
+        "item-4-title": "Basis-ID",
+        "item-4-description": "Mit Ihrem Personalausweis müssen Sie ich in der 'ID Wallet' App eine Basis-ID anlegen. Dazu folgen Sie bitte den Anweisungen in der App.",
+        "confirm-prerequisites": "Ich bestätige, dass ich die Vorraussetzungen erfülle.",
+        "next-button": "WEITER"
+      },
+      "second-step": {
+        "title": "Welche Vorteile hat dies für Sie?",
+        "benefits-1": "Sie profitieren von einem schnelleren Ablauf beim Empfang. Dies ist in etwa vergleichbar mit dem Nutzen einer 'Fast-Lane'.",
+        "benefits-2": "Das Ökosystem wird ständig erweitert. Sie werden Ihre Basis-ID in Zukunft für weitere Anwendungsfälle nutzen können. Zum Beispiel beim Hotel Check-In",
+        "benefits-3": "Sie tragen aktiv zu dem digitale Identitäten Program des Bundeskanzleramtes bei und beschleunigen die Digitalisierung von Ausweisdokumenten in Deutschland bei.",
+        "benefits-4": "Nachhaltigkeit: Sie leisten einen Beitrag zur Papiervermeidung.",
+        "benefits-5": "Sie erlangen mehr Kontrolle über Ihre Daten, Ihre Privatsphäre und Datensicherheit.",
+        "benefits-6": "Ihre Daten werden sicher direkt auf Ihrem Smartphone gespeichert und stehen nur Ihnen jederzeit zur Verfügung.",
+        "start-button": "START"
+      },
+      "faq": {
+        "text": "Sie haben weitere Fragen? FAQ",
+        "link": "FAQ"
+      },
+      "support": {
+        "text": "Sie benötigen weitere Hilfe?",
+        "link": "Support"
+      }
+    },
+    "guest-accreditation-component": {
+      "circle-caption-1": "Verifikation",
+      "circle-caption-2": "Überprüfung der Einladungsdaten",
+      "circle-caption-3": "Bestätigung",
+      "verification-component": {
+        "gdpr": {
+          "text": "Mit dem Aktivieren des Kontrollkästchen willigens Sie in die in den Datenschutzhinweisen beschriebene Verarbeitung Ihrer personenbezogenen Daten durch die DB Systel GmbH zum Zweck der Teilnahme am Pilotprojekt „Self Sovereign Identity (SSI) Managementsystem - Pilot“ ein. Die DB Systel GmbH, Jürgen-Ponto-Platz 1, 60329 Frankfurt am Main erhebt und verarbeitet Ihre Daten als Verantwortlicher. Nach Abschluss des Pilotprojektes werden alle personenbezogenen Daten gelöscht, die aufgrund dieser Einwilligung verarbeitet wurden. Die Einverständniserklärung kann jederzeit ohne Angabe von Gründen widerrufen werden. Im Falle des Widerrufs Ihrer Einwilligung werden alle personenbezogenen Daten gelöscht, die aufgrund dieser Einwilligung verarbeitet wurden. Die Teilnahme am Pilotprojekt ist freiwillig. Ohne eine Einwilligung in die Datenverarbeitung kann eine Teilnahme nicht erfolgen. Weitere Informationen, insbesondere zu Umfang und Zweck der Datenverarbeitung, finden Sie in unseren ",
+          "link": "Datenschutzhinweisen"
+        },
+        "scan-caption": "Scannen sie diesen QR Code um Ihre Identität zu bestätigen."
+      },
+      "visit-and-guest-details-component": {
+        "form": {
+          "visit-details": {
+            "title": "Besuchsdetails",
+            "description": "Bitte überprüfen Sie die Details Ihrer Einladung",
+            "field": {
+              "location": "Ort / Gebäude",
+              "valid-from-date": "Ankunftsdatum",
+              "valid-from-time": "Ankunftszeit",
+              "valid-until-date": "Abreisedatum",
+              "valid-until-time": "Abreisezeit",
+              "invited-by": "Eingeladen von",
+              "type-of-visit": "Besuchsgrund"
+            }
+          },
+          "guest-details": {
+            "title": "Gästeinformationen",
+            "description": "Bitte überprüfen Sie Ihre persönlichen Daten und vervollständigen Sie diese.",
+            "field": {
+              "title": "Titel",
+              "first-name": "Vorname",
+              "last-name": "Nachname",
+              "email-address": "E-Mail-Adresse",
+              "company-name": "Firma",
+              "primary-phone-number": "Telefonnummer",
+              "secondary-phone-number": "Alternative Telefonnummer",
+              "company-street": "Firmenadresse",
+              "company-city": "Ort der Firma",
+              "company-post-code": "Postleitzahl der Firma",
+              "licence-plate-number": "Nummerschildkennung"
+            }
+          },
+          "error": {
+            "max-length": {
+              "company-street": "Achtung: Firmenadresse ist auf 50 Zeichen begrenzt",
+              "company-city": "Achtung: Ort der Firma ist auf 50 Zeichen begrenzt",
+              "company-post-code": "Achtung: Postleitzahl der Firma ist auf 50 Zeichen begrenzt",
+              "licence-plate-number": "Achtung: Nummerschildkennung ist auf 50 Zeichen begrenzt"
+            },
+            "required": {
+              "company-street": "Achtung: Firmenadresse ist erforderlich",
+              "company-city": "Achtung: Ort der Firma ist erforderlich",
+              "company-post-code": "Achtung: Postleitzahl der Firma ist erforderlich"
+            },
+            "forbidden-characters": {
+              "primary-phone-number": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
+              "secondary-phone-number": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
+              "company-street": "Achtung: Firmenadresse kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+              "company-city": "Achtung: Ort der Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+              "company-post-code": "Achtung: Postleitzahl der Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+              "licence-plate-number": "Achtung: Nummerschildkennung kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &"
+            }
+          },
+          "button": {
+            "submit": "SENDEN"
+          }
+        }
+      },
+      "confirmation-component": {
+        "title": "Sie haben sich erfolgreich verifiziert!",
+        "description": "Vielen Dank für die Benutzung unserer Gastakkreditierung. Ihr digitaler Gastausweis wurde erstellt and kann für den Check-In bei Ihrem Besuch genutzt werden. Wenn Sie am Empfang ankommen scannen Sie bitte den bereitgestellten QR-Code mit Ihrer “ID Wallet” App.",
+        "spinner-title": "Bitte überprüfen Sie Ihren digitalen Gastausweis in Ihrer ID Wallet App"
+      }
+    },
+    "guest-add-component": {
+      "back-button": "Zurück",
+      "form": {
+        "guest-details": {
+          "title": "Gästeinformationen",
+          "field": {
+            "first-name": "Vorname",
+            "last-name": "Nachname",
+            "company-name": "Firma",
+            "title": "Titel",
+            "email": "E-Mail-Adresse"
+          }
+        },
+        "visit-details": {
+          "title": "Besuchsdetails",
+          "field": {
+            "type-of-visit": "Besuchsgrund",
+            "location": "Ort / Gebäude",
+            "valid-from-date": "Ankunftsdatum",
+            "valid-from-time": "Ankunftszeit",
+            "valid-until-date": "Abreisedatum",
+            "valid-until-time": "Abreisezeit"
+          }
+        },
+        "error": {
+          "max-length": {
+            "first-name": "Achtung: Vorname ist auf 50 Zeichen begrenzt",
+            "last-name": "Achtung: Nachname ist auf 50 Zeichen begrenzt",
+            "company-name": "Achtung: Firma ist auf 200 Zeichen begrenzt",
+            "title": "Achtung: Titel ist auf 50 Zeichen begrenzt",
+            "type-of-visit": "Achtung: Besuchsgrund ist auf 50 Zeichen begrenzt",
+            "location": "Achtung: Ort / Gebäude ist auf 50 Zeichen begrenzt"
+          },
+          "required": {
+            "first-name": "Achtung: Vorname ist erforderlich",
+            "last-name": "Achtung: Nachname ist erforderlich",
+            "company-name": "Achtung: Firma ist erforderlich",
+            "email": "Achtung: Email ist erforderlich",
+            "type-of-visit": "Achtung: Besuchsgrund ist erforderlich",
+            "location": "Achtung: Ort / Gebäude ist erforderlich",
+            "valid-from-time": "Achtung: Ankunftszeit ist erforderlich",
+            "valid-until-time": " Achtung: Abreisezeit ist erforderlich"
+          },
+          "forbidden-characters": {
+            "first-name": "Achtung: Vorname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "last-name": "Achtung: Nachname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "company-name": "Achtung: Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "title": "Achtung: Titel kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "type-of-visit": "Achtung: Besuchsgrund kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
+            "location": "Achtung: Ort / Gebäude kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &"
+          },
+          "format": {
+            "email": "Achtung: Bitte geben Sie eine gültige E-Mail Adresse an",
+            "valid-from-date": {
+              "invalid-and-required": "Achtung: Ankunftsdatum ist erforderlich, Bitte geben Sie ein gültiges Datum ein.",
+              "past": "Achtung: Das Ankunftsdatum muss in der Zukunft liegen"
+            },
+            "valid-from-time": {
+              "invalid": "Achtung: Das Ankunftsdatum muss in der Zukunft liegen"
+            },
+            "valid-until-date": {
+              "invalid-and-required": "Achtung: Abreisedatum ist erforderlich, Bitte geben Sie ein gültiges Datum ein.",
+              "past": "Achtung: Das Abreisedatum muss in der Zukunft liegen",
+              "invalid-date-range": "Achtung: Der Zeitpunkt der Abreise muss hinter der Ankunftszeit liegen"
+            },
+            "valid-until-time": {
+              "invalid-time-range": "Achtung: Der Zeitpunkt der Abreise muss hinter der Ankunftszeit liegen"
+            }
+          }
+        },
+        "button": {
+          "submit": "SENDEN"
+        }
+      }
+    },
+    "guest-creation-status-component": {
+      "success": {
+        "header": "Gästeeinladung erfolgreich versendet!",
+        "text": "Sie haben die Einladung erfolgreich an den Gast versendet. Ihr Gast wird eine Email mit einer Anleitung und einem QR-Code erhalten mit welchen sie Ihren digitalen Gästeausweis erstellen können."
+      },
+      "error": {
+        "header": "Erstellung des digitalen Gästeausweises fehlgeschlagen!",
+        "text": "Ein Fehler ist aufgetreten :("
+      },
+      "button": {
+        "add-another-guest": "Weiteren Gast hinzufügen",
+        "back-to-the-overview": "Zurück zur Übersicht"
+      }
+    },
+    "guest-overview-component": {
+      "table-title": "Gästeübersicht",
+      "table-add-button": "NEUEN GAST ANLEGEN",
+      "table-search": "Suche",
+      "table-headers": {
+        "first-name": "Vorname",
+        "last-name": "Nachname",
+        "arriving": "Ankunftszeit",
+        "leaving": "Abreisezeit",
+        "email": "E-Mail-Adresse",
+        "location": "Ort / Gebäude",
+        "status": "Status",
+        "action": "Action"
+      },
+      "empty-table-message": "Keine Daten entsprechen Ihrer Auswahl",
+      "aria-label": {
+        "table": {
+          "action-menu": {
+            "download-email": "Einladungsmail herunterladen",
+            "edit-guest": "Gast-Informationen bearbeiten",
+            "delete-guest": "Gast löschen"
+          },
+          "add-button": "Neuen Gast Anlegen"
+        }
+      }
+    }
+  }
+}

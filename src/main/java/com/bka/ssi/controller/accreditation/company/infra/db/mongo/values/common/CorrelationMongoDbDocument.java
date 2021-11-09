@@ -13,6 +13,12 @@ public class CorrelationMongoDbDocument {
     @Field("presentationExchangeId")
     private String presentationExchangeId;
 
+    @Field("credentialRevocationRegistryId")
+    private String credentialRevocationRegistryId;
+
+    @Field("credentialRevocationId")
+    private String credentialRevocationId;
+
     public CorrelationMongoDbDocument() {
     }
 
@@ -38,5 +44,21 @@ public class CorrelationMongoDbDocument {
 
     public void setPresentationExchangeId(String presentationExchangeId) {
         this.presentationExchangeId = presentationExchangeId;
+    }
+
+    public String getCredentialRevocationRegistryId() {
+        return credentialRevocationRegistryId;
+    }
+
+    public void setCredentialRevocationRegistryId(String credentialRevocationRegistryId) {
+        this.credentialRevocationRegistryId = credentialRevocationRegistryId;
+    }
+
+    public String getCredentialRevocationId() {
+        return credentialRevocationId;
+    }
+
+    public void setCredentialRevocationId(String credentialRevocationId) {
+        this.credentialRevocationId = credentialRevocationId;
     }
 }

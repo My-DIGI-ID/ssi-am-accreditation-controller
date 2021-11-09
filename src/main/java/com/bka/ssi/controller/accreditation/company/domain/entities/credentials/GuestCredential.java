@@ -1,14 +1,17 @@
 package com.bka.ssi.controller.accreditation.company.domain.entities.credentials;
 
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.bka.ssi.controller.accreditation.company.domain.entities.abstractions.credential.Credential;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.GuestPrivateInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
 import com.bka.ssi.controller.accreditation.company.domain.values.ValidityTimeframe;
 
-import java.util.List;
-
 public class GuestCredential extends Credential {
+
 
     private ValidityTimeframe validityTimeframe;
     private Persona persona;
@@ -20,20 +23,6 @@ public class GuestCredential extends Credential {
     private String referenceBasisId;
 
     private GuestPrivateInformation guestPrivateInformation;
-
-    public GuestCredential(
-        ValidityTimeframe validityTimeframe,
-        Persona persona,
-        ContactInformation contactInformation, String companyName, String typeOfVisit,
-        String location, String invitedBy) {
-        this.validityTimeframe = validityTimeframe;
-        this.persona = persona;
-        this.contactInformation = contactInformation;
-        this.companyName = companyName;
-        this.typeOfVisit = typeOfVisit;
-        this.location = location;
-        this.invitedBy = invitedBy;
-    }
 
     public GuestCredential(
         ValidityTimeframe validityTimeframe,
@@ -52,13 +41,69 @@ public class GuestCredential extends Credential {
         this.guestPrivateInformation = guestPrivateInformation;
     }
 
-    public void addGuestPrivateInformationToCredential(
+    public GuestCredential(
+        ValidityTimeframe validityTimeframe,
+        Persona persona,
+        ContactInformation contactInformation, String companyName, String typeOfVisit,
+        String location, String invitedBy) {
+        this.validityTimeframe = validityTimeframe;
+        this.persona = persona;
+        this.contactInformation = contactInformation;
+        this.companyName = companyName;
+        this.typeOfVisit = typeOfVisit;
+        this.location = location;
+        this.invitedBy = invitedBy;
+    }
+
+    @Override
+    public Credential createEmptyCredential() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Credential createEmptyCredentialForDataCleanup() {
+        this.validityTimeframe = new ValidityTimeframe(
+            ZonedDateTime.now(),
+            ZonedDateTime.now()
+        );
+
+        this.persona = new Persona(
+            "deleted",
+            "deleted",
+            "deleted"
+        );
+
+        this.contactInformation = new ContactInformation(
+            new ArrayList<>(),
+            new ArrayList<>()
+        );
+
+        this.companyName = "deleted";
+        this.typeOfVisit = "deleted";
+        this.location = "deleted";
+        this.invitedBy = "deleted";
+        this.referenceBasisId = "deleted";
+
+        this.guestPrivateInformation = new GuestPrivateInformation(
+            "deleted",
+            "deleted",
+            "deleted",
+            "deleted",
+            "deleted",
+            "deleted"
+        );
+
+        return this;
+    }
+
+    public GuestCredential addGuestPrivateInformationToCredential(
         GuestPrivateInformation guestPrivateInformation,
         String primaryPhoneNumber, String secondaryPhoneNumber) {
         this.guestPrivateInformation = guestPrivateInformation;
 
         List<String> emails = this.contactInformation.getEmails();
-        List<String> phoneNumbers = this.contactInformation.getPhoneNumbers();
+        ArrayList<String> phoneNumbers =
+            new ArrayList<String>(this.contactInformation.getPhoneNumbers());
 
         if (primaryPhoneNumber != null) {
             phoneNumbers.add(primaryPhoneNumber);
@@ -71,9 +116,10 @@ public class GuestCredential extends Credential {
         ContactInformation newContactInformation = new ContactInformation(emails, phoneNumbers);
 
         this.contactInformation = newContactInformation;
+
+        return this;
     }
 
-    /* Should not alter state of value object, method to be moved to entity */
     public GuestCredential addGuestBirthDateOnBasisIdVerification(String dateOfBirth) {
         this.guestPrivateInformation = new GuestPrivateInformation(
             dateOfBirth,
@@ -87,16 +133,14 @@ public class GuestCredential extends Credential {
         return this;
     }
 
-    /* Should not alter state of value object, method to be moved to entity */
     public GuestCredential addBasisIdUniqueIdentifier() {
         this.referenceBasisId =
-            this.persona.getFirstName() + "_" + this.persona.getLastName() + "_" +
-                this.guestPrivateInformation.getDateOfBirth();
+            this.persona.getFirstName() + "_" + this.persona.getLastName() + "_"
+                + this.guestPrivateInformation.getDateOfBirth();
 
         return this;
     }
 
-    /* Should not alter state of value object, method to be moved to entity */
     public GuestCredential addInvitingPersonInformationToCredential(String invitedBy) {
         this.invitedBy = invitedBy;
 

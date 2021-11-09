@@ -10,7 +10,8 @@ public class CompletionStatusOutputDto {
     @NotNull
     private boolean status;
 
-    private @NotNull String actionToken;
+    @NotNull
+    private String actionToken;
 
     public CompletionStatusOutputDto(String transactionName, boolean status,
         @NotNull String actionToken) {
@@ -28,11 +29,23 @@ public class CompletionStatusOutputDto {
         return transactionName;
     }
 
-    public boolean getStatus() {
+    public void setTransactionName(String transactionName) {
+        this.transactionName = transactionName;
+    }
+
+    public boolean isStatus() {
         return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
     }
 
     public String getActionToken() {
         return actionToken;
+    }
+
+    public void setActionToken(String actionToken) {
+        this.actionToken = actionToken;
     }
 }

@@ -1,55 +1,55 @@
 package com.bka.ssi.controller.accreditation.company.domain.values;
 
-import java.util.Date;
+import com.bka.ssi.controller.accreditation.company.domain.enums.CredentialType;
 
+import java.time.ZonedDateTime;
+
+/* ToDo - needs refactoring with respect to used properties */
 public class CredentialMetadata {
 
-    private String id;
-    private String type;
-    private String did;
-    private Date partyCreated;
-    private Date partyPersonalDataDeleted;
+    private String issuedBy;
+    private ZonedDateTime issuedAt;
+    private ZonedDateTime partyPersonalDataDeleted;
+    private CredentialType credentialType;
 
-    public CredentialMetadata(Date partyCreated) {
-        this.partyCreated = partyCreated;
-    }
-
-    public CredentialMetadata(String id, String type, String did, Date partyCreated) {
-        this.id = id;
-        this.type = type;
-        this.did = did;
-        this.partyCreated = partyCreated;
-    }
-
-    public CredentialMetadata(String id, String type, String did, Date partyCreated,
-        Date partyPersonalDataDeleted) {
-        this.id = id;
-        this.type = type;
-        this.did = did;
-        this.partyCreated = partyCreated;
+    public CredentialMetadata(String issuedBy, ZonedDateTime issuedAt,
+        ZonedDateTime partyPersonalDataDeleted,
+        CredentialType credentialType) {
+        this.issuedBy = issuedBy;
+        this.issuedAt = issuedAt;
         this.partyPersonalDataDeleted = partyPersonalDataDeleted;
+        this.credentialType = credentialType;
     }
 
-    public CredentialMetadata() {
+    public CredentialMetadata(String issuedBy, ZonedDateTime issuedAt,
+        CredentialType credentialType) {
+        this.issuedBy = issuedBy;
+        this.issuedAt = issuedAt;
+        this.credentialType = credentialType;
     }
 
-    public String getType() {
-        return type;
+    public CredentialMetadata(String issuedBy, CredentialType credentialType) {
+        this.issuedBy = issuedBy;
+        this.credentialType = credentialType;
     }
 
-    public String getId() {
-        return id;
+    public CredentialMetadata(CredentialType credentialType) {
+        this.credentialType = credentialType;
     }
 
-    public String getDid() {
-        return did;
+    public String getIssuedBy() {
+        return issuedBy;
     }
 
-    public Date getPartyCreated() {
-        return partyCreated;
+    public ZonedDateTime getIssuedAt() {
+        return issuedAt;
     }
 
-    public Date getPartyPersonalDataDeleted() {
+    public ZonedDateTime getPartyPersonalDataDeleted() {
         return partyPersonalDataDeleted;
+    }
+
+    public CredentialType getCredentialType() {
+        return credentialType;
     }
 }

@@ -3,10 +3,10 @@ package com.bka.ssi.controller.accreditation.company.application.services.dto.va
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.bka.ssi.controller.accreditation.company.aop.utils.i18nMessageBuilder;
+import com.bka.ssi.controller.accreditation.company.aop.utilities.i18nMessageBuilder;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.general.NoForbiddenCharacters;
-import com.bka.ssi.controller.accreditation.company.application.testutils.BuildEmployeeCompositeInputDTO;
+import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeInputDtoBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +25,7 @@ public class EmployeeValidationIntegrationTest {
 
     private static ValidatorFactory validatorFactory;
     private static Validator validator;
-    private static BuildEmployeeCompositeInputDTO employeeBuilder;
+    private static EmployeeInputDtoBuilder employeeInputDtoBuilder;
     private final NoForbiddenCharacters noForbiddenCharacters =
         Mockito.mock(NoForbiddenCharacters.class);
     private ConstraintValidatorContext constraintValidatorContext;
@@ -36,8 +36,7 @@ public class EmployeeValidationIntegrationTest {
     public static void createValidator() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-        employeeBuilder = new BuildEmployeeCompositeInputDTO();
-
+        employeeInputDtoBuilder = new EmployeeInputDtoBuilder();
     }
 
     @AfterAll
@@ -47,7 +46,7 @@ public class EmployeeValidationIntegrationTest {
 
     @BeforeEach
     public void resetStrings() {
-        employeeBuilder.reset();
+        employeeInputDtoBuilder.reset();
     }
 
     @Test
@@ -57,11 +56,11 @@ public class EmployeeValidationIntegrationTest {
     */
     public void shouldHaveNoViolations() {
         // given:
-        employeeBuilder.firstName = "Test";
-        employeeBuilder.lastName = "Test";
-        employeeBuilder.email = "test@example.com";
+        employeeInputDtoBuilder.firstName = "Test";
+        employeeInputDtoBuilder.lastName = "Test";
+        employeeInputDtoBuilder.email = "test@example.com";
 
-        EmployeeInputDto employee = employeeBuilder.build();
+        EmployeeInputDto employee = employeeInputDtoBuilder.build();
         // when:
         Set<ConstraintViolation<EmployeeInputDto>> violations =
             validator.validate(employee);
@@ -76,11 +75,11 @@ public class EmployeeValidationIntegrationTest {
     */
     public void shouldDetectEmptyEmail() {
         // given empty email:
-        employeeBuilder.firstName = "Test";
-        employeeBuilder.lastName = "Test";
-        employeeBuilder.email = "";
+        employeeInputDtoBuilder.firstName = "Test";
+        employeeInputDtoBuilder.lastName = "Test";
+        employeeInputDtoBuilder.email = "";
 
-        EmployeeInputDto employee = employeeBuilder.build();
+        EmployeeInputDto employee = employeeInputDtoBuilder.build();
         // when:
         Set<ConstraintViolation<EmployeeInputDto>> violations =
             validator.validate(employee);
@@ -99,11 +98,11 @@ public class EmployeeValidationIntegrationTest {
     */
     public void shouldDetectInvalidCharacters() {
         // given invalid firstName:
-        employeeBuilder.firstName = "Test!";
-        employeeBuilder.lastName = "Test";
-        employeeBuilder.email = "test@example.com";
+        employeeInputDtoBuilder.firstName = "Test!";
+        employeeInputDtoBuilder.lastName = "Test";
+        employeeInputDtoBuilder.email = "test@example.com";
 
-        EmployeeInputDto employee = employeeBuilder.build();
+        EmployeeInputDto employee = employeeInputDtoBuilder.build();
         // when:
         Set<ConstraintViolation<EmployeeInputDto>> violations =
             validator.validate(employee);
@@ -112,7 +111,7 @@ public class EmployeeValidationIntegrationTest {
         ConstraintViolation<EmployeeInputDto> violation = violations.iterator().next();
         assertEquals("invalid characters in string", violation.getMessage());
         assertEquals("firstName", violation.getPropertyPath().toString());
-        assertEquals(employeeBuilder.firstName, violation.getInvalidValue());
+        assertEquals(employeeInputDtoBuilder.firstName, violation.getInvalidValue());
     }
 
     @Test
@@ -122,11 +121,11 @@ public class EmployeeValidationIntegrationTest {
     */
     public void shouldDetectInvalidEmail() {
         // given invalid email:
-        employeeBuilder.firstName = "Test";
-        employeeBuilder.lastName = "Test";
-        employeeBuilder.email = "example.com";
+        employeeInputDtoBuilder.firstName = "Test";
+        employeeInputDtoBuilder.lastName = "Test";
+        employeeInputDtoBuilder.email = "example.com";
 
-        EmployeeInputDto employee = employeeBuilder.build();
+        EmployeeInputDto employee = employeeInputDtoBuilder.build();
         // when:
         Set<ConstraintViolation<EmployeeInputDto>> violations =
             validator.validate(employee);
@@ -135,6 +134,6 @@ public class EmployeeValidationIntegrationTest {
         ConstraintViolation<EmployeeInputDto> violation = violations.iterator().next();
         assertEquals("must be a well-formed email address", violation.getMessage());
         assertEquals("email", violation.getPropertyPath().toString());
-        assertEquals(employeeBuilder.email, violation.getInvalidValue());
+        assertEquals(employeeInputDtoBuilder.email, violation.getInvalidValue());
     }
 }

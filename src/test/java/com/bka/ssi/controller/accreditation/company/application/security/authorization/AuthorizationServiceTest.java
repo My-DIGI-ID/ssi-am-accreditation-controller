@@ -17,7 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 public class AuthorizationServiceTest {
 
     private static final String validToken = "token";
-    private static final String invalidToken = "";
+    private static final String invalidToken = "invalidToken";
     private static final String authorizedCondition = "validCondition";
     private static final String unauthorizedCondition = "invalidCondition";
 
@@ -100,6 +100,4 @@ public class AuthorizationServiceTest {
             authenticationService.verifySSOPermission(invalidToken, authorizedCondition);
         });
     }
-
-
 }

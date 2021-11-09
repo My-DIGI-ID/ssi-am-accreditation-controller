@@ -1,11 +1,12 @@
 package com.bka.ssi.controller.accreditation.company.application.factories.parties;
 
-import com.bka.ssi.controller.accreditation.company.application.factories.Factory;
+import com.bka.ssi.controller.accreditation.company.application.factories.PartyFactory;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.GuestInputDto;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.ValidationService;
 import com.bka.ssi.controller.accreditation.company.application.utilities.CsvBuilder;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.GuestCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
+import com.bka.ssi.controller.accreditation.company.domain.enums.CredentialType;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialMetadata;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
@@ -15,19 +16,18 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 @Component
-public class GuestFactory implements Factory<GuestInputDto, Guest> {
+public class GuestFactory implements PartyFactory<GuestInputDto, Guest> {
 
     /* ToDo - Set header and separator per env? */
     private final List<String> expectedGuestCsvHeader = Arrays.asList("title", "firstName",
         "lastName", "email", "primaryPhoneNumber", "secondaryPhoneNumber", "companyName",
-        "typeOfVisit", "location", "validFromDate", "validFromTime", "validUntilDate",
-        "validUntilTime");
+        "typeOfVisit", "location", "validFrom", "validUntil");
     private final char csvSeparator = ',';
 
     private CsvBuilder csvBuilder;
@@ -45,8 +45,9 @@ public class GuestFactory implements Factory<GuestInputDto, Guest> {
     /* ToDo - Throw AlreadyExistsException in case employee exists - in service */
 
     @Override
-    public Guest create(GuestInputDto input) {
-        logger.debug("creating a Guest instance from GuestInputDto");
+    public Guest create(GuestInputDto input, String userName) throws Exception {
+        logger.debug("Creating a guest from GuestInputDto");
+
         if (input == null) {
             // throw exception instead?
             return null;
@@ -66,10 +67,8 @@ public class GuestFactory implements Factory<GuestInputDto, Guest> {
             ContactInformation contactInformation = new ContactInformation(emails, phoneNumbers);
 
             ValidityTimeframe validity = new ValidityTimeframe(
-                input.getValidFromDate(),
-                input.getValidFromTime(),
-                input.getValidUntilDate(),
-                input.getValidUntilTime()
+                input.getValidFrom(),
+                input.getValidUntil()
             );
 
             GuestCredential guestCredential = new GuestCredential(
@@ -82,18 +81,20 @@ public class GuestFactory implements Factory<GuestInputDto, Guest> {
                 "TBD"
             );
 
-            CredentialMetadata credentialMetadata = new CredentialMetadata(new Date());
+            CredentialMetadata credentialMetadata = new CredentialMetadata(CredentialType.GUEST);
             CredentialOffer<GuestCredential> credentialOffer =
                 new CredentialOffer<>(credentialMetadata, guestCredential);
 
-            Guest guest = new Guest(credentialOffer);
+            Guest guest = new Guest(credentialOffer, userName, ZonedDateTime.now());
 
             return guest;
         }
     }
 
     @Override
-    public List<Guest> create(MultipartFile input) throws Exception {
+    public List<Guest> create(MultipartFile input, String userName) throws Exception {
+        logger.debug("Creating guests from csv");
+
         if (input == null) {
             // throw exception instead?
             return null;
@@ -111,7 +112,7 @@ public class GuestFactory implements Factory<GuestInputDto, Guest> {
 
                 if (this.validationService.validate(dtos)) {
                     for (GuestInputDto dto : dtos) {
-                        guests.add(this.create(dto));
+                        guests.add(this.create(dto, userName));
                     }
                 }
             }

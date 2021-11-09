@@ -2,64 +2,51 @@ package com.bka.ssi.controller.accreditation.company.aop.configuration.agents;
 
 import com.bka.ssi.controller.accreditation.acapy_client.invoker.ApiClient;
 import com.bka.ssi.controller.accreditation.acapy_client.invoker.auth.ApiKeyAuth;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import org.springframework.beans.factory.annotation.Value;
-import com.bka.ssi.controller.accreditation.acapy_client.api.ConnectionApi;
-import com.bka.ssi.controller.accreditation.acapy_client.api.IssueCredentialV10Api;
-import com.bka.ssi.controller.accreditation.acapy_client.api.IssueCredentialV20Api;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@org.springframework.context.annotation.Configuration
+@Configuration
 public class ACAPYConfiguration {
 
-    @Value("${accreditation.agent.host}")
+    public final static String API_KEY_ID = "ACAPY_WEBHOOK_API_KEY";
+
     private String host;
-
-    @Value("${accreditation.agent.port}")
     private String port;
-
-    @Value("${accreditation.agent.api_key}")
     private String apiKey;
-
-    @Value("${accreditation.agent.webhook.api_key}")
     private String webhookApiKey;
-
-    @Value("${accreditation.agent.api_key_header_name}")
     private String apiKeyHeaderName;
 
-    private ApiClient apiClient;
-    
     @Bean
     public ApiClient apiClient() {
-    	ApiClient apiClient =
-    		com.bka.ssi.controller.accreditation.acapy_client.invoker.Configuration
-                .getDefaultApiClient();
-    	
-    	apiClient.setBasePath(this.host + ":" + this.port);
-    	// ToDo - format according to host <-> accreditation.agent.host <-> ACCR_AGENT_API_URL
-    	
-    	((ApiKeyAuth) apiClient.getAuthentication("ApiKeyHeader")).setApiKey(this.apiKey);
-    	return apiClient;
-    }
-    
-    @Bean
-    public ConnectionApi connectionApi() {
-    	return new ConnectionApi(apiClient());
-    }
-    
-    @Bean 
-    public IssueCredentialV10Api issueCredentialV10Api() {
-    	return new IssueCredentialV10Api(apiClient());
-    }
-
-    public ACAPYConfiguration() {
-        // Might be null, align with Fabio on apiClient initialization
-        this.apiClient =
+        ApiClient apiClient =
             com.bka.ssi.controller.accreditation.acapy_client.invoker.Configuration
                 .getDefaultApiClient();
-        this.apiClient.setBasePath(this.host + ":" + this.port);
-        // ToDo - format according to host <-> accreditation.agent.host <-> ACCR_AGENT_API_URL
 
-        ((ApiKeyAuth) this.apiClient.getAuthentication("ApiKeyHeader")).setApiKey(this.apiKey);
+        apiClient.setBasePath(this.host + ":" + this.port);
+
+        ((ApiKeyAuth) apiClient.getAuthentication("ApiKeyHeader")).setApiKey(this.apiKey);
+
+        /* ToDo - if this configuration works out as expected, there is no need for a
+            accreditation-acapy-openapi.v2.custom.json and accreditation-acapy-openapi.v2.json
+            can be used to generate ACAPY client lib again */
+        apiClient.getJSON().getMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        return apiClient;
+    }
+
+    public ACAPYConfiguration(@Value("${accreditation.agent.host}") String host,
+        @Value("${accreditation.agent.port}") String port,
+        @Value("${accreditation.agent.api_key}") String apiKey,
+        @Value("${accreditation.agent.webhook.api_key}") String webhookApiKey,
+        @Value("${accreditation.agent.api_key_header_name}") String apiKeyHeaderName) {
+        this.host = host;
+        this.port = port;
+        this.apiKey = apiKey;
+        this.webhookApiKey = webhookApiKey;
+        this.apiKeyHeaderName = apiKeyHeaderName;
     }
 
     public String getHost() {
@@ -83,6 +70,6 @@ public class ACAPYConfiguration {
     }
 
     public ApiClient getApiClient() {
-        return apiClient;
+        return apiClient();
     }
 }

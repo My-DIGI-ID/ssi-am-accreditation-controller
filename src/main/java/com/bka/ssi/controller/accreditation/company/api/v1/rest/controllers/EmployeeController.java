@@ -3,6 +3,8 @@ package com.bka.ssi.controller.accreditation.company.api.v1.rest.controllers;
 import com.bka.ssi.controller.accreditation.company.api.v1.rest.dto.output.EmployeeOutputDTO;
 import com.bka.ssi.controller.accreditation.company.api.v1.rest.dto.output.InvitationOutputDTO;
 import com.bka.ssi.controller.accreditation.company.api.v1.rest.mappers.EmployeeOutputDTOMapper;
+import com.bka.ssi.controller.accreditation.company.application.security.facade.SSOProtectedTransaction;
+import com.bka.ssi.controller.accreditation.company.application.security.utilities.BearerTokenParser;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
 import com.bka.ssi.controller.accreditation.company.application.services.strategies.parties.EmployeePartyService;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
@@ -15,7 +17,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,13 +43,16 @@ public class EmployeeController {
 
     private final EmployeePartyService employeePartyService;
     private final EmployeeOutputDTOMapper employeeOutputDTOMapper;
+    private final BearerTokenParser bearerTokenParser;
 
     private final Logger logger;
 
     public EmployeeController(EmployeePartyService employeePartyService,
+        BearerTokenParser bearerTokenParser,
         EmployeeOutputDTOMapper employeeOutputDTOMapper, Logger logger) {
         this.logger = logger;
         this.employeePartyService = employeePartyService;
+        this.bearerTokenParser = bearerTokenParser;
         this.employeeOutputDTOMapper = employeeOutputDTOMapper;
     }
 
@@ -59,11 +62,15 @@ public class EmployeeController {
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = EmployeeOutputDTO.class))})
     })
+    @SSOProtectedTransaction(scope = "scope:create", resource = "res:employee")
     @PostMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<EmployeeOutputDTO> createEmployee(
         @Valid @RequestBody EmployeeInputDto inputDTO) throws Exception {
         logger.info("start: storing new employee");
-        Employee employee = employeePartyService.createParty(inputDTO);
+
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+
+        Employee employee = employeePartyService.createParty(inputDTO, userName);
         EmployeeOutputDTO registeredEmployeeOutputDTO =
             employeeOutputDTOMapper.employeeToEmployeeOutputDTO(employee);
         logger.info("end: storing new employee");
@@ -88,15 +95,20 @@ public class EmployeeController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved all employees")
     })
+    @SSOProtectedTransaction(scope = "scope:view", resource = "res:employee")
     @GetMapping()
     public ResponseEntity<List<EmployeeOutputDTO>> getAllEmployees() throws Exception {
         logger.info("start: getting all employees");
+
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+
         List<EmployeeOutputDTO> employeesOutputDTO = new ArrayList<>();
-        employeePartyService.getAllParties().forEach(employee -> {
+        employeePartyService.getAllParties(userName).forEach(employee -> {
             EmployeeOutputDTO output =
                 employeeOutputDTOMapper.employeeToEmployeeOutputDTO(employee);
             employeesOutputDTO.add(output);
         });
+
         logger.info("end: getting all employees");
         return ResponseEntity.ok(employeesOutputDTO);
     }
@@ -107,12 +119,14 @@ public class EmployeeController {
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = EmployeeOutputDTO.class))})
     })
+    @SSOProtectedTransaction(scope = "scope:view", resource = "res:employee")
     @GetMapping(path = "/{employeeId}", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<EmployeeOutputDTO> getEmployeeById(@PathVariable String employeeId)
         throws Exception {
         logger.info("start: getting employee by ID");
-        Employee employee = employeePartyService.getPartyById(employeeId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+        Employee employee = employeePartyService.getPartyById(employeeId, userName);
 
         EmployeeOutputDTO registeredEmployeeOutputDTO =
             employeeOutputDTOMapper.employeeToEmployeeOutputDTO(employee);

@@ -1,6 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.application.services.dto.validation.password;
 
-import com.bka.ssi.controller.accreditation.company.aop.utils.i18nMessageBuilder;
+import com.bka.ssi.controller.accreditation.company.aop.utilities.i18nMessageBuilder;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

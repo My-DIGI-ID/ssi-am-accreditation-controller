@@ -3,6 +3,7 @@ package com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.par
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.EmployeeOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.parties.EmployeeOutputDtoMapper;
 import com.bka.ssi.controller.accreditation.company.application.security.facade.SSOProtectedTransaction;
+import com.bka.ssi.controller.accreditation.company.application.security.utilities.BearerTokenParser;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
 import com.bka.ssi.controller.accreditation.company.application.services.strategies.parties.EmployeePartyService;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
@@ -14,37 +15,39 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 
-@Tag(name = "Employee party controller", description = "")
+@Tag(name = "Employee party controller",
+    description = "Handle creation and retrieval of employee as a party")
 @RestController()
 @SecurityRequirement(name = "oauth2_accreditation_party_api")
 @RequestMapping(value = {"/api/v2/party/employee", "/api/party/employee"})
 public class EmployeePartyController {
 
     private final EmployeePartyService employeePartyService;
-    private final EmployeeOutputDtoMapper employeeOutputDtoMapper;
+    private final EmployeeOutputDtoMapper mapper;
+    private final BearerTokenParser bearerTokenParser;
     private final Logger logger;
 
     public EmployeePartyController(
-        EmployeePartyService employeePartyService,
+        EmployeePartyService employeePartyService, BearerTokenParser bearerTokenParser,
         EmployeeOutputDtoMapper employeeOutputDtoMapper, Logger logger) {
         this.employeePartyService = employeePartyService;
-        this.employeeOutputDtoMapper = employeeOutputDtoMapper;
+        this.mapper = employeeOutputDtoMapper;
+        this.bearerTokenParser = bearerTokenParser;
         this.logger = logger;
     }
 
@@ -55,17 +58,18 @@ public class EmployeePartyController {
                 schema = @Schema(implementation = EmployeeOutputDto.class))})
     })
     @PostMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
-    @SSOProtectedTransaction(scope = "scope:create", resource = "employee")
+    @SSOProtectedTransaction(scope = "scope:create", resource = "res:employee")
     public ResponseEntity<EmployeeOutputDto> createEmployee(@Valid @RequestBody
-        EmployeeInputDto inputDTO) throws Exception {
+        EmployeeInputDto inputDto) throws Exception {
         logger.info("start: storing new employee as a party");
 
-        Employee employee = this.employeePartyService.createParty(inputDTO);
-        EmployeeOutputDto employeeOutputDTO =
-            employeeOutputDtoMapper.employeeToEmployeePartyOutputDto(employee);
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+
+        Employee employee = this.employeePartyService.createParty(inputDto, userName);
+        EmployeeOutputDto outputDto = mapper.entityToDto(employee);
 
         logger.info("end: storing new employee as a party");
-        return ResponseEntity.status(201).body(employeeOutputDTO);
+        return ResponseEntity.status(201).body(outputDto);
     }
 
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
@@ -74,20 +78,21 @@ public class EmployeePartyController {
         @ApiResponse(responseCode = "201", description = "Created new employees as parties by CSV")
     })
     @PostMapping(path = "/csv", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    @SSOProtectedTransaction(scope = "scope:create", resource = "employee")
+    @SSOProtectedTransaction(scope = "scope:create", resource = "res:employee")
     public ResponseEntity<List<EmployeeOutputDto>> createEmployeeByCsv(
         @RequestBody MultipartFile file) throws Exception {
         logger.info("start: storing new employees as a parties from csv");
 
-        List<EmployeeOutputDto> employeeOutputDtos = new ArrayList<>();
-        this.employeePartyService.createParty(file).forEach(employee -> {
-            EmployeeOutputDto output =
-                employeeOutputDtoMapper.employeeToEmployeePartyOutputDto(employee);
-            employeeOutputDtos.add(output);
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+
+        List<EmployeeOutputDto> outputDtos = new ArrayList<>();
+        this.employeePartyService.createParty(file, userName).forEach(employee -> {
+            EmployeeOutputDto outputDto = mapper.entityToDto(employee);
+            outputDtos.add(outputDto);
         });
 
         logger.info("end: storing new employees as a parties from csv");
-        return ResponseEntity.ok(employeeOutputDtos);
+        return ResponseEntity.ok(outputDtos);
     }
 
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
@@ -96,20 +101,19 @@ public class EmployeePartyController {
         @ApiResponse(responseCode = "200", description = "Retrieved all employees as parties")
     })
     @GetMapping
-    @SSOProtectedTransaction(scope = "scope:view", resource = "employee")
+    @SSOProtectedTransaction(scope = "scope:view", resource = "res:employee")
     public ResponseEntity<List<EmployeeOutputDto>> getAllEmployees()
         throws Exception {
         logger.info("start: getting all employees as parties");
 
-        List<EmployeeOutputDto> employeeOutputDtos = new ArrayList<>();
+        List<EmployeeOutputDto> outputDtos = new ArrayList<>();
         this.employeePartyService.getAllParties().forEach(employee -> {
-            EmployeeOutputDto output =
-                employeeOutputDtoMapper.employeeToEmployeePartyOutputDto(employee);
-            employeeOutputDtos.add(output);
+            EmployeeOutputDto outputDto = mapper.entityToDto(employee);
+            outputDtos.add(outputDto);
         });
 
         logger.info("end: getting all employees as parties");
-        return ResponseEntity.ok(employeeOutputDtos);
+        return ResponseEntity.ok(outputDtos);
     }
 
     @Operation(summary = "Get employee as a party by Id")
@@ -119,21 +123,32 @@ public class EmployeePartyController {
                 schema = @Schema(implementation = EmployeeOutputDto.class))})
     })
     @GetMapping(path = "/{employeeId}", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @SSOProtectedTransaction(scope = "scope:view", resource = "employee")
+    @SSOProtectedTransaction(scope = "scope:view", resource = "res:employee")
     public ResponseEntity<EmployeeOutputDto> getEmployeeById(@PathVariable String employeeId)
         throws Exception {
         logger.info("start: getting employee as a party by ID");
 
-        /* ToDo - should throw NotFound in service layer */
-        Employee employee = employeePartyService.getPartyById(employeeId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Employee employee = employeePartyService.getPartyById(employeeId);
 
-        EmployeeOutputDto employeeOutputDto =
-            employeeOutputDtoMapper.employeeToEmployeePartyOutputDto(employee);
+        EmployeeOutputDto outputDto = mapper.entityToDto(employee);
 
         logger.info("end: getting employee as a party by ID");
-        return ResponseEntity.ok(employeeOutputDto);
+        return ResponseEntity.ok(outputDto);
     }
 
-    /* Rest of endpoints are out of MVP Scope */
+    @Operation(summary = "Update employee as a party")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Updated employee as a party",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = EmployeeOutputDto.class))})
+    })
+    @PutMapping(path = "/{employeeId}", produces = {MediaType.APPLICATION_JSON_VALUE})
+    @SSOProtectedTransaction(scope = "scope:update", resource = "res:employee")
+    public ResponseEntity<EmployeeOutputDto> updateEmployee(@Valid @RequestBody
+        EmployeeInputDto inputDto, @PathVariable String employeeId)
+        throws Exception {
+
+        /* This endpoint is kept for API overview - out of scope for MVP */
+        throw new UnsupportedOperationException();
+    }
 }

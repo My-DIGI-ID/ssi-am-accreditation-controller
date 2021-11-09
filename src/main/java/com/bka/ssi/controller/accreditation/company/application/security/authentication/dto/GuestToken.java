@@ -1,13 +1,13 @@
 package com.bka.ssi.controller.accreditation.company.application.security.authentication.dto;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class GuestToken {
     String id;
     String accreditationId;
-    Date expiring;
+    ZonedDateTime expiring;
 
-    public GuestToken(String id, String accreditationId, Date expiring) {
+    public GuestToken(String id, String accreditationId, ZonedDateTime expiring) {
         this.id = id;
         this.accreditationId = accreditationId;
         this.expiring = expiring;
@@ -21,7 +21,7 @@ public class GuestToken {
         return accreditationId;
     }
 
-    public Date getExpiring() {
+    public ZonedDateTime getExpiring() {
         return expiring;
     }
 }

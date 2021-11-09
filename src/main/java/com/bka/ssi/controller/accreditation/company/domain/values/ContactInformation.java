@@ -7,7 +7,6 @@ public class ContactInformation {
     private List<String> emails;
     private List<String> phoneNumbers;
 
-    /* TODO - Entities invariants checks to be added as part of functional stories */
     public ContactInformation(List<String> emails, List<String> phoneNumbers) {
         this.emails = emails;
         this.phoneNumbers = phoneNumbers;

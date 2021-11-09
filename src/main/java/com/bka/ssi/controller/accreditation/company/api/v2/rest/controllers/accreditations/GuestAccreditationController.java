@@ -1,12 +1,13 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.accreditations;
 
+import com.bka.ssi.controller.accreditation.company.aop.configuration.security.ApiKeyConfiguration;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.CompletionStatusOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationOpenOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationPrivateOutputDto;
-import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationQROutputDto;
+import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.GuestAccreditationQrCodeOutputDto;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.accreditations.GuestAccreditationOutputDtoMapper;
-import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.accreditations.GuestAccreditationQROutputDtoMapper;
 import com.bka.ssi.controller.accreditation.company.application.security.authentication.AuthenticationService;
+import com.bka.ssi.controller.accreditation.company.application.security.facade.APIKeyProtectedTransaction;
 import com.bka.ssi.controller.accreditation.company.application.security.facade.GuestProtectedTransaction;
 import com.bka.ssi.controller.accreditation.company.application.security.facade.SSOProtectedTransaction;
 import com.bka.ssi.controller.accreditation.company.application.security.utilities.BearerTokenParser;
@@ -22,7 +23,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,21 +33,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.net.URLDecoder;
-import java.util.Date;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.validation.Valid;
 
-@Tag(name = "Guest accreditation controller", description = "Managing Guest accreditation process")
+@Tag(name = "Guest accreditation controller", description = "Managing guest accreditation process")
 @RestController()
-@SecurityRequirement(name = "oauth2_accreditation_party_api")
 @RequestMapping(value = {"/api/v2/accreditation/guest", "/api/accreditation/guest"})
 public class GuestAccreditationController {
 
     private final GuestAccreditationService guestAccreditationService;
-    private final GuestAccreditationOutputDtoMapper guestAccreditationOutputDtoMapper;
-    private final GuestAccreditationQROutputDtoMapper guestAccreditationQROutputDtoMapper;
+    private final GuestAccreditationOutputDtoMapper mapper;
     private final AuthenticationService authenticationService;
     private final BearerTokenParser bearerTokenParser;
     private final Logger logger;
@@ -55,18 +54,17 @@ public class GuestAccreditationController {
     public GuestAccreditationController(
         GuestAccreditationService guestAccreditationService,
         GuestAccreditationOutputDtoMapper guestAccreditationOutputDtoMapper,
-        GuestAccreditationQROutputDtoMapper guestAccreditationQROutputDtoMapper,
         AuthenticationService authenticationService, BearerTokenParser bearerTokenParser,
         Logger logger) {
         this.guestAccreditationService = guestAccreditationService;
-        this.guestAccreditationOutputDtoMapper = guestAccreditationOutputDtoMapper;
-        this.guestAccreditationQROutputDtoMapper = guestAccreditationQROutputDtoMapper;
+        this.mapper = guestAccreditationOutputDtoMapper;
         this.authenticationService = authenticationService;
         this.bearerTokenParser = bearerTokenParser;
         this.logger = logger;
     }
 
-    @Operation(summary = "Client API - Create draft accreditation with invitation email for guest")
+    @Operation(summary = "Create accreditation with invitation email for guest",
+        security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Created draft accreditation with "
             + "invitation email for guest",
@@ -75,7 +73,7 @@ public class GuestAccreditationController {
     })
     @PostMapping(path = "/initiate/invitation-email/{partyId}", produces =
         {MediaType.APPLICATION_JSON_VALUE})
-    @SSOProtectedTransaction(scope = "scope:create", resource = "guest")
+    @SSOProtectedTransaction(scope = "scope:create", resource = "res:guest-accreditation")
     public ResponseEntity<GuestAccreditationOpenOutputDto> initiateAccreditationWithInvitationEmail(
         @PathVariable String partyId)
         throws Exception {
@@ -84,18 +82,18 @@ public class GuestAccreditationController {
         String userName = bearerTokenParser.parseUserFromJWTToken();
 
         GuestAccreditation guestAccreditation =
-            guestAccreditationService.initiateAccreditationWithInvitationEmail(partyId, userName);
+            guestAccreditationService.initiateAccreditation(partyId, userName);
 
-        GuestAccreditationOpenOutputDto guestAccreditationOpenOutputDto =
-            guestAccreditationOutputDtoMapper
-                .toGuestAccreditationOpenOutputDto(guestAccreditation);
+        GuestAccreditationOpenOutputDto outputDto = mapper
+            .entityToOpenDto(guestAccreditation);
 
         logger.info("end: initiating new accreditation for guest via link in the email");
-        return ResponseEntity.status(201).body(guestAccreditationOpenOutputDto);
+        return ResponseEntity.status(201).body(outputDto);
     }
 
     /* Out of MVP Scope */
-    @Operation(summary = "Client API - Create draft accreditation directly with QR code for guest")
+    @Operation(summary = "Create accreditation directly with QR code for guest",
+        security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Created draft accreditation with "
             + "QR code for guest",
@@ -104,7 +102,7 @@ public class GuestAccreditationController {
     })
     @PostMapping(path = "/initiate/qr-code/{partyId}", produces =
         {MediaType.APPLICATION_JSON_VALUE})
-    @SSOProtectedTransaction(scope = "scope:create", resource = "guest")
+    @SSOProtectedTransaction(scope = "scope:create", resource = "res:guest-accreditation")
     public ResponseEntity<GuestAccreditationOpenOutputDto> initiateAccreditationWithQrCode(
         @PathVariable String partyId)
         throws UnsupportedOperationException {
@@ -114,35 +112,34 @@ public class GuestAccreditationController {
                 + "Accreditation");
     }
 
-    @Operation(summary = "Client API - Proceed with accreditation by generating QR code to "
+    @Operation(summary = "Proceed with accreditation by generating QR code to "
         + "establish connection with guest's wallet")
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200",
             description = "Created QR code for guest to proceed with accreditation",
             content = {@Content(mediaType = "application/json",
-                schema = @Schema(implementation = GuestAccreditationQROutputDto.class))})
+                schema = @Schema(implementation = GuestAccreditationQrCodeOutputDto.class))})
     })
     @PatchMapping(path = "/proceed/qr-code/{accreditationId}", produces =
         {MediaType.APPLICATION_JSON_VALUE})
     /* ! Public API */
-    public ResponseEntity<GuestAccreditationQROutputDto> proceedAccreditationWithQrCode(
+    public ResponseEntity<GuestAccreditationQrCodeOutputDto> proceedAccreditationWithQrCode(
         @PathVariable String accreditationId)
         throws Exception {
         logger.info("start: proceeding with accreditation for guest via qr code connection offer");
 
         GuestAccreditation guestAccreditation =
-            guestAccreditationService.proceedAccreditationWithQrCode(accreditationId);
+            guestAccreditationService.proceedWithAccreditation(accreditationId);
 
-        GuestAccreditationQROutputDto qrOutputDto =
-            guestAccreditationQROutputDtoMapper.entityToOutputDto(guestAccreditation);
+        GuestAccreditationQrCodeOutputDto outputDto = mapper.entityToQrCodeDto(guestAccreditation);
 
         logger.info("end: proceeding with accreditation for guest via qr code connection offer");
-        return ResponseEntity.status(200).body(qrOutputDto);
+        return ResponseEntity.status(200).body(outputDto);
     }
 
     /* Out of MVP Scope */
-    @Operation(summary = "Client API - Proceed with accreditation by generating deep link to "
+    @Operation(summary = "Proceed with accreditation by generating deep link to "
         + "establish connection with guest's wallet")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Created draft accreditation with "
@@ -161,7 +158,7 @@ public class GuestAccreditationController {
                 + "Accreditation");
     }
 
-    @Operation(summary = "Client API - Polling endpoint to check if BasisId processing is complete")
+    @Operation(summary = "Polling endpoint to check if BasisId processing is complete")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "BasisId process status validated",
             content = {@Content(mediaType = "application/json",
@@ -177,30 +174,30 @@ public class GuestAccreditationController {
         boolean basisIdProcessCompleted =
             guestAccreditationService.isGuestBasisIdValidationCompleted(accreditationId);
 
-        CompletionStatusOutputDto status;
+        CompletionStatusOutputDto outputDto;
 
         if (basisIdProcessCompleted) {
             String actionToken =
                 this.authenticationService.issueGuestAccessToken(accreditationId).getId();
 
-            status = new CompletionStatusOutputDto(
+            outputDto = new CompletionStatusOutputDto(
                 "basisIdProcessCompleted",
                 true,
                 actionToken
             );
         } else {
-            status = new CompletionStatusOutputDto(
+            outputDto = new CompletionStatusOutputDto(
                 "basisIdProcessCompleted",
                 false,
                 null
             );
         }
 
-        logger.info("polled BasisId process completion status. Completed: " + status.getStatus());
-        return ResponseEntity.status(200).body(status);
+        logger.info("polled BasisId process completion status. Completed: " + outputDto.isStatus());
+        return ResponseEntity.status(200).body(outputDto);
     }
 
-    @Operation(summary = "Client API - Adding proprietary information by guest to accreditation")
+    @Operation(summary = "Adding proprietary information by guest to accreditation")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Appended additional information about "
             + "guest to accreditation",
@@ -212,26 +209,21 @@ public class GuestAccreditationController {
     @GuestProtectedTransaction
     public ResponseEntity<GuestAccreditationPrivateOutputDto> addProprietaryInformationFromGuest(
         @PathVariable String accreditationId,
-        @Valid @RequestBody
-            GuestAccreditationPrivateInfoInputDto guestAccreditationPrivateInfoInputDto)
+        @Valid @RequestBody GuestAccreditationPrivateInfoInputDto inputDto)
         throws Exception {
         logger.info("start: adding proprietary information by the guest");
 
-        GuestAccreditation guestAccreditation =
-            guestAccreditationService
-                .appendWithProprietaryInformationFromGuest(accreditationId,
-                    guestAccreditationPrivateInfoInputDto);
+        GuestAccreditation guestAccreditation = guestAccreditationService
+            .appendWithProprietaryInformationFromGuest(accreditationId, inputDto);
 
-        GuestAccreditationPrivateOutputDto guestAccreditationPrivateOutputDto =
-            guestAccreditationOutputDtoMapper
-                .toGuestAccreditationPrivateOutputDto(guestAccreditation);
+        GuestAccreditationPrivateOutputDto outputDto = mapper
+            .entityToPrivateDto(guestAccreditation);
 
         logger.info("end: adding proprietary information by the guest");
-        return ResponseEntity.status(200).body(guestAccreditationPrivateOutputDto);
+        return ResponseEntity.status(200).body(outputDto);
     }
 
-    /* Out of MVP Scope */
-    @Operation(summary = "Client API - Consent terms and conditions by guest")
+    @Operation(summary = "Consent terms and conditions by guest")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Updated accreditation according to "
             + "terms and conditions concession by guest",
@@ -249,7 +241,7 @@ public class GuestAccreditationController {
             "Operation acceptAccreditationTermsAndConditions is not supported");
     }
 
-    @Operation(summary = "Client API - Offering accreditation to guest")
+    @Operation(summary = "Offering accreditation to guest")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Accreditation offered",
             content = {@Content(mediaType = "application/json",
@@ -262,13 +254,17 @@ public class GuestAccreditationController {
         @PathVariable String accreditationId) throws Exception {
         logger.info("start: offering accreditation to the guest");
 
-        guestAccreditationService.offerAccreditation(accreditationId);
+        GuestAccreditation guestAccreditation =
+            guestAccreditationService.offerAccreditation(accreditationId);
+
+        GuestAccreditationOpenOutputDto outputDto = mapper
+            .entityToOpenDto(guestAccreditation);
 
         logger.info("end: offering accreditation to the guest");
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(outputDto);
     }
 
-    @Operation(summary = "Client API - Polling endpoint to check if accreditation is complete")
+    @Operation(summary = "Polling endpoint to check if accreditation is complete")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Accreditation completed",
             content = {@Content(mediaType = "application/json",
@@ -282,44 +278,45 @@ public class GuestAccreditationController {
         throws Exception {
 
         boolean accreditationProcessCompleted =
-            guestAccreditationService.isGuestAccreditationProcessCompleted(accreditationId);
+            guestAccreditationService.isAccreditationCompleted(accreditationId);
 
-        CompletionStatusOutputDto status = new CompletionStatusOutputDto(
+        CompletionStatusOutputDto outputDto = new CompletionStatusOutputDto(
             "accreditationProcessCompleted",
             accreditationProcessCompleted
         );
 
         logger.info(
-            "polled Accreditation process completion status. Completed: " + status.getStatus());
-        return ResponseEntity.status(200).body(status);
+            "polled Accreditation process completion status. Completed: " + outputDto.isStatus());
+        return ResponseEntity.status(200).body(outputDto);
     }
 
-    @Operation(summary = "Client API - Get open accreditation instance by Id")
+    @Operation(summary = "Get open accreditation instance by Id",
+        security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved open accreditation instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = GuestAccreditationOpenOutputDto.class))})
     })
     @GetMapping(path = "/open/{accreditationId}", produces = {MediaType.APPLICATION_JSON_VALUE})
-    @SSOProtectedTransaction(scope = "scope:view", resource = "guest")
+    @SSOProtectedTransaction(scope = "scope:view", resource = "res:guest-accreditation")
     public ResponseEntity<GuestAccreditationOpenOutputDto> getOpenAccreditationById(
         @PathVariable String accreditationId)
         throws Exception {
-        logger.info("start: getting open accreditation instance by ID");
+        logger.info("start: getting open accreditation instance by Id");
+
+        String userName = bearerTokenParser.parseUserFromJWTToken();
 
         GuestAccreditation guestAccreditation =
-            guestAccreditationService.getAccreditationById(accreditationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            guestAccreditationService.getAccreditationById(accreditationId, userName);
 
-        GuestAccreditationOpenOutputDto guestAccreditationOpenOutputDto =
-            guestAccreditationOutputDtoMapper
-                .toGuestAccreditationOpenOutputDto(guestAccreditation);
+        GuestAccreditationOpenOutputDto outputDto = mapper
+            .entityToOpenDto(guestAccreditation);
 
-        logger.info("end: getting open accreditation instance by ID");
-        return ResponseEntity.ok(guestAccreditationOpenOutputDto);
+        logger.info("end: getting open accreditation instance by Id");
+        return ResponseEntity.ok(outputDto);
     }
 
-    @Operation(summary = "Client API - Get private accreditation instance by Id")
+    @Operation(summary = "Get private accreditation instance by Id")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved private accreditation instance",
             content = {@Content(mediaType = "application/json",
@@ -330,20 +327,18 @@ public class GuestAccreditationController {
     public ResponseEntity<GuestAccreditationPrivateOutputDto> getPrivateAccreditationById(
         @PathVariable String accreditationId)
         throws Exception {
-        logger.info("start: getting private accreditation instance by ID");
+        logger.info("start: getting private accreditation instance by Id");
 
         GuestAccreditation guestAccreditation =
-            guestAccreditationService.getAccreditationById(accreditationId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            guestAccreditationService.getAccreditationById(accreditationId);
 
-        GuestAccreditationPrivateOutputDto guestAccreditationPrivateOutputDto =
-            guestAccreditationOutputDtoMapper
-                .toGuestAccreditationPrivateOutputDto(guestAccreditation);
+        GuestAccreditationPrivateOutputDto outputDto =
+            mapper
+                .entityToPrivateDto(guestAccreditation);
 
-        logger.info("end: getting accreditation instance by ID");
-        return ResponseEntity.status(200).body(guestAccreditationPrivateOutputDto);
+        logger.info("end: getting accreditation instance by Id");
+        return ResponseEntity.status(200).body(outputDto);
     }
-
 
     /* Warning! Technical debt.
      * In target architecture this endpoint will not be needed - it is a workaround.
@@ -354,21 +349,23 @@ public class GuestAccreditationController {
      * instead of verification controller, trigger revoke from this controller when accreditation
      * no longer valid, verification controller just to rely on revoke status.
      */
-    @Operation(summary = "Client API - Query unique accreditation instance by query parameters")
+    @Operation(summary = "Query unique accreditation instance by query parameters",
+        security = @SecurityRequirement(name = "api_key_accr_veri_api"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved unique accreditation instance",
             content = {@Content(mediaType = "application/json",
                 schema = @Schema(implementation = GuestAccreditationPrivateOutputDto.class))})
     })
     @GetMapping(path = "/private", produces = {MediaType.APPLICATION_JSON_VALUE})
-    /* Protected with !ACAPY webhook API key */
+    @APIKeyProtectedTransaction(id = ApiKeyConfiguration.API_KEY_ID)
     public ResponseEntity<GuestAccreditationPrivateOutputDto> getUniqueAccreditationByPartyParams(
         /* TODO - Minimum set of query parameters - remove redundant if possible */
         @RequestParam String referenceBasisId,
         @RequestParam String firstName, @RequestParam String lastName,
         @RequestParam String dateOfBirth, @RequestParam String companyName,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date validFromDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date validUntilDate,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            ZonedDateTime validFrom,
+        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime validUntil,
         @RequestParam String invitedBy)
         throws Exception {
         logger.info("start: query unique accreditation by party query parameters");
@@ -377,16 +374,14 @@ public class GuestAccreditationController {
             guestAccreditationService
                 .getUniqueAccreditationByPartyParams(URLDecoder.decode(referenceBasisId, "UTF-8"),
                     URLDecoder.decode(firstName, "UTF-8"), URLDecoder.decode(lastName, "UTF-8"),
-                    dateOfBirth, URLDecoder.decode(companyName, "UTF-8"), validFromDate,
-                    validUntilDate, URLDecoder.decode(invitedBy, "UTF-8"))
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    dateOfBirth, URLDecoder.decode(companyName, "UTF-8"), validFrom,
+                    validUntil, URLDecoder.decode(invitedBy, "UTF-8"));
 
-        GuestAccreditationPrivateOutputDto guestAccreditationPrivateOutputDto =
-            guestAccreditationOutputDtoMapper
-                .toGuestAccreditationPrivateOutputDto(guestAccreditation);
+        GuestAccreditationPrivateOutputDto outputDto = mapper
+            .entityToPrivateDto(guestAccreditation);
 
         logger.info("end: query unique accreditation by party query parameters");
-        return ResponseEntity.status(200).body(guestAccreditationPrivateOutputDto);
+        return ResponseEntity.status(200).body(outputDto);
     }
 
     /* Warning! Technical debt.
@@ -394,7 +389,8 @@ public class GuestAccreditationController {
      * It is required for Verification Controller to cleanup personal information about guest
      * after checkout occurs
      */
-    @Operation(summary = "Client API - Cleanup party personal information by accreditationId")
+    @Operation(summary = "Cleanup party personal information by accreditationId",
+        security = @SecurityRequirement(name = "api_key_accr_veri_api"))
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved clean accreditation instance",
             content = {@Content(mediaType = "application/json",
@@ -402,7 +398,7 @@ public class GuestAccreditationController {
     })
     @PatchMapping(path = "/append/clean-guest-information/{accreditationId}", produces =
         {MediaType.APPLICATION_JSON_VALUE})
-    /* Protected with !ACAPY webhook API key */
+    @APIKeyProtectedTransaction(id = ApiKeyConfiguration.API_KEY_ID)
     public ResponseEntity<GuestAccreditationPrivateOutputDto> cleanupGuestInformationOnCheckout(
         @PathVariable String accreditationId) throws Exception {
         logger.info("start: cleanup party personal information by accreditationId");
@@ -410,11 +406,84 @@ public class GuestAccreditationController {
         GuestAccreditation guestAccreditation =
             guestAccreditationService.cleanGuestInformationOnCheckout(accreditationId);
 
-        GuestAccreditationPrivateOutputDto guestAccreditationPrivateOutputDto =
-            guestAccreditationOutputDtoMapper
-                .toGuestAccreditationPrivateOutputDto(guestAccreditation);
+        GuestAccreditationPrivateOutputDto outputDto = mapper
+            .entityToPrivateDto(guestAccreditation);
 
         logger.info("end: cleanup party personal information by accreditationId");
-        return ResponseEntity.status(200).body(guestAccreditationPrivateOutputDto);
+        return ResponseEntity.status(200).body(outputDto);
+    }
+
+    /* Technical Debt.: endpoints /revoke/checkout/{accreditationId} and /revoke/{accreditationId}
+     * only differ by the security guard. /revoke/{accreditationId} is protected by keycloak as IAM
+     * and /revoke/checkout/{accreditationId} by API Key.
+     */
+    @Operation(summary = "Revoke accreditation of guest", security = @SecurityRequirement(name =
+        "oauth2_accreditation_party_api"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Accreditation revoked",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = GuestAccreditationOpenOutputDto.class))})
+    })
+    @PatchMapping(path = "/revoke/{accreditationId}", produces =
+        {MediaType.APPLICATION_JSON_VALUE})
+    @SSOProtectedTransaction(scope = "scope:delete", resource = "res:guest-accreditation")
+    public ResponseEntity<GuestAccreditationOpenOutputDto> revokeAccreditation(
+        @PathVariable String accreditationId) throws Exception {
+        logger.info("start: revoking accreditation of guest");
+
+        GuestAccreditation guestAccreditation =
+            this.guestAccreditationService.revokeAccreditation(accreditationId);
+
+        GuestAccreditationOpenOutputDto outputDto = mapper.entityToOpenDto(guestAccreditation);
+
+        logger.info("end: revoking accreditation of guest");
+        return ResponseEntity.ok(outputDto);
+    }
+
+    @Operation(summary = "Revoke accreditation of guest",
+        security = @SecurityRequirement(name = "api_key_accr_veri_api"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Accreditation revoked",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = GuestAccreditationOpenOutputDto.class))})
+    })
+    @PatchMapping(path = "/revoke/checkout/{accreditationId}", produces =
+        {MediaType.APPLICATION_JSON_VALUE})
+    @APIKeyProtectedTransaction(id = ApiKeyConfiguration.API_KEY_ID)
+    public ResponseEntity<GuestAccreditationOpenOutputDto> revokeAccreditationOnCheckout(
+        @PathVariable String accreditationId) throws Exception {
+        logger.info("start: revoking accreditation of guest");
+
+        GuestAccreditation guestAccreditation =
+            this.guestAccreditationService.revokeAccreditation(accreditationId);
+
+        GuestAccreditationOpenOutputDto outputDto = mapper.entityToOpenDto(guestAccreditation);
+
+        logger.info("end: revoking accreditation of guest");
+        return ResponseEntity.ok(outputDto);
+    }
+
+    /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
+    @Operation(summary = "Get all guest accreditations",
+        security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Retrieved all guest accreditations")
+    })
+    @GetMapping
+    @SSOProtectedTransaction(scope = "scope:view", resource = "res:guest-accreditation")
+    public ResponseEntity<List<GuestAccreditationOpenOutputDto>> getAllAccreditations()
+        throws Exception {
+        logger.info("start: getting all guest accreditations");
+
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+
+        List<GuestAccreditationOpenOutputDto> outputDtos = new ArrayList<>();
+        this.guestAccreditationService.getAllAccreditations(userName).forEach(accreditation -> {
+            GuestAccreditationOpenOutputDto outputDto = mapper.entityToOpenDto(accreditation);
+            outputDtos.add(outputDto);
+        });
+
+        logger.info("end: getting all guest accreditations");
+        return ResponseEntity.ok(outputDtos);
     }
 }

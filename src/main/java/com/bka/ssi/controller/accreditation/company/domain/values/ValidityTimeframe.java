@@ -1,35 +1,22 @@
 package com.bka.ssi.controller.accreditation.company.domain.values;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 public class ValidityTimeframe {
 
-    private Date validFromDate;
-    private Date validFromTime;
-    private Date validUntilDate;
-    private Date validUntilTime;
+    private ZonedDateTime validFrom;
+    private ZonedDateTime validUntil;
 
-    public ValidityTimeframe(Date validFromDate, Date validFromTime, Date validUntilDate,
-        Date validUntilTime) {
-        this.validFromDate = validFromDate;
-        this.validFromTime = validFromTime;
-        this.validUntilDate = validUntilDate;
-        this.validUntilTime = validUntilTime;
+    public ValidityTimeframe(ZonedDateTime validFrom, ZonedDateTime validUntil) {
+        this.validFrom = validFrom;
+        this.validUntil = validUntil;
     }
 
-    public Date getValidFromDate() {
-        return validFromDate;
+    public ZonedDateTime getValidFrom() {
+        return validFrom;
     }
 
-    public Date getValidFromTime() {
-        return validFromTime;
-    }
-
-    public Date getValidUntilDate() {
-        return validUntilDate;
-    }
-
-    public Date getValidUntilTime() {
-        return validUntilTime;
+    public ZonedDateTime getValidUntil() {
+        return validUntil;
     }
 }

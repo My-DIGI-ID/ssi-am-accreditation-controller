@@ -5,8 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
-import com.bka.ssi.controller.accreditation.company.application.testutils.BuildEmployeeCompositeInputDTO;
 import com.bka.ssi.controller.accreditation.company.application.utilities.CsvBuilderTest;
+import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeInputDtoBuilder;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,14 +25,14 @@ public class ValidationServiceTest {
     private final static Logger logger = LoggerFactory.getLogger(CsvBuilderTest.class);
     private static Validator validator;
     private static ValidationService validationService;
-    private static BuildEmployeeCompositeInputDTO employeeBuilder;
+    private static EmployeeInputDtoBuilder employeeBuilder;
     private static ValidatorFactory validatorFactory;
 
     @BeforeAll
     public static void setUp() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
-        employeeBuilder = new BuildEmployeeCompositeInputDTO();
+        employeeBuilder = new EmployeeInputDtoBuilder();
         validationService = new ValidationService(validator, logger);
     }
 
@@ -87,8 +87,7 @@ public class ValidationServiceTest {
 
         EmployeeInputDto employee = employeeBuilder.build();
 
-        assertThrows(ConstraintViolationException.class, () ->
-        {
+        assertThrows(ConstraintViolationException.class, () -> {
             // when:
             Boolean isValid = this.validationService.validate(employee);
 

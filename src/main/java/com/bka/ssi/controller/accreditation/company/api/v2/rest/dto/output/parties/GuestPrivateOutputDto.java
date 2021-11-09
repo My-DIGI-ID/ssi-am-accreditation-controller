@@ -28,6 +28,9 @@ public class GuestPrivateOutputDto extends GuestOpenOutputDto {
     @NotNull
     private String acceptedDocument;
 
+    public GuestPrivateOutputDto() {
+    }
+
     public String getDateOfBirth() {
         return dateOfBirth;
     }

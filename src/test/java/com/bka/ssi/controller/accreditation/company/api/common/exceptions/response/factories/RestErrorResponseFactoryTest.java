@@ -33,8 +33,8 @@ class RestErrorResponseFactoryTest {
     void createWithStringMessage() {
         // given
         Mockito.when(messageSource.getMessage(Mockito.anyString(),
-            Mockito.nullable(Object[].class), Mockito.any(Locale.class))).thenReturn("Public "
-            + "error message");
+            Mockito.nullable(Object[].class), Mockito.any(Locale.class)))
+            .thenReturn("Public error message");
 
         // when
         RestErrorResponse response = factory.create("any", HttpStatus.BAD_REQUEST, request);

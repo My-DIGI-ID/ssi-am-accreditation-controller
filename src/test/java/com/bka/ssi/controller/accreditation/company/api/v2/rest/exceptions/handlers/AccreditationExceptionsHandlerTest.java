@@ -5,9 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.ApplicationException;
-import com.bka.ssi.controller.accreditation.company.domain.exceptions.DomainException;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.exceptions.InfrastructureException;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidAccreditationInitialStateException;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -40,147 +39,89 @@ class AccreditationExceptionsHandlerTest {
     }
 
     @Test
-        /*
-         * TODO - This test is a placeholder - remove it, once first specific exception defined in
-         * application layer
-         */
-    void handleApplicationException() {
+    void handleInvalidAccreditationInitialStateException() {
         // given
-        ApplicationException exception = new ApplicationException();
+        InvalidAccreditationInitialStateException exception =
+            new InvalidAccreditationInitialStateException();
         Mockito
             .when(messageSource.getMessage(
-                "message.common.rest.error.application_exception_placeholder", null,
+                "message.common.rest.error.accreditation_state_exception_placeholder", null,
                 Locale.ENGLISH))
             .thenReturn("Public error message");
 
         // when
-        response = handler.handleApplicationException(exception, request);
+        response = handler.handleInvalidAccreditationStateException(exception, request);
 
         // then
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
         assertEquals(response.getBody().getPath(), "/test/api/endpoint");
-        assertEquals(response.getBody().getStatus(), 400);
+        assertEquals(response.getBody().getStatus(), 409);
         assertEquals(response.getBody().getMessage(), "Public error message");
         assertNotEquals(response.getBody().getTimestamp(), null);
     }
 
     @Test
-        /*
-         * TODO - This test is a placeholder - remove it, once first specific exception defined in
-         * application layer
-         */
-    void handleApplicationExceptionWithoutMessage() {
+    void handleInvalidAccreditationInitialStateExceptionWithoutMessage() {
         // given
-        ApplicationException exception = new ApplicationException();
+        InvalidAccreditationInitialStateException exception =
+            new InvalidAccreditationInitialStateException();
         Mockito
             .when(messageSource.getMessage(
-                "message.common.rest.error.application_exception_placeholder", null,
+                "message.common.rest.error.accreditation_state_exception_placeholder", null,
                 Locale.ENGLISH))
             .thenThrow(new NoSuchMessageException("No message"));
 
         // when
-        response = handler.handleApplicationException(exception, request);
+        response = handler.handleInvalidAccreditationStateException(exception, request);
 
         // then
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
         assertEquals(response.getBody().getPath(), "/test/api/endpoint");
-        assertEquals(response.getBody().getStatus(), 400);
+        assertEquals(response.getBody().getStatus(), 409);
         assertEquals(response.getBody().getMessage(), "No message available");
         assertNotEquals(response.getBody().getTimestamp(), null);
     }
 
     @Test
-        /*
-         * TODO - This test is a placeholder - remove it, once first specific exception defined in
-         * infrastructure layer
-         */
-    void handleInfrastructureException() {
+    void handleInvalidValidityTimeframeException() {
         // given
-        InfrastructureException exception = new InfrastructureException();
+        InvalidValidityTimeframeException exception =
+            new InvalidValidityTimeframeException();
         Mockito
             .when(messageSource.getMessage(
-                "message.common.rest.error.infrastructure_exception_placeholder", null,
+                "message.common.rest.error.accreditation_state_exception_placeholder", null,
                 Locale.ENGLISH))
             .thenReturn("Public error message");
 
         // when
-        response = handler.handleInfrastructureException(exception, request);
+        response = handler.handleInvalidAccreditationStateException(exception, request);
 
         // then
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
         assertEquals(response.getBody().getPath(), "/test/api/endpoint");
-        assertEquals(response.getBody().getStatus(), 400);
+        assertEquals(response.getBody().getStatus(), 409);
         assertEquals(response.getBody().getMessage(), "Public error message");
         assertNotEquals(response.getBody().getTimestamp(), null);
     }
 
     @Test
-        /*
-         * TODO - This test is a placeholder - remove it, once first specific exception defined in
-         * infrastructure layer
-         */
-    void handleInfrastructureExceptionWithoutMessage() {
+    void handleInvalidValidityTimeframeExceptionWithoutMessage() {
         // given
-        InfrastructureException exception = new InfrastructureException();
+        InvalidValidityTimeframeException exception =
+            new InvalidValidityTimeframeException();
         Mockito
             .when(messageSource.getMessage(
-                "message.common.rest.error.infrastructure_exception_placeholder", null,
+                "message.common.rest.error.accreditation_state_exception_placeholder", null,
                 Locale.ENGLISH))
             .thenThrow(new NoSuchMessageException("No message"));
 
         // when
-        response = handler.handleInfrastructureException(exception, request);
+        response = handler.handleInvalidAccreditationStateException(exception, request);
 
         // then
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
         assertEquals(response.getBody().getPath(), "/test/api/endpoint");
-        assertEquals(response.getBody().getStatus(), 400);
-        assertEquals(response.getBody().getMessage(), "No message available");
-        assertNotEquals(response.getBody().getTimestamp(), null);
-    }
-
-    @Test
-        /*
-         * TODO - This test is a placeholder - remove it, once first specific exception defined in
-         * domain layer
-         */
-    void handleDomainException() {
-        // given
-        DomainException exception = new DomainException();
-        Mockito
-            .when(messageSource.getMessage("message.common.rest.error.domain_exception_placeholder",
-                null, Locale.ENGLISH)).thenReturn("Public error message");
-
-        // when
-        response = handler.handleDomainException(exception, request);
-
-        // then
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
-        assertEquals(response.getBody().getPath(), "/test/api/endpoint");
-        assertEquals(response.getBody().getStatus(), 400);
-        assertEquals(response.getBody().getMessage(), "Public error message");
-        assertNotEquals(response.getBody().getTimestamp(), null);
-    }
-
-    @Test
-        /*
-         * TODO - This test is a placeholder - remove it, once first specific exception defined in
-         * domain layer
-         */
-    void handleDomainExceptionWithoutMessage() {
-        // given
-        DomainException exception = new DomainException();
-        Mockito
-            .when(messageSource.getMessage("message.common.rest.error.domain_exception_placeholder",
-                null, Locale.ENGLISH)).thenThrow(new NoSuchMessageException("No message"));
-
-        // when
-        response = handler.handleDomainException(exception, request);
-
-        // then
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
-        assertEquals(response.getBody().getPath(), "/test/api/endpoint");
-        assertEquals(response.getBody().getStatus(), 400);
+        assertEquals(response.getBody().getStatus(), 409);
         assertEquals(response.getBody().getMessage(), "No message available");
         assertNotEquals(response.getBody().getTimestamp(), null);
     }

@@ -1,5 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common;
 
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.abstractions.CredentialMongoDbValue;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 public class CredentialOfferMongoDbValue<T extends CredentialMongoDbValue> {

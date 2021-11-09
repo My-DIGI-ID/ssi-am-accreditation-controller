@@ -1,43 +1,29 @@
 package com.bka.ssi.controller.accreditation.company.application.security.utilities;
 
+import com.bka.ssi.controller.accreditation.company.application.utilities.http.HttpHeaderUtility;
 import org.apache.tomcat.util.json.JSONParser;
-import org.springframework.stereotype.Service;
-import org.springframework.web.context.request.RequestAttributes;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.util.Base64;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 
-@Service
+@Component
 public class BearerTokenParser {
 
-    Base64.Decoder decoder = Base64.getDecoder();
+    @Value("${accreditation.jwt.userIdentifierEntryName}")
+    private String userIdentifierEntry;
+
+    private Base64.Decoder decoder;
 
     public BearerTokenParser() {
+        this.decoder = Base64.getDecoder();
     }
 
     public String getToken() {
-        RequestAttributes reqAttr = RequestContextHolder.getRequestAttributes();
-        ServletRequestAttributes servlReqAttr = (ServletRequestAttributes) reqAttr;
-        HttpServletRequest httpRequest = servlReqAttr.getRequest();
+        String token = HttpHeaderUtility.getHttpHeader("authorization");
 
-        Map<String, List<String>> headersMap = Collections
-            .list(httpRequest.getHeaderNames())
-            .stream()
-            .collect(Collectors.toMap(Function.identity(),
-                h -> Collections.list(httpRequest.getHeaders(h))));
-
-        List<String> authorizationHeader = headersMap
-            .get("authorization");
-
-        if (authorizationHeader != null) {
-            return authorizationHeader.get(0).replace("Bearer ", "");
+        if (token != null) {
+            return token.replace("Bearer ", "");
         }
 
         return null;
@@ -50,9 +36,8 @@ public class BearerTokenParser {
         String payload = new String(decoder.decode(chunks[1]));
 
         Object username;
-
         try {
-            username = new JSONParser(payload).object().get("preferred_username");
+            username = new JSONParser(payload).object().get(this.userIdentifierEntry);
         } catch (Exception e) {
             username = "undefined";
         }

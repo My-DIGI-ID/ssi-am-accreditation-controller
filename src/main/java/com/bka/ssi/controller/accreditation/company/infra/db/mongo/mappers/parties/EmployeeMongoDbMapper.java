@@ -2,6 +2,7 @@ package com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.part
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.EmployeeCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
+import com.bka.ssi.controller.accreditation.company.domain.enums.CredentialType;
 import com.bka.ssi.controller.accreditation.company.domain.values.Address;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialMetadata;
@@ -21,7 +22,6 @@ import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.PositionMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.parties.EmployeeCredentialMongoDbValue;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,11 +30,17 @@ import org.springframework.stereotype.Component;
  */
 public class EmployeeMongoDbMapper {
 
-    @Autowired
-    private Logger logger;
+    private final Logger logger;
 
-    public EmployeeMongoDbDocument employeeToEmployeeMongoDbDocument(Employee employee) {
+    public EmployeeMongoDbMapper(Logger logger) {
+        this.logger = logger;
+    }
+
+    public EmployeeMongoDbDocument entityToDocument(Employee employee) {
+        logger.debug("Mapping an employee to a MongoDb document");
+
         if (employee == null) {
+            // throw instead ?
             return null;
         } else {
 
@@ -112,11 +118,15 @@ public class EmployeeMongoDbMapper {
             CredentialMetadataMongoDbValue credentialMetadataMongoDbValue =
                 new CredentialMetadataMongoDbValue();
             credentialMetadataMongoDbValue
-                .setId(employee.getCredentialOffer().getCredentialMetadata().getId());
+                .setIssuedBy(employee.getCredentialOffer().getCredentialMetadata().getIssuedBy());
             credentialMetadataMongoDbValue
-                .setDid(employee.getCredentialOffer().getCredentialMetadata().getDid());
+                .setIssuedAt(employee.getCredentialOffer().getCredentialMetadata().getIssuedAt());
             credentialMetadataMongoDbValue
-                .setType(employee.getCredentialOffer().getCredentialMetadata().getType());
+                .setPartyPersonalDataDeleted(employee.getCredentialOffer().getCredentialMetadata()
+                    .getPartyPersonalDataDeleted());
+            credentialMetadataMongoDbValue.setCredentialType(
+                employee.getCredentialOffer().getCredentialMetadata().getCredentialType()
+                    .getName());
 
             CredentialOfferMongoDbValue<EmployeeCredentialMongoDbValue>
                 credentialOfferMongoDbValue =
@@ -124,86 +134,93 @@ public class EmployeeMongoDbMapper {
             credentialOfferMongoDbValue.setCredentialMetadata(credentialMetadataMongoDbValue);
             credentialOfferMongoDbValue.setCredential(employeeCredentialMongoDbValue);
 
-            EmployeeMongoDbDocument employeeMongoDBDocument = new EmployeeMongoDbDocument();
-            employeeMongoDBDocument.setId(employee.getId());
-            employeeMongoDBDocument.setCredentialOffer(credentialOfferMongoDbValue);
+            EmployeeMongoDbDocument document = new EmployeeMongoDbDocument();
+            document.setId(employee.getId());
+            document.setCreatedBy(employee.getCreatedBy());
+            document.setCreatedAt(employee.getCreatedAt());
+            document.setCredentialOffer(credentialOfferMongoDbValue);
 
-            return employeeMongoDBDocument;
+            return document;
         }
     }
 
-    public Employee employeeMongoDbDocumentToEmployee(
-        EmployeeMongoDbDocument employeeMongoDbDocument) {
-        if (employeeMongoDbDocument == null) {
+    public Employee documentToEntity(EmployeeMongoDbDocument document) {
+        logger.debug("Mapping a MongoDb document to a employee");
+
+        if (document == null) {
+            // throw instead ?
             return null;
         } else {
 
             Persona persona =
                 new Persona(
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getPersona()
+                    document.getCredentialOffer().getCredential().getPersona()
                         .getTitle(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getPersona()
+                    document.getCredentialOffer().getCredential().getPersona()
                         .getFirstName(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getPersona()
+                    document.getCredentialOffer().getCredential().getPersona()
                         .getLastName());
 
             ContactInformation contactInformation =
-                new ContactInformation(employeeMongoDbDocument.getCredentialOffer().getCredential()
+                new ContactInformation(document.getCredentialOffer().getCredential()
                     .getContactInformation().getEmails(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential()
+                    document.getCredentialOffer().getCredential()
                         .getContactInformation().getPhoneNumbers());
 
             IdentityManagement identityManagement =
-                new IdentityManagement(employeeMongoDbDocument.getCredentialOffer().getCredential()
+                new IdentityManagement(document.getCredentialOffer().getCredential()
                     .getIdentityManagement().getReference(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential()
+                    document.getCredentialOffer().getCredential()
                         .getIdentityManagement().getUsername(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential()
+                    document.getCredentialOffer().getCredential()
                         .getIdentityManagement().getEmail()
                 );
 
             Address employerAddress =
                 new Address(
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployer()
+                    document.getCredentialOffer().getCredential().getEmployer()
                         .getAddress().getPostalCode(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployer()
+                    document.getCredentialOffer().getCredential().getEmployer()
                         .getAddress().getCity(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployer()
+                    document.getCredentialOffer().getCredential().getEmployer()
                         .getAddress().getStreet());
 
             Employer employer =
                 new Employer(
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployer()
+                    document.getCredentialOffer().getCredential().getEmployer()
                         .getName(), employerAddress,
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployer()
+                    document.getCredentialOffer().getCredential().getEmployer()
                         .getSubject(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployer()
+                    document.getCredentialOffer().getCredential().getEmployer()
                         .getProofOfOwnership());
 
             Position position =
                 new Position(
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getPosition()
+                    document.getCredentialOffer().getCredential().getPosition()
                         .getName());
 
             EmployeeCredential employeeCredential =
                 new EmployeeCredential(
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployeeId(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredential().getEmployeeState(),
+                    document.getCredentialOffer().getCredential().getEmployeeId(),
+                    document.getCredentialOffer().getCredential().getEmployeeState(),
                     persona,
                     contactInformation, identityManagement, employer, position);
 
             CredentialMetadata credentialMetadata =
                 new CredentialMetadata(
-                    employeeMongoDbDocument.getCredentialOffer().getCredentialMetadata().getId(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredentialMetadata().getType(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredentialMetadata().getDid(),
-                    employeeMongoDbDocument.getCredentialOffer().getCredentialMetadata()
-                        .getPartyCreated());
+                    document.getCredentialOffer().getCredentialMetadata().getIssuedBy(),
+                    document.getCredentialOffer().getCredentialMetadata().getIssuedAt(),
+                    document.getCredentialOffer().getCredentialMetadata()
+                        .getPartyPersonalDataDeleted(),
+                    CredentialType.valueOf(
+                        document.getCredentialOffer().getCredentialMetadata().getCredentialType()));
 
             CredentialOffer<EmployeeCredential> credentialOffer =
                 new CredentialOffer<>(credentialMetadata, employeeCredential);
 
-            Employee employee = new Employee(employeeMongoDbDocument.getId(), credentialOffer);
+            Employee employee =
+                new Employee(document.getId(), credentialOffer, document.getCreatedBy(),
+                    document.getCreatedAt());
 
             return employee;
         }

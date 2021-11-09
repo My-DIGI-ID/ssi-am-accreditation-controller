@@ -17,52 +17,52 @@ public class GuestOutputDtoMapper {
         this.logger = logger;
     }
 
-    public GuestOpenOutputDto guestToGuestOpenOutputDto(
-        Guest guest) {
-        logger.debug("mapping a Guest to OpenOutputDto");
+    public GuestOpenOutputDto entityToOpenDto(Guest guest) {
+        logger.debug("mapping a Guest to GuestOpenOutputDto");
+
         if (guest == null) {
             // throw instead?
             return null;
         } else {
-            GuestOpenOutputDto output = new GuestOpenOutputDto();
-            output = this.setGuestOpenOutputDtoProperties(guest, output);
+            GuestOpenOutputDto dto = new GuestOpenOutputDto();
+            dto = this.setGuestOpenOutputDtoProperties(guest, dto);
 
-            return output;
+            return dto;
         }
     }
 
-    public GuestPrivateOutputDto guestToGuestPrivateOutputDto(Guest guest) {
+    public GuestPrivateOutputDto entityToPrivateDto(Guest guest) {
+        logger.debug("mapping a Guest to GuestPrivateOutputDto");
+
         if (guest == null) {
             // throw instead?
             return null;
         } else {
-            GuestPrivateOutputDto output = new GuestPrivateOutputDto();
-            output = this.setGuestOpenOutputDtoProperties(guest, output);
-            output = this.setGuestPrivateOutputDtoProperties(guest, output);
+            GuestPrivateOutputDto dto = new GuestPrivateOutputDto();
+            dto = this.setGuestOpenOutputDtoProperties(guest, dto);
+            dto = this.setGuestPrivateOutputDtoProperties(guest, dto);
 
-            return output;
+            return dto;
         }
     }
 
-    private <T extends GuestOpenOutputDto> T setGuestOpenOutputDtoProperties(Guest guest,
-        T output) {
-
-        output.setId(guest.getId());
-        output.setTitle(
+    private <T extends GuestOpenOutputDto> T setGuestOpenOutputDtoProperties(Guest guest, T dto) {
+        dto.setId(guest.getId());
+        dto.setTitle(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getPersona()
                 .getTitle());
 
-        output.setFirstName(
+        dto.setFirstName(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getPersona()
                 .getFirstName());
 
-        output.setLastName(
+        dto.setLastName(
             guest
                 .getCredentialOffer()
                 .getCredential()
@@ -82,7 +82,7 @@ public class GuestOutputDtoMapper {
             email = null;
         }
 
-        output.setEmail(email);
+        dto.setEmail(email);
 
         String primaryPhoneNumber;
         String secondaryPhoneNumber;
@@ -105,109 +105,97 @@ public class GuestOutputDtoMapper {
             secondaryPhoneNumber = null;
         }
 
-        output.setPrimaryPhoneNumber(primaryPhoneNumber);
-        output.setSecondaryPhoneNumber(secondaryPhoneNumber);
+        dto.setPrimaryPhoneNumber(primaryPhoneNumber);
+        dto.setSecondaryPhoneNumber(secondaryPhoneNumber);
 
-        output.setCompanyName(
+        dto.setCompanyName(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getCompanyName());
 
-        output.setTypeOfVisit(
+        dto.setTypeOfVisit(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getTypeOfVisit());
 
-        output.setLocation(
+        dto.setLocation(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getLocation());
 
-        output.setValidFromDate(
+        dto.setValidFrom(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getValidityTimeframe()
-                .getValidFromDate());
+                .getValidFrom());
 
-        output.setValidFromTime(
+        dto.setValidUntil(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getValidityTimeframe()
-                .getValidFromTime());
+                .getValidUntil());
 
-        output.setValidUntilDate(
-            guest
-                .getCredentialOffer()
-                .getCredential()
-                .getValidityTimeframe()
-                .getValidUntilDate());
-
-        output.setValidUntilTime(
-            guest
-                .getCredentialOffer()
-                .getCredential()
-                .getValidityTimeframe()
-                .getValidUntilTime());
-
-        output.setIssuedBy(
+        dto.setInvitedBy(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getInvitedBy());
 
-        return output;
+        dto.setCreatedBy(guest.getCreatedBy());
+        dto.setCreatedAt(guest.getCreatedAt());
+
+        return dto;
     }
 
     private GuestPrivateOutputDto setGuestPrivateOutputDtoProperties(Guest guest,
-        GuestPrivateOutputDto output) {
-
-        output.setDateOfBirth(
+        GuestPrivateOutputDto dto) {
+        dto.setDateOfBirth(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getGuestPrivateInformation()
                 .getDateOfBirth());
 
-        output.setLicencePlateNumber(
+        dto.setLicencePlateNumber(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getGuestPrivateInformation()
                 .getLicencePlateNumber());
 
-        output.setCompanyStreet(
+        dto.setCompanyStreet(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getGuestPrivateInformation()
                 .getCompanyStreet());
 
-        output.setCompanyCity(
+        dto.setCompanyCity(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getGuestPrivateInformation()
                 .getCompanyCity());
 
-        output.setCompanyPostCode(
+        dto.setCompanyPostCode(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getGuestPrivateInformation()
                 .getCompanyPostCode());
 
-        output.setAcceptedDocument(
+        dto.setAcceptedDocument(
             guest
                 .getCredentialOffer()
                 .getCredential()
                 .getGuestPrivateInformation()
                 .getAcceptedDocument());
 
-        return output;
+        return dto;
     }
 }

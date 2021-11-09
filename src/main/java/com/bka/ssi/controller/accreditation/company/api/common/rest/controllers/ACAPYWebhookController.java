@@ -1,9 +1,11 @@
 package com.bka.ssi.controller.accreditation.company.api.common.rest.controllers;
 
-import com.bka.ssi.controller.accreditation.company.application.services.dto.input.common.ACAPYConnectionDto;
-import com.bka.ssi.controller.accreditation.company.application.services.dto.input.common.ACAPYIssueCredentialDto;
-import com.bka.ssi.controller.accreditation.company.application.services.dto.input.common.ACAPYPresentProofDto;
-import com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations.GuestAccreditationService;
+import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
+import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.WebhookServiceFactory;
+import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYConnectionDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYIssueCredentialDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYPresentProofDto;
+import com.bka.ssi.controller.accreditation.company.application.security.facade.APIKeyProtectedTransaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,9 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "api_key_webhook_api")
 @RequestMapping(value = "/topic")
 public class ACAPYWebhookController {
-
-    /* ToDo - API needs to be guarded by knowledge of API key */
-
     /**
      * Note that this ACAPY Webhook Controller only implements endpoints for v1.0 of ACAPY.
      * It does not provide endpoints for v2.0 of ACAPY, e.g. /issue_credential_v2_0,
@@ -32,19 +31,12 @@ public class ACAPYWebhookController {
      */
 
     private final Logger logger;
-
-    /**
-     * Warning! Technical debt.
-     * GuestAccreditationService is directly injected into ACAPYWebhookController since guest is
-     * the only party in the accreditation process at the moment. Indeed, some service layer
-     * component must maintain and handle webhook requests of this controller for different parties.
-     */
-    private final GuestAccreditationService guestAccreditationService;
+    private final WebhookServiceFactory webhookServiceFactory;
 
     public ACAPYWebhookController(Logger logger,
-        GuestAccreditationService guestAccreditationService) {
+        WebhookServiceFactory webhookService) {
         this.logger = logger;
-        this.guestAccreditationService = guestAccreditationService;
+        this.webhookServiceFactory = webhookService;
     }
 
     @Operation(summary = "Pairwise Connection Record Updated")
@@ -54,31 +46,12 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/connections")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onConnection(
-        @RequestBody ACAPYConnectionDto acapyConnectionDto) throws Exception {
+        @RequestBody ACAPYConnectionDto inputDto) throws Exception {
         logger.info("start: onConnection");
 
-        switch (acapyConnectionDto.getState()) {
-            case "init":
-            case "invitation":
-            case "request":
-            case "active":
-            case "inactive":
-            case "error":
-                logger.debug("Connection state: " + acapyConnectionDto.getState());
-                break;
-            case "response":
-                logger.debug("Connection state: " + acapyConnectionDto.getState());
-                /* Normally after connection establishment offerAccreditation will be called,
-                however in guest accreditation process we need verificaiton of Basis-Id in an
-                extra step (alternative would be to have offerAccredtation as abstract method to
-                be implemented by each of the services */
-                this.guestAccreditationService.verifyBasisId(acapyConnectionDto);
-                break;
-            default:
-                logger.debug("Connection state: " + acapyConnectionDto.getState());
-                break;
-        }
+        this.webhookServiceFactory.handleOnConnection(inputDto);
 
         logger.info("end: onConnection");
         return ResponseEntity.noContent().build();
@@ -91,6 +64,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/basicmessages")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onBasicMessage(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */
@@ -104,6 +78,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/forward")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onForward(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */
@@ -117,32 +92,12 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/issue_credential")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onIssueCredential(
-        @RequestBody ACAPYIssueCredentialDto acapyIssueCredentialDto) throws Exception {
-        logger.info("start: onIssueCredential, state: " + acapyIssueCredentialDto.getState());
+        @RequestBody ACAPYIssueCredentialDto inputDto) throws Exception {
+        logger.info("start: onIssueCredential, state: " + inputDto.getState());
 
-        switch (acapyIssueCredentialDto.getState()) {
-            case "proposal_sent":
-            case "proposal_received":
-            case "offer_sent":
-            case "offer_received":
-            case "request_sent":
-            case "request_received":
-            case "credential_received":
-            case "credential_acked":
-                logger
-                    .debug("Ignoring IssueCredential state: " + acapyIssueCredentialDto.getState());
-                break;
-            case "credential_issued":
-                logger.debug("IssueCredential state: " + acapyIssueCredentialDto.getState());
-                this.guestAccreditationService
-                    .completeAccreditationProcess(acapyIssueCredentialDto);
-                break;
-            default:
-                logger
-                    .debug("Unknown IssueCredential state: " + acapyIssueCredentialDto.getState());
-                break;
-        }
+        this.webhookServiceFactory.handleOnIssueCredential(inputDto);
 
         logger.info("end: onIssueCredential");
         return ResponseEntity.noContent().build();
@@ -155,30 +110,12 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/present_proof")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onPresentProof(
-        @RequestBody ACAPYPresentProofDto acapyPresentProofDto) throws Exception {
-        /* In Scope of MVP if verification of Basis-id is done in accreditation controller */
+        @RequestBody ACAPYPresentProofDto inputDto) throws Exception {
         logger.info("start: onPresentProof");
 
-        switch (acapyPresentProofDto.getState()) {
-            case "proposal_sent":
-            case "proposal_received":
-            case "request_sent":
-            case "request_received":
-            case "presentation_sent":
-            case "presentation_received":
-                logger.debug("Proof Request state: " + acapyPresentProofDto.getState());
-                break;
-            case "verified":
-                logger.debug("Proof Request state: " + acapyPresentProofDto.getState());
-                this.guestAccreditationService
-                    .completeVerificationOfBasisId(acapyPresentProofDto);
-                break;
-            default:
-                logger.debug("Proof Request state: " + acapyPresentProofDto.getState());
-                logger.debug(acapyPresentProofDto.toString());
-                break;
-        }
+        this.webhookServiceFactory.handleOnPresentProof(inputDto);
 
         logger.info("end: onPresentProof");
         return ResponseEntity.noContent().build();
@@ -191,6 +128,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/oob_invitation")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onOutOfBandInvitation(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */
@@ -204,6 +142,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/ping")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onPing(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */
@@ -217,6 +156,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/issuer_cred_rev")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onIssuerCredRev(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */
@@ -230,6 +170,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/revocation_registry")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onRevocationRegistry(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */
@@ -244,6 +185,7 @@ public class ACAPYWebhookController {
             content = @Content)
     })
     @PostMapping("/problem_report")
+    @APIKeyProtectedTransaction(id = ACAPYConfiguration.API_KEY_ID)
     public ResponseEntity<Void> onProblemReport(
         @RequestBody Object object) throws Exception {
         /* Out of Scope for MVP and beyond */

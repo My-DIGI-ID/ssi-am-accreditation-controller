@@ -1,8 +1,9 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -28,6 +29,7 @@ public class GuestOpenOutputDto {
     @NotEmpty
     private String lastName;
 
+    @Size(max = 100)
     @Email
     @NotNull
     @NotEmpty
@@ -39,7 +41,7 @@ public class GuestOpenOutputDto {
     @Size(max = 50)
     private String secondaryPhoneNumber;
 
-    @Size(max = 100)
+    @Size(max = 200)
     @NotNull
     private String companyName;
 
@@ -52,23 +54,28 @@ public class GuestOpenOutputDto {
     private String location;
 
     @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private Date validFromDate;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private ZonedDateTime validFrom;
 
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private Date validFromTime;
-
-    @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private Date validUntilDate;
-
-    @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private Date validUntilTime;
+    private ZonedDateTime validUntil;
 
     @Size(max = 50)
-    private String issuedBy;
+    @JsonProperty("issuedBy")
+    private String invitedBy;
+
+    @NotEmpty
+    @NotNull
+    private String createdBy;
+
+    @NotEmpty
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private ZonedDateTime createdAt;
+
+    public GuestOpenOutputDto() {
+    }
 
     public String getId() {
         return id;
@@ -150,44 +157,43 @@ public class GuestOpenOutputDto {
         this.location = location;
     }
 
-    public Date getValidFromDate() {
-        return validFromDate;
+    public ZonedDateTime getValidFrom() {
+        return validFrom;
     }
 
-    public void setValidFromDate(Date validFromDate) {
-        this.validFromDate = validFromDate;
+    public void setValidFrom(ZonedDateTime validFrom) {
+        this.validFrom = validFrom;
     }
 
-    public Date getValidFromTime() {
-        return validFromTime;
+    public ZonedDateTime getValidUntil() {
+        return validUntil;
     }
 
-    public void setValidFromTime(Date validFromTime) {
-        this.validFromTime = validFromTime;
+    public void setValidUntil(ZonedDateTime validUntil) {
+        this.validUntil = validUntil;
     }
 
-    public Date getValidUntilDate() {
-        return validUntilDate;
+    public String getInvitedBy() {
+        return invitedBy;
     }
 
-    public void setValidUntilDate(Date validUntilDate) {
-        this.validUntilDate = validUntilDate;
+    public void setInvitedBy(String invitedBy) {
+        this.invitedBy = invitedBy;
     }
 
-    public Date getValidUntilTime() {
-        return validUntilTime;
+    public String getCreatedBy() {
+        return createdBy;
     }
 
-    public void setValidUntilTime(Date validUntilTime) {
-        this.validUntilTime = validUntilTime;
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
-    public String getIssuedBy() {
-        return issuedBy;
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void setIssuedBy(String issuedBy) {
-        this.issuedBy = issuedBy;
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
     }
-
 }

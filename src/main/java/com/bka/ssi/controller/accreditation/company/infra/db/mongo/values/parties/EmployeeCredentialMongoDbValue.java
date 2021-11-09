@@ -1,7 +1,7 @@
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.parties;
 
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.abstractions.CredentialMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.ContactInformationMongoDbValue;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.CredentialMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.EmployerMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.IdentityManagementMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.PersonaMongoDbValue;

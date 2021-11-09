@@ -6,7 +6,6 @@ public class IdentityManagement {
     private String username;
     private String email;
 
-    /* TODO - Entities invariants checks to be added as part of functional stories */
     public IdentityManagement(String reference, String username, String email) {
         this.reference = reference;
         this.username = username;

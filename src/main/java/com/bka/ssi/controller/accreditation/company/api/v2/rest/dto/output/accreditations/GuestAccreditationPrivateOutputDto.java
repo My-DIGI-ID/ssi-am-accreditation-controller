@@ -7,9 +7,14 @@ import javax.validation.constraints.NotNull;
 
 public class GuestAccreditationPrivateOutputDto extends GuestAccreditationOpenOutputDto {
 
+    // ToDo - should be renamed and not overriden, so GuestAccreditationPrivateOutputDto returns
+    //  open and private information
     @NotEmpty
     @NotNull
     private GuestPrivateOutputDto guest;
+
+    public GuestAccreditationPrivateOutputDto() {
+    }
 
     @Override
     public GuestPrivateOutputDto getGuest() {

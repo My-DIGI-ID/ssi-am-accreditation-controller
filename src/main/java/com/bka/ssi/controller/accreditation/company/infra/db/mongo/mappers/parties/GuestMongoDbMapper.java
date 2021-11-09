@@ -2,6 +2,8 @@ package com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.part
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.GuestCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
+import com.bka.ssi.controller.accreditation.company.domain.enums.CredentialType;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialMetadata;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
@@ -31,8 +33,9 @@ public class GuestMongoDbMapper {
         this.logger = logger;
     }
 
-    public GuestMongoDbDocument guestToGuestMongoDBDocument(Guest guest) {
-        logger.debug("mapping a Guest to a MongoDb document");
+    public GuestMongoDbDocument entityToDocument(Guest guest) {
+        logger.debug("Mapping a guest to a MongoDb document");
+
         if (guest == null) {
             // throw instead ?
             return null;
@@ -46,33 +49,19 @@ public class GuestMongoDbMapper {
 
             ValidityTimeframeDbValue validity = new ValidityTimeframeDbValue();
 
-            validity.setValidFromDate(
+            validity.setValidFrom(
                 guest
                     .getCredentialOffer()
                     .getCredential()
                     .getValidityTimeframe()
-                    .getValidFromDate());
+                    .getValidFrom());
 
-            validity.setValidFromTime(
+            validity.setValidUntil(
                 guest
                     .getCredentialOffer()
                     .getCredential()
                     .getValidityTimeframe()
-                    .getValidFromTime());
-
-            validity.setValidUntilDate(
-                guest
-                    .getCredentialOffer()
-                    .getCredential()
-                    .getValidityTimeframe()
-                    .getValidUntilDate());
-
-            validity.setValidUntilTime(
-                guest
-                    .getCredentialOffer()
-                    .getCredential()
-                    .getValidityTimeframe()
-                    .getValidUntilTime());
+                    .getValidUntil());
 
             PersonaMongoDbValue persona = new PersonaMongoDbValue();
 
@@ -181,32 +170,37 @@ public class GuestMongoDbMapper {
             credential.setLocation(
                 guest.getCredentialOffer().getCredential().getLocation());
 
-            credential.setIssuedBy(
+            credential.setInvitedBy(
                 guest.getCredentialOffer().getCredential().getInvitedBy());
 
             credential.setReferenceBasisId(
                 guest.getCredentialOffer().getCredential().getReferenceBasisId());
 
-            credentialMeta.setId(guest.getCredentialOffer().getCredentialMetadata().getId());
-            credentialMeta.setDid(guest.getCredentialOffer().getCredentialMetadata().getDid());
-            credentialMeta.setType(guest.getCredentialOffer().getCredentialMetadata().getType());
-            credentialMeta.setPartyCreated(
-                guest.getCredentialOffer().getCredentialMetadata().getPartyCreated());
+            credentialMeta
+                .setIssuedBy(guest.getCredentialOffer().getCredentialMetadata().getIssuedBy());
+            credentialMeta
+                .setIssuedAt(guest.getCredentialOffer().getCredentialMetadata().getIssuedAt());
             credentialMeta.setPartyPersonalDataDeleted(
                 guest.getCredentialOffer().getCredentialMetadata().getPartyPersonalDataDeleted());
+            credentialMeta.setCredentialType(
+                guest.getCredentialOffer().getCredentialMetadata().getCredentialType().getName());
 
             credentialOffer.setCredential(credential);
             credentialOffer.setCredentialMetadata(credentialMeta);
 
             document.setId(guest.getId());
+            document.setCreatedBy(guest.getCreatedBy());
+            document.setCreatedAt(guest.getCreatedAt());
             document.setCredentialOffer(credentialOffer);
 
             return document;
         }
     }
 
-    public Guest guestMongoDBDocumentToGuest(GuestMongoDbDocument document) {
+    public Guest documentToEntity(GuestMongoDbDocument document)
+        throws InvalidValidityTimeframeException {
         logger.debug("mapping a MongoDb document to a Guest");
+
         if (document == null) {
             // throw instead ?
             return null;
@@ -216,22 +210,12 @@ public class GuestMongoDbMapper {
                     .getCredentialOffer()
                     .getCredential()
                     .getValidityTimeframe()
-                    .getValidFromDate(),
+                    .getValidFrom(),
                 document
                     .getCredentialOffer()
                     .getCredential()
                     .getValidityTimeframe()
-                    .getValidFromTime(),
-                document
-                    .getCredentialOffer()
-                    .getCredential()
-                    .getValidityTimeframe()
-                    .getValidUntilDate(),
-                document
-                    .getCredentialOffer()
-                    .getCredential()
-                    .getValidityTimeframe()
-                    .getValidUntilTime()
+                    .getValidUntil()
             );
 
             Persona persona = new Persona(
@@ -309,17 +293,17 @@ public class GuestMongoDbMapper {
                 document.getCredentialOffer().getCredential().getCompanyName(),
                 document.getCredentialOffer().getCredential().getTypeOfVisit(),
                 document.getCredentialOffer().getCredential().getLocation(),
-                document.getCredentialOffer().getCredential().getIssuedBy(),
+                document.getCredentialOffer().getCredential().getInvitedBy(),
                 document.getCredentialOffer().getCredential().getReferenceBasisId(),
                 privateInformation
             );
 
             CredentialMetadata credentialMeta = new CredentialMetadata(
-                document.getCredentialOffer().getCredentialMetadata().getId(),
-                document.getCredentialOffer().getCredentialMetadata().getDid(),
-                document.getCredentialOffer().getCredentialMetadata().getType(),
-                document.getCredentialOffer().getCredentialMetadata().getPartyCreated(),
-                document.getCredentialOffer().getCredentialMetadata().getPartyPersonalDataDeleted()
+                document.getCredentialOffer().getCredentialMetadata().getIssuedBy(),
+                document.getCredentialOffer().getCredentialMetadata().getIssuedAt(),
+                document.getCredentialOffer().getCredentialMetadata().getPartyPersonalDataDeleted(),
+                CredentialType.valueOf(
+                    document.getCredentialOffer().getCredentialMetadata().getCredentialType())
             );
 
             CredentialOffer<GuestCredential> credentialOffer = new CredentialOffer(
@@ -327,7 +311,8 @@ public class GuestMongoDbMapper {
                 credential
             );
 
-            Guest guest = new Guest(document.getId(), credentialOffer);
+            Guest guest = new Guest(document.getId(), credentialOffer, document.getCreatedBy(),
+                document.getCreatedAt());
 
             return guest;
         }

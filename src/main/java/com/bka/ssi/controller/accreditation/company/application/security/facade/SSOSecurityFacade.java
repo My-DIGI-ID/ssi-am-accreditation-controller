@@ -1,6 +1,5 @@
 package com.bka.ssi.controller.accreditation.company.application.security.facade;
 
-import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthenticatedException;
 import com.bka.ssi.controller.accreditation.company.application.security.authentication.AuthenticationService;
 import com.bka.ssi.controller.accreditation.company.application.security.authorization.AuthorizationService;
 import com.bka.ssi.controller.accreditation.company.application.security.utilities.BearerTokenParser;
@@ -44,15 +43,9 @@ public class SSOSecurityFacade {
             .getAnnotation(SSOProtectedTransaction.class)
             .resource();
 
-        String conditionName = "res:" + resource + "#" + scope;
+        String conditionName = resource + "#" + scope;
 
-        String token = bearerTokenParser.getToken();
-
-        if (token == null) {
-            logger.debug("No token provided");
-            throw new UnauthenticatedException();
-        }
-
+        String token = this.bearerTokenParser.getToken();
         this.authenticationService.verifySSOToken(token);
         this.authorizationService.verifySSOPermission(token, conditionName);
     }

@@ -1,5 +1,8 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.ZonedDateTime;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -17,10 +20,12 @@ public class EmployeeOutputDto {
     private String title;
 
     @Size(max = 50)
+    @NotEmpty
     @NotNull
     private String firstName;
 
     @Size(max = 50)
+    @NotEmpty
     @NotNull
     private String lastName;
 
@@ -46,7 +51,7 @@ public class EmployeeOutputDto {
     @Size(max = 100)
     private String position;
 
-    @Size(max = 100)
+    @Size(max = 200)
     @NotNull
     private String companyName;
 
@@ -60,6 +65,15 @@ public class EmployeeOutputDto {
 
     @Size(max = 50)
     private String companyCity;
+
+    @NotEmpty
+    @NotNull
+    private String createdBy;
+
+    @NotEmpty
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private ZonedDateTime createdAt;
 
     public EmployeeOutputDto() {
     }
@@ -174,5 +188,21 @@ public class EmployeeOutputDto {
 
     public void setCompanyCity(String companyCity) {
         this.companyCity = companyCity;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(ZonedDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

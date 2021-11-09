@@ -3,9 +3,9 @@ package com.bka.ssi.controller.accreditation.company.api.v2.rest.exceptions.hand
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.ApplicationException;
-import com.bka.ssi.controller.accreditation.company.domain.exceptions.DomainException;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.exceptions.InfrastructureException;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidAccreditationStateChangeException;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidAccreditationInitialStateException;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,55 +32,43 @@ public class AccreditationExceptionsHandler {
         this.logger = logger;
     }
 
-    @ExceptionHandler(ApplicationException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    /*
-     * TODO - This handler is a placeholder - remove, once first specific exception
-     * defined in application layer
-     */
-    public ResponseEntity<RestErrorResponse> handleApplicationException(ApplicationException ex,
+    @ExceptionHandler({InvalidAccreditationInitialStateException.class,
+        InvalidAccreditationStateChangeException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<RestErrorResponse> handleInvalidAccreditationStateException(Exception ex,
         HttpServletRequest request) {
 
+        /* ToDo - this handler should handle any kind of accreditation state exceptions, refactor
+         *    accreditation state exceptions to give a meaningful response and logging output
+         */
+
         RestErrorResponse response = restErrorResponseFactory.create(
-            "message.common.rest.error.application_exception_placeholder", HttpStatus.BAD_REQUEST,
-            request);
+            "message.common.rest.error.accreditation_state_exception_placeholder",
+            HttpStatus.CONFLICT, request);
+
+        /* ToDo - keep default fallback debug log until accreditation state exceptions are
+         *   refactored for meaningful logging output
+         */
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(InfrastructureException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    /*
-     * TODO - This handler is a placeholder - remove, once first specific exception
-     * defined in infrastructure layer
-     */
-    public ResponseEntity<RestErrorResponse> handleInfrastructureException(
-        InfrastructureException ex,
-        HttpServletRequest request) {
+    @ExceptionHandler({InvalidValidityTimeframeException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<RestErrorResponse> handleInvalidValidityTimeframeException(Exception ex
+        , HttpServletRequest request) {
 
         RestErrorResponse response = restErrorResponseFactory.create(
-            "message.common.rest.error.infrastructure_exception_placeholder",
-            HttpStatus.BAD_REQUEST,
-            request);
+            "message.common.rest.error.validity_timeframe_exception_placeholder",
+            HttpStatus.CONFLICT, request
+        );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(DomainException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    /*
-     * TODO - This handler is a placeholder - remove it, once first specific
-     * exception defined in domain layer
-     */
-    public ResponseEntity<RestErrorResponse> handleDomainException(
-        DomainException ex,
-        HttpServletRequest request) {
-
-        RestErrorResponse response = restErrorResponseFactory.create(
-            "message.common.rest.error.domain_exception_placeholder",
-            HttpStatus.BAD_REQUEST,
-            request);
+        /* ToDo - keep default fallback debug log until validity timeframe exceptions are
+         *   refactored for meaningful logging output
+         */
+        logger.debug(ex.getMessage());
         logger.error(new LogOutput(response).toString());
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }

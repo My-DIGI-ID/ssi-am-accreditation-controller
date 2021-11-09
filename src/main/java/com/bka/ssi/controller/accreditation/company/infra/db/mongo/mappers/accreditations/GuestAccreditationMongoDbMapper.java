@@ -2,42 +2,48 @@ package com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.accr
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.GuestAccreditation;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
+import com.bka.ssi.controller.accreditation.company.domain.enums.GuestAccreditationStatus;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.documents.accreditations.GuestAccreditationMongoDbDocument;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.facade.parties.GuestMongoDbFacade;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.accreditations.GuestInvitationDbValue;
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.accreditations.InvitationMongoDbValue;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.CorrelationMongoDbDocument;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GuestAccreditationMongoDbMapper {
 
-    @Autowired
-    private Logger logger;
+    private final Logger logger;
+    private final GuestMongoDbFacade guestMongoDbFacade;
 
-    @Autowired
-    private GuestMongoDbFacade guestMongoDbFacade;
+    public GuestAccreditationMongoDbMapper(Logger logger,
+        GuestMongoDbFacade guestMongoDbFacade) {
+        this.logger = logger;
+        this.guestMongoDbFacade = guestMongoDbFacade;
+    }
 
-    public GuestAccreditationMongoDbDocument guestAccreditationToGuestAccreditationMongoDBDocument(
+    public GuestAccreditationMongoDbDocument entityToDocument(
         GuestAccreditation guestAccreditation) {
         logger.debug("Mapping GuestAccreditation to MongoDb document");
+
         if (guestAccreditation == null) {
             return null;
         } else {
             GuestAccreditationMongoDbDocument document = new GuestAccreditationMongoDbDocument();
 
-            // Rename to GuestInvitationMongoDbValue
-            GuestInvitationDbValue invitationDbValue = new GuestInvitationDbValue();
-            invitationDbValue.setInvitationEmail(guestAccreditation.getInvitationEmail());
-            invitationDbValue.setInvitationLink(guestAccreditation.getInvitationLink());
-            invitationDbValue.setConnectionQrCode(guestAccreditation.getConnectionQrCode());
+            InvitationMongoDbValue invitationMongoDbValue = new InvitationMongoDbValue();
+            invitationMongoDbValue.setInvitationUrl(guestAccreditation.getInvitationUrl());
+            invitationMongoDbValue.setInvitationEmail(guestAccreditation.getInvitationEmail());
+            invitationMongoDbValue.setInvitationQrCode(guestAccreditation.getInvitationQrCode());
 
             document.setPartyId(guestAccreditation.getParty().getId());
             document.setId(guestAccreditation.getId());
-            document.setGuestInvitation(invitationDbValue);
-            document.setAccreditationStatus(guestAccreditation.getStatus());
+            document.setInvitation(invitationMongoDbValue);
+            document.setStatus(guestAccreditation.getStatus().getName());
+            document.setInvitedBy(guestAccreditation.getInvitedBy());
+            document.setInvitedAt(guestAccreditation.getInvitedAt());
 
             CorrelationMongoDbDocument basisIdVerificationCorrelationMongoDbDocument =
                 new CorrelationMongoDbDocument();
@@ -51,6 +57,12 @@ public class GuestAccreditationMongoDbMapper {
                 basisIdVerificationCorrelationMongoDbDocument.setPresentationExchangeId(
                     guestAccreditation.getBasisIdVerificationCorrelation()
                         .getPresentationExchangeId());
+                basisIdVerificationCorrelationMongoDbDocument.setCredentialRevocationRegistryId(
+                    guestAccreditation.getBasisIdVerificationCorrelation()
+                        .getCredentialRevocationRegistryId());
+                basisIdVerificationCorrelationMongoDbDocument.setCredentialRevocationId(
+                    guestAccreditation.getBasisIdVerificationCorrelation()
+                        .getCredentialRevocationId());
             }
 
             CorrelationMongoDbDocument guestCredentialIssuanceCorrelationMongoDbDocument =
@@ -65,6 +77,13 @@ public class GuestAccreditationMongoDbMapper {
                 guestCredentialIssuanceCorrelationMongoDbDocument.setPresentationExchangeId(
                     guestAccreditation.getGuestCredentialIssuanceCorrelation()
                         .getPresentationExchangeId());
+                guestCredentialIssuanceCorrelationMongoDbDocument
+                    .setCredentialRevocationRegistryId(
+                        guestAccreditation.getGuestCredentialIssuanceCorrelation()
+                            .getCredentialRevocationRegistryId());
+                guestCredentialIssuanceCorrelationMongoDbDocument.setCredentialRevocationId(
+                    guestAccreditation.getGuestCredentialIssuanceCorrelation()
+                        .getCredentialRevocationId());
             }
 
             document
@@ -76,28 +95,36 @@ public class GuestAccreditationMongoDbMapper {
         }
     }
 
-    public GuestAccreditation guestAccreditationMongoDBDocumentToGuestAccreditation(
-        GuestAccreditationMongoDbDocument guestAccreditationMongoDbDocument) {
+    public GuestAccreditation documentToEntity(
+        GuestAccreditationMongoDbDocument document)
+        throws InvalidValidityTimeframeException {
         logger.debug("Mapping GuestAccreditationMongoDbDocument to domain entity");
 
-        if (guestAccreditationMongoDbDocument == null) {
+        if (document == null) {
             return null;
         } else {
-            String guestId = guestAccreditationMongoDbDocument.getPartyId();
-            //!! ToDo: WARNING Tech Debt: Move DB fetch out of mapper, should be done in the
-            //  service (custom method in facade)
+            String guestId = document.getPartyId();
+            /**
+             * Technical Debt.: ToDo: WARNING Tech Debt: Move DB fetch out of mapper, should be
+             *                      done in the service (custom method in facade).
+             *                      Further handle Optional not present.
+             */
             Guest guest = guestMongoDbFacade.findById(guestId).get();
 
             Correlation basisIdVerification;
 
-            if (guestAccreditationMongoDbDocument.getBasisIdVerificationCorrelation() != null) {
+            if (document.getBasisIdVerificationCorrelation() != null) {
                 basisIdVerification = new Correlation(
-                    guestAccreditationMongoDbDocument.getBasisIdVerificationCorrelation()
+                    document.getBasisIdVerificationCorrelation()
                         .getConnectionId(),
-                    guestAccreditationMongoDbDocument.getBasisIdVerificationCorrelation()
+                    document.getBasisIdVerificationCorrelation()
                         .getThreadId(),
-                    guestAccreditationMongoDbDocument.getBasisIdVerificationCorrelation()
-                        .getPresentationExchangeId()
+                    document.getBasisIdVerificationCorrelation()
+                        .getPresentationExchangeId(),
+                    document.getBasisIdVerificationCorrelation()
+                        .getCredentialRevocationRegistryId(),
+                    document.getBasisIdVerificationCorrelation()
+                        .getCredentialRevocationId()
                 );
             } else {
                 basisIdVerification = new Correlation();
@@ -105,30 +132,35 @@ public class GuestAccreditationMongoDbMapper {
 
             Correlation guestCredentialIssuance;
 
-            if (guestAccreditationMongoDbDocument.getGuestCredentialIssuanceCorrelation() != null) {
+            if (document.getGuestCredentialIssuanceCorrelation() != null) {
                 guestCredentialIssuance = new Correlation(
-                    guestAccreditationMongoDbDocument.getGuestCredentialIssuanceCorrelation()
+                    document.getGuestCredentialIssuanceCorrelation()
                         .getConnectionId(),
-                    guestAccreditationMongoDbDocument.getGuestCredentialIssuanceCorrelation()
+                    document.getGuestCredentialIssuanceCorrelation()
                         .getThreadId(),
-                    guestAccreditationMongoDbDocument.getGuestCredentialIssuanceCorrelation()
-                        .getPresentationExchangeId()
+                    document.getGuestCredentialIssuanceCorrelation()
+                        .getPresentationExchangeId(),
+                    document.getGuestCredentialIssuanceCorrelation()
+                        .getCredentialRevocationRegistryId(),
+                    document.getGuestCredentialIssuanceCorrelation()
+                        .getCredentialRevocationId()
                 );
             } else {
                 guestCredentialIssuance = new Correlation();
             }
 
             GuestAccreditation accreditation = new GuestAccreditation(
-                guestAccreditationMongoDbDocument.getId(),
+                document.getId(),
                 guest,
-                guestAccreditationMongoDbDocument.getAccreditationStatus(),
+                GuestAccreditationStatus.valueOf(document.getStatus()),
+                document.getInvitedBy(),
+                document.getInvitedAt(),
+                document.getInvitation().getInvitationUrl(),
+                document.getInvitation().getInvitationEmail(),
+                document.getInvitation().getInvitationQrCode(),
                 basisIdVerification,
-                guestCredentialIssuance,
-                guestAccreditationMongoDbDocument.getGuestInvitation().getInvitationEmail(),
-                guestAccreditationMongoDbDocument.getGuestInvitation().getInvitationLink());
+                guestCredentialIssuance);
 
-            accreditation.associateConnectionQrCodeWithAccreditation(
-                guestAccreditationMongoDbDocument.getGuestInvitation().getConnectionQrCode());
             return accreditation;
         }
     }

@@ -1,10 +1,10 @@
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.documents.security;
 
+import java.time.ZonedDateTime;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
-import java.util.Date;
 
 @Document(collection = "guestTokens")
 public class GuestAccessTokenMongoDbDocument {
@@ -13,10 +13,10 @@ public class GuestAccessTokenMongoDbDocument {
     private String id;
 
     @Field("accreditationId")
-    String accreditationId;
+    private String accreditationId;
 
     @Field("expiring")
-    Date expiring;
+    ZonedDateTime expiring;
 
     public GuestAccessTokenMongoDbDocument() {
     }
@@ -37,11 +37,11 @@ public class GuestAccessTokenMongoDbDocument {
         this.accreditationId = accreditationId;
     }
 
-    public Date getExpiring() {
+    public ZonedDateTime getExpiring() {
         return expiring;
     }
 
-    public void setExpiring(Date expiring) {
+    public void setExpiring(ZonedDateTime expiring) {
         this.expiring = expiring;
     }
 }

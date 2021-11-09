@@ -1,25 +1,26 @@
 package com.bka.ssi.controller.accreditation.company.application.factories.accreditations;
 
-import com.bka.ssi.controller.accreditation.company.application.factories.Factory;
-import com.bka.ssi.controller.accreditation.company.application.services.dto.input.accreditations.GuestAccreditationCompositeInputDto;
+import com.bka.ssi.controller.accreditation.company.application.factories.AccreditationFactory;
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.GuestAccreditation;
+import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
+import com.bka.ssi.controller.accreditation.company.domain.enums.GuestAccreditationStatus;
 import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
-public class GuestAccreditationFactory implements Factory<GuestAccreditationCompositeInputDto,
-    GuestAccreditation> {
+import java.time.ZonedDateTime;
 
-    @Autowired
-    private Logger logger;
+@Component
+public class GuestAccreditationFactory implements AccreditationFactory<Guest, GuestAccreditation> {
+
+    private final Logger logger;
+
+    public GuestAccreditationFactory(Logger logger) {
+        this.logger = logger;
+    }
 
     @Override
-    public GuestAccreditation create(GuestAccreditationCompositeInputDto input) throws Exception {
-        if (input == null) {
-            return null;
-        } else {
-        }
-        return null;
+    public GuestAccreditation create(Guest guest, String userName) {
+        return new GuestAccreditation(guest, GuestAccreditationStatus.OPEN, userName,
+            ZonedDateTime.now());
     }
 }

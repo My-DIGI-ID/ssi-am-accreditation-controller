@@ -1,57 +1,52 @@
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.facade.accreditations;
 
-import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
 import com.bka.ssi.controller.accreditation.company.application.repositories.accreditations.GuestAccreditationRepository;
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.GuestAccreditation;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
+import com.bka.ssi.controller.accreditation.company.domain.enums.AccreditationStatus;
+import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.documents.accreditations.GuestAccreditationMongoDbDocument;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.facade.parties.GuestMongoDbFacade;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.accreditations.GuestAccreditationMongoDbMapper;
 import com.bka.ssi.controller.accreditation.company.infra.db.mongo.repositories.accreditations.GuestAccreditationMongoDbRepository;
 import org.slf4j.Logger;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@Repository("guestAccreditationMongoDbFacade")
 public class GuestAccreditationMongoDbFacade implements GuestAccreditationRepository {
 
-    private final GuestAccreditationMongoDbRepository guestAccreditationMongoDbRepository;
-    private final GuestAccreditationMongoDbMapper guestAccreditationMongoDbMapper;
+    private final GuestAccreditationMongoDbRepository repository;
+    private final GuestAccreditationMongoDbMapper mapper;
     private final GuestMongoDbFacade guestMongoDbFacade;
-    private Logger logger;
+    private final Logger logger;
 
     public GuestAccreditationMongoDbFacade(
         GuestAccreditationMongoDbRepository guestAccreditationMongoDbRepository,
         GuestAccreditationMongoDbMapper guestAccreditationMongoDbMapper,
         GuestMongoDbFacade guestMongoDbFacade, Logger logger) {
-        this.guestAccreditationMongoDbRepository = guestAccreditationMongoDbRepository;
-        this.guestAccreditationMongoDbMapper = guestAccreditationMongoDbMapper;
+        this.repository = guestAccreditationMongoDbRepository;
+        this.mapper = guestAccreditationMongoDbMapper;
         this.guestMongoDbFacade = guestMongoDbFacade;
         this.logger = logger;
     }
 
     @Override
-    public GuestAccreditation save(GuestAccreditation guestAccreditation) {
-        GuestAccreditationMongoDbDocument guestAccreditationMongoDBDocument =
-            guestAccreditationMongoDbMapper
-                .guestAccreditationToGuestAccreditationMongoDBDocument(guestAccreditation);
-        GuestAccreditationMongoDbDocument savedGuestAccreditationMongoDBDocument =
-            guestAccreditationMongoDbRepository.save(guestAccreditationMongoDBDocument);
+    public GuestAccreditation save(GuestAccreditation guestAccreditation)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Saving guest accreditation");
 
-        GuestAccreditation savedGuestAccreditation =
-            guestAccreditationMongoDbMapper
-                .guestAccreditationMongoDBDocumentToGuestAccreditation(
-                    savedGuestAccreditationMongoDBDocument);
+        GuestAccreditationMongoDbDocument document = mapper.entityToDocument(guestAccreditation);
+        GuestAccreditationMongoDbDocument savedDocument = repository.save(document);
 
+        GuestAccreditation savedGuestAccreditation = mapper.documentToEntity(savedDocument);
+
+        /* WARNING Tech Debt!! ToDo: saveWithParty(accreditation, party){} */
         /* TODO - add proper error and transaction handling */
         Guest guest = guestMongoDbFacade.save(guestAccreditation.getParty());
 
@@ -59,198 +54,385 @@ public class GuestAccreditationMongoDbFacade implements GuestAccreditationReposi
             savedGuestAccreditation.getId(),
             guest,
             savedGuestAccreditation.getStatus(),
-            savedGuestAccreditation.getInvitationLink(),
-            savedGuestAccreditation.getInvitationEmail()
+            savedGuestAccreditation.getInvitedBy(),
+            savedGuestAccreditation.getInvitedAt(),
+            savedGuestAccreditation.getInvitationUrl(),
+            savedGuestAccreditation.getInvitationEmail(),
+            savedGuestAccreditation.getInvitationQrCode(),
+            savedGuestAccreditation.getBasisIdVerificationCorrelation(),
+            savedGuestAccreditation.getGuestCredentialIssuanceCorrelation()
         );
 
         return updatedGuestAccreditation;
     }
 
-    //WARNING Tech Debt!! ToDo: saveWithParty(accreditation, party){}
-
     @Override
     public <S extends GuestAccreditation> Iterable<S> saveAll(Iterable<S> iterable) {
-        throw new UnsupportedOperationException(
-            "Operation saveAll is not yet implemented");
+        throw new UnsupportedOperationException("Operation saveAll is not yet implemented");
     }
 
     @Override
-    public Optional<GuestAccreditation> findById(String id) {
-        logger.debug("Fetching Guest Accreditation with id " + id + " from MongoDB");
-        Optional<GuestAccreditationMongoDbDocument> guestAccreditationMongoDbDocument =
-            this.guestAccreditationMongoDbRepository.findById(id);
+    public Optional<GuestAccreditation> findById(String id)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation with accreditationId " + id);
 
-        GuestAccreditation guestAccreditation =
-            this.guestAccreditationMongoDbMapper
-                .guestAccreditationMongoDBDocumentToGuestAccreditation(
-                    guestAccreditationMongoDbDocument.get());
+        Optional<GuestAccreditationMongoDbDocument> document = this.repository.findById(id);
+
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+
+        GuestAccreditation guestAccreditation = this.mapper.documentToEntity(document.get());
 
         return Optional.of(guestAccreditation);
     }
 
-    public Optional<GuestAccreditation> findByConnectionIdAndThreadId(String correlationId,
-        String threadId) {
+    @Override
+    public Optional<GuestAccreditation> findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+        String connectionId, String threadId)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation with " +
+            "BasisIdVerificationCorrelationConnectionId " + connectionId +
+            " and BasisIdVerificationCorrelationThreadId " + threadId);
 
-        Iterator<GuestAccreditation> iterator = this.findAll().iterator();
-        while (iterator.hasNext()) {
-            GuestAccreditation accreditation = iterator.next();
+        Optional<GuestAccreditationMongoDbDocument> document =
+            this.repository
+                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                    connectionId, threadId);
 
-            if (accreditation.getBasisIdVerificationCorrelation().getConnectionId()
-                .equals(correlationId) &&
-                accreditation.getBasisIdVerificationCorrelation().getThreadId()
-                    .equals(threadId)) {
-
-                return Optional.of(accreditation);
-            }
+        if (document.isEmpty()) {
+            return Optional.empty();
         }
-        return null;
+
+        GuestAccreditation guestAccreditation =
+            this.mapper.documentToEntity(document.get());
+
+        return Optional.of(guestAccreditation);
     }
 
     @Override
-    public Optional<GuestAccreditation> findByIssuanceConnectionIdAndThreadId(String correlationId,
-        String threadId) {
-        Iterator<GuestAccreditation> iterator = this.findAll().iterator();
-        while (iterator.hasNext()) {
-            GuestAccreditation accreditation = iterator.next();
+    public Optional<GuestAccreditation> findByPartyId(String partyId)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation by partyId " + partyId);
 
-            if (correlationId.equals(accreditation.getGuestCredentialIssuanceCorrelation().getConnectionId())) {
+        Optional<GuestAccreditationMongoDbDocument> document =
+            this.repository.findByPartyId(partyId);
 
-                return Optional.of(accreditation);
-            }
+        if (document.isEmpty()) {
+            return Optional.empty();
         }
-        return Optional.ofNullable(null);
+
+        GuestAccreditation guestAccreditation =
+            this.mapper.documentToEntity(document.get());
+
+        return Optional.of(guestAccreditation);
     }
 
     @Override
-    public Optional<GuestAccreditation> findByVerificationQueryParameters(
-        String referenceBasisId, String firstName, String lastName, String dateOfBirth,
-        String companyName, Date validFromDate, Date validUntilDate, String invitedBy)
-        throws NotFoundException {
+    public Optional<GuestAccreditation> findByBasisIdVerificationCorrelationConnectionId(
+        String connectionId) {
+        throw new UnsupportedOperationException(
+            "Operation findByBasisIdVerificationCorrelationConnectionId is not yet implemented");
+    }
 
-        Iterator<GuestAccreditation> iterator = this.findAll().iterator();
+    @Override
+    public Optional<GuestAccreditation> findByBasisIdVerificationCorrelationThreadId(
+        String threadId) {
+        throw new UnsupportedOperationException(
+            "Operation findByBasisIdVerificationCorrelationThreadId is not yet implemented");
+    }
 
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    @Override
+    public Optional<GuestAccreditation> findByBasisIdVerificationCorrelationPresentationExchangeId(
+        String presentationExchangeId) {
+        throw new UnsupportedOperationException(
+            "Operation findByBasisIdVerificationCorrelationPresentationExchangeId is not yet implemented");
+    }
 
-        if (!iterator.hasNext()) {
-            throw new NotFoundException();
+    @Override
+    public Optional<GuestAccreditation> findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadIdAndBasisIdVerificationCorrelationPresentationExchangeId(
+        String connectionId, String threadId, String presentationExchangeId) {
+        throw new UnsupportedOperationException(
+            "Operation findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadIdAndBasisIdVerificationCorrelationPresentationExchangeId is not yet implemented");
+    }
+
+    @Override
+    public Optional<GuestAccreditation> findByGuestCredentialIssuanceCorrelationConnectionId(
+        String connectionId)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation with " +
+            "GuestCredentialIssuanceCorrelationConnectionId " + connectionId);
+
+        Optional<GuestAccreditationMongoDbDocument> document =
+            this.repository.findByGuestCredentialIssuanceCorrelationConnectionId(connectionId);
+
+        if (document.isEmpty()) {
+            return Optional.empty();
         }
 
-        while (iterator.hasNext()) {
-            GuestAccreditation accreditation = iterator.next();
+        GuestAccreditation guestAccreditation =
+            this.mapper.documentToEntity(document.get());
 
-            boolean isReferenceEqual =
-                referenceBasisId.equals(
-                    accreditation.getParty().getCredentialOffer().getCredential()
-                        .getReferenceBasisId());
+        return Optional.of(guestAccreditation);
+    }
 
-            boolean isFirstNameEqual =
-                firstName.equals(
-                    accreditation.getParty().getCredentialOffer().getCredential().getPersona()
-                        .getFirstName());
+    @Override
+    public Optional<GuestAccreditation> findByGuestCredentialIssuanceCorrelationThreadId(
+        String threadId) {
+        throw new UnsupportedOperationException(
+            "Operation findByGuestCredentialIssuanceCorrelationThreadId is not yet implemented");
+    }
 
-            boolean isLastNameEqual =
-                lastName.equals(
-                    accreditation.getParty().getCredentialOffer().getCredential().getPersona()
-                        .getLastName());
+    @Override
+    public Optional<GuestAccreditation> findByGuestCredentialIssuanceCorrelationPresentationExchangeId(
+        String presentationExchangeId) {
+        throw new UnsupportedOperationException(
+            "Operation findByGuestCredentialIssuanceCorrelationPresentationExchangeId is not yet implemented");
+    }
 
-            boolean isDateOfBirthEqual =
-                dateOfBirth.equals(accreditation.getParty().getCredentialOffer().getCredential()
-                    .getGuestPrivateInformation()
-                    .getDateOfBirth());
+    @Override
+    public Optional<GuestAccreditation> findByGuestCredentialIssuanceCorrelationConnectionIdAndGuestCredentialIssuanceCorrelationThreadId(
+        String connectionId, String threadId)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation with " +
+            "GuestCredentialIssuanceCorrelationConnectionId " + connectionId +
+            " and GuestCredentialIssuanceCorrelationThreadId " + threadId);
 
-            boolean isCompanyNameEqual =
-                companyName.equals(
-                    accreditation.getParty().getCredentialOffer().getCredential().getCompanyName());
+        Optional<GuestAccreditationMongoDbDocument> document =
+            this.repository
+                .findByGuestCredentialIssuanceCorrelationConnectionIdAndGuestCredentialIssuanceCorrelationThreadId(
+                    connectionId, threadId);
 
-            boolean isValidFromDateEqual =
-                format.format(validFromDate).equals(format.format(accreditation.getParty().getCredentialOffer().getCredential()
-                    .getValidityTimeframe()
-                    .getValidFromDate()));
-
-            boolean isValidUntilDateEqual =
-                format.format(validUntilDate).equals(format.format(accreditation.getParty().getCredentialOffer().getCredential()
-                    .getValidityTimeframe()
-                    .getValidUntilDate()));
-
-            boolean isInvitedByEqual =
-                invitedBy.equals(
-                    accreditation.getParty().getCredentialOffer().getCredential().getInvitedBy());
-
-            if (
-                isReferenceEqual
-                    && isFirstNameEqual
-                    && isLastNameEqual
-                    && isDateOfBirthEqual
-                    && isCompanyNameEqual
-                    && isValidFromDateEqual
-                    && isValidUntilDateEqual
-                    && isInvitedByEqual
-            ) {
-                return Optional.of(accreditation);
-            }
+        if (document.isEmpty()) {
+            return Optional.empty();
         }
 
-        return null;
+        GuestAccreditation guestAccreditation =
+            this.mapper.documentToEntity(document.get());
+
+        return Optional.of(guestAccreditation);
+    }
+
+    @Override
+    public Optional<GuestAccreditation> findByGuestCredentialIssuanceCorrelationConnectionIdAndGuestCredentialIssuanceCorrelationThreadIdAndGuestCredentialIssuanceCorrelationPresentationExchangeId(
+        String connectionId, String threadId, String presentationExchangeId) {
+        throw new UnsupportedOperationException(
+            "Operation findByGuestCredentialIssuanceCorrelationConnectionIdAndGuestCredentialIssuanceCorrelationThreadIdAndGuestCredentialIssuanceCorrelationPresentationExchangeId is not yet implemented");
+    }
+
+    @Override
+    public <R extends AccreditationStatus> List<GuestAccreditation> findAllByStatus(
+        R status) throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditations with accreditationStatus: " +
+            status.getName());
+
+        List<GuestAccreditationMongoDbDocument> documents =
+            this.repository.findAllByStatus(status.getName());
+
+        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+        for (GuestAccreditationMongoDbDocument document : documents) {
+            guestAccreditations.add(this.mapper.documentToEntity(document));
+        }
+
+        return guestAccreditations;
+    }
+
+    @Override
+    public <R extends AccreditationStatus> List<GuestAccreditation> findAllByStatusIsNot(
+        R status) throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditations which do not have accreditationStatus: " +
+            status.getName());
+
+        List<GuestAccreditationMongoDbDocument> documents =
+            this.repository.findAllByStatusIsNot(status.getName());
+
+        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+        for (GuestAccreditationMongoDbDocument document : documents) {
+            guestAccreditations.add(this.mapper
+                .documentToEntity(document));
+        }
+
+        return guestAccreditations;
+    }
+
+    @Override
+    public <R extends AccreditationStatus> long countByStatus(R status) {
+        logger.debug("Counting guest accreditations with accreditationStatus: " +
+            status.getName());
+
+        return this.repository.countByStatus(status.getName());
+    }
+
+    @Override
+    public <R extends AccreditationStatus> long countByStatusIsNot(R status) {
+        logger.debug("Counting guest accreditations which do not have accreditationStatus: " +
+            status.getName());
+
+        return this.repository.countByStatusIsNot(status.getName());
+    }
+
+    @Override
+    public Optional<GuestAccreditation> findByPartyParams(String referenceBasisId,
+        String firstName, String lastName, String dateOfBirth, String companyName,
+        ZonedDateTime validFrom, ZonedDateTime validUntil, String invitedBy)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation by various party params");
+
+        Optional<Guest> guest = guestMongoDbFacade.findByPartyParams(referenceBasisId, firstName,
+            lastName, dateOfBirth, companyName, validFrom, validUntil, invitedBy);
+
+        if (guest.isEmpty()) {
+            return Optional.empty();
+        }
+
+        String partyId = guest.get().getId();
+        /* ToDo - take care of accreditations for exact same partyId, needs sanity check */
+        Optional<GuestAccreditation> guestAccreditation = this.findByPartyId(partyId);
+
+        return guestAccreditation;
+    }
+
+    @Override
+    public List<GuestAccreditation> findAllByCredentialInvitedBy(String invitedBy)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching all guest accreditations by credential invitedBy " + invitedBy);
+        List<Guest> guests =
+            guestMongoDbFacade.findAllByCredentialInvitedBy(invitedBy);
+
+        List<GuestAccreditation> accreditations = new ArrayList<>();
+        for (Guest guest : guests) {
+            accreditations.addAll(this.findAllByPartyId(guest.getId()));
+        }
+
+        return accreditations;
+    }
+
+    @Override
+    public List<GuestAccreditation> findAllByPartyId(String partyId)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching all guest accreditations with partyId: " + partyId);
+
+        List<GuestAccreditationMongoDbDocument> documents =
+            this.repository.findAllByPartyId(partyId);
+
+        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+        for (GuestAccreditationMongoDbDocument document :
+            documents) {
+            guestAccreditations.add(this.mapper
+                .documentToEntity(document));
+        }
+
+        return guestAccreditations;
     }
 
     @Override
     public boolean existsById(String id) {
-        throw new UnsupportedOperationException(
-            "Operation existsById is not yet implemented");
+        throw new UnsupportedOperationException("Operation existsById is not yet implemented");
     }
 
     @Override
-    public Iterable<GuestAccreditation> findAll() {
-        Iterable<GuestAccreditationMongoDbDocument> guestAccreditationMongoDbDocuments =
-            this.guestAccreditationMongoDbRepository.findAll();
-        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+    public Iterable<GuestAccreditation> findAll() throws InvalidValidityTimeframeException {
+        logger.debug("Fetching all guest accreditations");
 
-        guestAccreditationMongoDbDocuments.forEach(document -> guestAccreditations
-            .add(this.guestAccreditationMongoDbMapper
-                .guestAccreditationMongoDBDocumentToGuestAccreditation(document)));
+        Iterable<GuestAccreditationMongoDbDocument> documents = this.repository.findAll();
+
+        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+        for (GuestAccreditationMongoDbDocument document : documents) {
+            guestAccreditations.add(this.mapper
+                .documentToEntity(document));
+        }
 
         return guestAccreditations;
     }
 
     @Override
     public Iterable<GuestAccreditation> findAllById(Iterable<String> iterable) {
-        throw new UnsupportedOperationException(
-            "Operation findAllById is not yet implemented");
+        throw new UnsupportedOperationException("Operation findAllById is not yet implemented");
     }
 
     @Override
     public long count() {
-        throw new UnsupportedOperationException(
-            "Operation count is not yet implemented");
+        logger.debug("Counting guest accreditations");
+
+        return this.repository.count();
     }
 
     @Override
     public void deleteById(String id) {
-        throw new UnsupportedOperationException(
-            "Operation deleteById is not yet implemented");
+        throw new UnsupportedOperationException("Operation deleteById is not yet implemented");
     }
 
     @Override
     public void delete(GuestAccreditation guestAccreditation) {
-        throw new UnsupportedOperationException(
-            "Operation delete is not yet implemented");
+        throw new UnsupportedOperationException("Operation delete is not yet implemented");
     }
 
     @Override
     public void deleteAllById(Iterable<? extends String> iterable) {
-        throw new UnsupportedOperationException(
-            "Operation deleteAllById is not yet implemented");
+        throw new UnsupportedOperationException("Operation deleteAllById is not yet implemented");
     }
 
     @Override
     public void deleteAll(Iterable<? extends GuestAccreditation> iterable) {
-        throw new UnsupportedOperationException(
-            "Operation deleteAll is not yet implemented");
+        throw new UnsupportedOperationException("Operation deleteAll is not yet implemented");
     }
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException(
-            "Operation deleteAll is not yet implemented");
+        throw new UnsupportedOperationException("Operation deleteAll is not yet implemented");
+    }
+
+    @Override
+    public Optional<GuestAccreditation> findByIdAndInvitedBy(String id, String invitedBy)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching guest accreditation by id {} and invitedBy {}", id, invitedBy);
+
+        Optional<GuestAccreditationMongoDbDocument> document =
+            this.repository.findByIdAndInvitedBy(id, invitedBy);
+
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+
+        GuestAccreditation guestAccreditation =
+            this.mapper.documentToEntity(document.get());
+
+        return Optional.of(guestAccreditation);
+    }
+
+    @Override
+    public List<GuestAccreditation> findAllByInvitedBy(String invitedBy)
+        throws InvalidValidityTimeframeException {
+        logger.debug("Fetching all guest accreditations by invitedBy " + invitedBy);
+
+        List<GuestAccreditationMongoDbDocument> documents =
+            this.repository.findAllByInvitedBy(invitedBy);
+
+        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+        for (GuestAccreditationMongoDbDocument document : documents) {
+            guestAccreditations.add(this.mapper
+                .documentToEntity(document));
+        }
+
+        return guestAccreditations;
+    }
+
+    @Override
+    public <R extends AccreditationStatus> List<GuestAccreditation> findAllByInvitedByAndValidStatus(
+        String invitedBy, List<R> status) throws InvalidValidityTimeframeException {
+        logger.debug("Fetching all valid guest accreditations by invitedBy {}", invitedBy);
+
+        List<String> stats = status.stream().map(s -> s.getName()).collect(Collectors.toList());
+
+        List<GuestAccreditationMongoDbDocument> documents =
+            this.repository.findAllByInvitedByAndStatusIsNot(invitedBy, stats);
+
+        List<GuestAccreditation> guestAccreditations = new ArrayList<>();
+        for (GuestAccreditationMongoDbDocument document : documents) {
+            guestAccreditations.add(this.mapper
+                .documentToEntity(document));
+        }
+
+        return guestAccreditations;
     }
 }
