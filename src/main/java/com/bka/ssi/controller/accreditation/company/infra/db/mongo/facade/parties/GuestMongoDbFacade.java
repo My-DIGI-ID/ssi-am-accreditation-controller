@@ -131,7 +131,7 @@ public class GuestMongoDbFacade implements GuestRepository {
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException("Operation deleteAll is not yet implemented");
+        this.repository.deleteAll();
     }
 
     @Override

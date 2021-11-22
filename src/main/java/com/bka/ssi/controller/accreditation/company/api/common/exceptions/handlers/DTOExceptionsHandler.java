@@ -3,6 +3,7 @@ package com.bka.ssi.controller.accreditation.company.api.common.exceptions.handl
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.BundleConstraintViolationExceptionsException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,10 +41,11 @@ public class DTOExceptionsHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(ConstraintViolationException.class)
+    @ExceptionHandler({ConstraintViolationException.class,
+        BundleConstraintViolationExceptionsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<RestErrorResponse> handleConstraintViolationException(
-        ConstraintViolationException ex, HttpServletRequest request) {
+        Exception ex, HttpServletRequest request) {
 
         /* ToDo - care about ex.getMessage, validation might contain sensible information? for
             now ex.getMessage consists of constraintViolation.getMessage() */

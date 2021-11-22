@@ -18,6 +18,7 @@ import com.bka.ssi.controller.accreditation.acapy_client.model.V10PresentationSe
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.CredentialsConfiguration;
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
+import com.bka.ssi.controller.accreditation.company.application.utilities.NonceGenerator;
 import com.bka.ssi.controller.accreditation.company.domain.values.BasisIdPresentation;
 import com.bka.ssi.controller.accreditation.company.domain.values.ConnectionInvitation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
@@ -32,7 +33,6 @@ import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,8 +45,6 @@ public class ACAPYClientV6 implements ACAPYClient {
 
     private final ACAPYConfiguration acapyConfiguration;
     private final CredentialsConfiguration credentialsConfiguration;
-
-    private final SecureRandom secureRandom;
 
     private final ConnectionApi connectionApi;
     private final IssueCredentialV10Api issueCredentialApi;
@@ -62,7 +60,6 @@ public class ACAPYClientV6 implements ACAPYClient {
         this.credentialsConfiguration = credentialsConfiguration;
         this.acapyConfiguration = acapyConfiguration;
 
-        this.secureRandom = new SecureRandom();
         this.presentProofV10Api = new PresentProofV10Api(this.acapyConfiguration.getApiClient());
         this.connectionApi = new ConnectionApi(this.acapyConfiguration.getApiClient());
         this.issueCredentialApi = new IssueCredentialV10Api(this.acapyConfiguration.getApiClient());
@@ -95,7 +92,7 @@ public class ACAPYClientV6 implements ACAPYClient {
 
     @Override
     public Correlation verifyBasisId(String connectionId) throws ACAPYVerificationException {
-        String nonce = String.valueOf(secureRandom.nextInt());
+        String nonce = String.valueOf(NonceGenerator.nextPositiveInt());
 
         logger.debug("Building basisId proof request attributes");
         Map<String, String> restrictionItem = new HashMap<>();

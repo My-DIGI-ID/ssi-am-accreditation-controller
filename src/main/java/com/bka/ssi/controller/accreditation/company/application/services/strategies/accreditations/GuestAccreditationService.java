@@ -1,5 +1,11 @@
 package com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations;
 
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.AlreadyExistsException;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidAccreditationStateChangeException;
@@ -7,10 +13,10 @@ import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFo
 import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthorizedException;
 import com.bka.ssi.controller.accreditation.company.application.factories.accreditations.GuestAccreditationFactory;
 import com.bka.ssi.controller.accreditation.company.application.repositories.accreditations.GuestAccreditationRepository;
+import com.bka.ssi.controller.accreditation.company.application.repositories.parties.GuestRepository;
 import com.bka.ssi.controller.accreditation.company.application.security.authentication.AuthenticationService;
 import com.bka.ssi.controller.accreditation.company.application.services.AccreditationService;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.accreditations.GuestAccreditationPrivateInfoInputDto;
-import com.bka.ssi.controller.accreditation.company.application.services.strategies.parties.GuestPartyService;
 import com.bka.ssi.controller.accreditation.company.application.utilities.BasisIdPresentationUtility;
 import com.bka.ssi.controller.accreditation.company.application.utilities.EmailBuilder;
 import com.bka.ssi.controller.accreditation.company.application.utilities.QrCodeGenerator;
@@ -28,19 +34,15 @@ import com.bka.ssi.controller.accreditation.company.domain.values.BasisIdPresent
 import com.bka.ssi.controller.accreditation.company.domain.values.ConnectionInvitation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Service
-public class GuestAccreditationService extends AccreditationService<GuestAccreditation> {
+public class GuestAccreditationService
+    extends AccreditationService<GuestAccreditation, Guest, GuestAccreditationStatus> {
 
     /* Enable testing of mock BasisId which will always result to false validity by design */
     @Value("${guest.basisIdVerificationDevMode:false}")
@@ -49,28 +51,26 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
     @Value("${accreditation.guest.connection.qr.size}")
     private int qrSize;
 
-    private final GuestPartyService guestPartyService;
     private final AuthenticationService authenticationService;
     private final ACAPYClient acapyClient;
     private final EmailBuilder emailBuilder;
     private final UrlBuilder urlBuilder;
-    private final QrCodeGenerator qrCodeGenerator;
     private final BasisIdPresentationUtility basisIdPresentationUtility;
 
     public GuestAccreditationService(
         @Qualifier("guestAccreditationMongoDbFacade")
             GuestAccreditationRepository guestAccreditationRepository,
-        GuestAccreditationFactory guestAccreditationFactory, GuestPartyService guestPartyService,
-        Logger logger, EmailBuilder emailBuilder, QrCodeGenerator qrCodeGenerator,
+        GuestAccreditationFactory guestAccreditationFactory,
+        Logger logger, EmailBuilder emailBuilder,
         UrlBuilder urlBuilder, ACAPYClient acapyClient,
         AuthenticationService authenticationService,
-        BasisIdPresentationUtility basisIdPresentationUtility) {
-        super(logger, guestAccreditationRepository, guestAccreditationFactory);
+        BasisIdPresentationUtility basisIdPresentationUtility,
+        @Qualifier("guestMongoDbFacade")
+            GuestRepository guestRepository) {
+        super(logger, guestAccreditationRepository, guestAccreditationFactory, guestRepository);
         this.emailBuilder = emailBuilder;
         this.acapyClient = acapyClient;
-        this.qrCodeGenerator = qrCodeGenerator;
         this.urlBuilder = urlBuilder;
-        this.guestPartyService = guestPartyService;
         this.authenticationService = authenticationService;
         this.basisIdPresentationUtility = basisIdPresentationUtility;
     }
@@ -81,15 +81,16 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         InvalidAccreditationInitialStateException, InvalidValidityTimeframeException, Exception {
         logger.info("Initiating accreditation with invitation email for guest with id {}", partyId);
 
-        // Check if an accreditation has been created previously, if so return it
+        Guest guest =
+            partyRepository.findByIdAndCreatedBy(partyId, userName)
+                .orElseThrow(NotFoundException::new);
+
         List<GuestAccreditation> existingAccreditation =
-            this.repository.findAllByPartyId(partyId);
+            this.accreditationRepository.findAllByPartyId(partyId);
         if (!existingAccreditation.isEmpty()) {
             logger.warn("Accreditation already exists, returning existing one at index 0");
             return existingAccreditation.get(0);
         }
-
-        Guest guest = guestPartyService.getPartyById(partyId, userName);
 
         if (!new GuestValidityTimeframeTodaySpecification().isSatisfiedBy(guest)) {
             throw new InvalidValidityTimeframeException(
@@ -102,7 +103,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
             ((GuestAccreditationFactory) factory).create(guest, userName);
 
         // Interim save in order to generate accreditationId
-        GuestAccreditation accreditation = this.repository.save(newAccreditation);
+        GuestAccreditation accreditation = this.accreditationRepository.save(newAccreditation);
 
         String redirectUrl = urlBuilder.buildGuestInvitationRedirectUrl(accreditation.getId());
 
@@ -111,7 +112,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         accreditation.initiateAccreditationWithInvitationUrlAndInvitationEmail(
             redirectUrl, invitationEmail);
 
-        GuestAccreditation updatedAccreditation = this.repository.save(accreditation);
+        GuestAccreditation updatedAccreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug(
             "Accreditation with id {} is in status {} with redirectUrl {} and invitation email {}",
@@ -121,24 +122,39 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
     }
 
     @Override
+    public byte[] generateAccreditationWithEmailAsMessage(String accreditationId) throws Exception {
+        GuestAccreditation accreditation =
+            this.accreditationRepository.findById(accreditationId)
+                .orElseThrow(NotFoundException::new);
+
+        List<String> emailAddresses =
+            accreditation.getParty().getCredentialOffer().getCredential().getContactInformation()
+                .getEmails();
+        String email = accreditation.getInvitationEmail();
+        return this.emailBuilder
+            .buildInvitationEmailAsMessage(emailAddresses, "Invitation for Guest Credential",
+                email);
+    }
+
+    @Override
     public GuestAccreditation proceedWithAccreditation(String accreditationId)
         throws NotFoundException, Exception {
         logger.info("Proceeding accreditation with qr code for accreditation with id {}",
             accreditationId);
 
-        GuestAccreditation accreditation = this.repository.findById(accreditationId)
+        GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
         ConnectionInvitation connectionInvitation =
             acapyClient.createConnectionInvitation(accreditationId);
         String connectionUrl = connectionInvitation.getInvitationUrl();
 
-        String connectionQrCode = qrCodeGenerator.generateQrCodeSvg(connectionUrl, qrSize, qrSize);
+        String connectionQrCode = QrCodeGenerator.generateQrCodeSvg(connectionUrl, qrSize, qrSize);
 
         accreditation = accreditation
             .associateInvitationQrCodeWithAccreditation(connectionQrCode);
 
-        GuestAccreditation savedAccreditation = this.repository.save(accreditation);
+        GuestAccreditation savedAccreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {} with invitation url {}",
             savedAccreditation.getId(), savedAccreditation.getStatus(), connectionUrl);
@@ -149,7 +165,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         throws NotFoundException, Exception {
         logger.info("Verify basis id for accreditation with id {}", accreditationId);
 
-        GuestAccreditation accreditation = this.repository.findById(accreditationId)
+        GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
         Correlation correlation = acapyClient.verifyBasisId(connectionId);
@@ -158,7 +174,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
 
         logger.debug("Accreditation with id {} is in status {}",
             accreditation.getId(), accreditation.getStatus());
-        this.repository.save(accreditation);
+        this.accreditationRepository.save(accreditation);
     }
 
     public void completeVerificationOfBasisId(String connectionId, String threadId,
@@ -166,11 +182,12 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
 
         boolean basisIdVerified = verified != null && Boolean.parseBoolean(verified);
 
-        GuestAccreditation accreditation = ((GuestAccreditationRepository) this.repository)
-            .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                connectionId,
-                threadId)
-            .orElseThrow(NotFoundException::new);
+        GuestAccreditation accreditation =
+            ((GuestAccreditationRepository) this.accreditationRepository)
+                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                    connectionId,
+                    threadId)
+                .orElseThrow(NotFoundException::new);
 
         logger.info("Getting basisId verification status for accreditation with id {}",
             accreditation.getId());
@@ -214,14 +231,15 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
                 accreditation.getId(), accreditation.getStatus());
         }
 
-        this.repository.save(accreditation);
+        this.accreditationRepository.save(accreditation);
     }
 
     public GuestAccreditation appendWithProprietaryInformationFromGuest(String accreditationId,
         GuestAccreditationPrivateInfoInputDto inputDto) throws Exception {
 
         GuestAccreditation accreditation =
-            this.repository.findById(accreditationId).orElseThrow(NotFoundException::new);
+            this.accreditationRepository.findById(accreditationId)
+                .orElseThrow(NotFoundException::new);
 
         logger.info("Appending guest accreditation with id {} with private information",
             accreditation.getId());
@@ -235,7 +253,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
             inputDto.getSecondaryPhoneNumber()
         );
 
-        GuestAccreditation savedAccreditation = this.repository.save(accreditation);
+        GuestAccreditation savedAccreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {}", savedAccreditation.getId(),
             savedAccreditation.getStatus());
@@ -245,7 +263,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
     @Override
     public GuestAccreditation offerAccreditation(String accreditationId)
         throws NotFoundException, Exception {
-        GuestAccreditation accreditation = this.repository.findById(accreditationId)
+        GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
         logger.info("Offer accreditation with id {}", accreditationId);
 
@@ -273,7 +291,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         Correlation correlation = acapyClient.issueCredential(guestCredentialOffer, connectionId);
 
         accreditation.offerAccreditation(correlation);
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {}", accreditation.getId(),
             accreditation.getStatus());
@@ -288,13 +306,14 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
 
         Correlation correlation = acapyClient.getRevocationCorrelation(credentialExchangeId);
 
-        GuestAccreditation accreditation = ((GuestAccreditationRepository) this.repository)
-            .findByGuestCredentialIssuanceCorrelationConnectionId(connectionId)
-            .orElseThrow(NotFoundException::new);
+        GuestAccreditation accreditation =
+            ((GuestAccreditationRepository) this.accreditationRepository)
+                .findByGuestCredentialIssuanceCorrelationConnectionId(connectionId)
+                .orElseThrow(NotFoundException::new);
 
         accreditation.completeAccreditation(correlation, issuedBy);
 
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
         this.authenticationService.invalidateGuestAccessToken(accreditation.getId());
 
         logger.debug("Accreditation with id {} is in status {}", accreditation.getId(),
@@ -304,7 +323,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
 
 
     public boolean isGuestBasisIdValidationCompleted(String accreditationId) throws Exception {
-        GuestAccreditation accreditation = this.repository.findById(accreditationId)
+        GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
         if (accreditation.getStatus() == GuestAccreditationStatus.BASIS_ID_INVALID) {
@@ -316,7 +335,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
 
     @Override
     public boolean isAccreditationCompleted(String accreditationId) throws Exception {
-        GuestAccreditation accreditation = this.repository.findById(accreditationId)
+        GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
         return new AccreditationCompletedSpecification().isSatisfiedBy(accreditation);
@@ -328,7 +347,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         throws Exception {
 
         GuestAccreditation accreditation =
-            ((GuestAccreditationRepository) this.repository).findByPartyParams(
+            ((GuestAccreditationRepository) this.accreditationRepository).findByPartyParams(
                 referenceBasisId,
                 firstName,
                 lastName,
@@ -346,11 +365,12 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         throws Exception {
         logger.info("Clean information from accreditation with id {}", accreditationId);
 
-        GuestAccreditation accreditation = this.repository.findById(accreditationId)
+        GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
         GuestAccreditation cleanedAccreditation = accreditation.cleanGuestInformationOnCheckout();
-        GuestAccreditation savedAccreditation = this.repository.save(cleanedAccreditation);
+        GuestAccreditation savedAccreditation =
+            this.accreditationRepository.save(cleanedAccreditation);
 
         logger.debug("Accreditation with id {} is in status {}", savedAccreditation.getId(),
             savedAccreditation.getStatus());
@@ -363,7 +383,8 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
             accreditationsGroupedByStatus = new HashMap<>();
 
         for (GuestAccreditationStatus status : GuestAccreditationStatus.values()) {
-            accreditationsGroupedByStatus.put(status, this.repository.findAllByStatus(status));
+            accreditationsGroupedByStatus
+                .put(status, this.accreditationRepository.findAllByStatus(status));
         }
 
         return accreditationsGroupedByStatus;
@@ -374,7 +395,8 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
             countOfAccreditationsGroupedByStatus = new HashMap<>();
 
         for (GuestAccreditationStatus status : GuestAccreditationStatus.values()) {
-            countOfAccreditationsGroupedByStatus.put(status, this.repository.countByStatus(status));
+            countOfAccreditationsGroupedByStatus
+                .put(status, this.accreditationRepository.countByStatus(status));
         }
 
         return countOfAccreditationsGroupedByStatus;
@@ -385,7 +407,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         throws NotFoundException, Exception {
         logger.info("Revoke accreditation with id {}", accreditationId);
 
-        GuestAccreditation accreditation = this.repository
+        GuestAccreditation accreditation = this.accreditationRepository
             .findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
@@ -400,7 +422,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
         /* ToDo - Discuss if accreditation totally or partly must be removed/ blackened, if so implement
             in domain revokeAccreditation() method */
         accreditation.revokeAccreditation();
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {}", accreditation.getId(),
             accreditation.getStatus());
@@ -410,7 +432,7 @@ public class GuestAccreditationService extends AccreditationService<GuestAccredi
     @Override
     public List<GuestAccreditation> getAllAccreditations(String userName) throws Exception {
         /* ToDo - clarify if CANCELLED or BASIS_ID_INVALID should be excluded */
-        return this.repository.findAllByInvitedByAndValidStatus(userName,
+        return this.accreditationRepository.findAllByInvitedByAndValidStatus(userName,
             Arrays.asList(GuestAccreditationStatus.REVOKED));
     }
 }

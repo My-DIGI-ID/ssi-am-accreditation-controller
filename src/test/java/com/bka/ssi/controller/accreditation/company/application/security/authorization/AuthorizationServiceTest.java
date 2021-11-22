@@ -100,4 +100,15 @@ public class AuthorizationServiceTest {
             authenticationService.verifySSOPermission(invalidToken, authorizedCondition);
         });
     }
+
+    @Test
+    public void shouldThrowUnauthorizedExceptionForEmptyToken() {
+        // when
+        AuthorizationService authenticationService = new AuthorizationService(client, logger);
+
+        // then
+        assertThrows(UnauthorizedException.class, () -> {
+            authenticationService.verifySSOPermission("", authorizedCondition);
+        });
+    }
 }

@@ -6,11 +6,9 @@ import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accre
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.accreditations.GuestAccreditationOutputDtoMapper;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.parties.GuestOutputDtoMapper;
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.GuestAccreditation;
-import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
 import com.bka.ssi.controller.accreditation.company.domain.enums.GuestAccreditationStatus;
 import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.GuestAccreditationBuilder;
-import com.bka.ssi.controller.accreditation.company.testutilities.party.guest.GuestBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,38 +21,35 @@ import java.util.List;
 import java.util.Map;
 
 public class GuestAccreditationStatisticOutputMapperTest {
+
     private static final Logger logger =
         LoggerFactory.getLogger(GuestAccreditationStatisticOutputMapperTest.class);
     private static GuestAccreditationStatisticOutputMapper guestAccreditationStatisticOutputMapper;
+    private static GuestAccreditationOutputDtoMapper guestAccreditationOutputDtoMapper;
+    private static GuestOutputDtoMapper guestOutputDtoMapper;
+
+    private static GuestAccreditationBuilder guestAccreditationBuilder;
+
+    private static final String INVITEDBY = "unittest";
+
     private Map<GuestAccreditationStatus, List<GuestAccreditation>> accreditationsGroupedByStatus;
-    private Map<GuestAccreditationStatus, Long> countOfAccreditationsGroupedByStatus;
     private List<GuestAccreditation> guestAccreditationList;
-    private static final String INVITEE = "unittest";
+    private Map<GuestAccreditationStatus, Long> countOfAccreditationsGroupedByStatus;
 
     @BeforeAll
-    static void init() {
-        // Mapper
-        GuestOutputDtoMapper guestOutputDtoMapper = new GuestOutputDtoMapper(logger);
-        GuestAccreditationOutputDtoMapper guestAccreditationOutputDtoMapper =
+    static void init() throws InvalidValidityTimeframeException {
+        guestOutputDtoMapper = new GuestOutputDtoMapper(logger);
+        guestAccreditationOutputDtoMapper =
             new GuestAccreditationOutputDtoMapper(guestOutputDtoMapper, logger);
-
         guestAccreditationStatisticOutputMapper =
             new GuestAccreditationStatisticOutputMapper(logger, guestAccreditationOutputDtoMapper);
+        guestAccreditationBuilder = new GuestAccreditationBuilder();
     }
 
     @BeforeEach
     void setUp() throws InvalidValidityTimeframeException {
-        // Initiate guest accreditation
-        GuestBuilder builder = new GuestBuilder();
-        builder.invitedBy = INVITEE;
-        builder.createdBy = INVITEE;
-        Guest guest = builder.buildGuest();
-        GuestAccreditationBuilder guestAccreditationBuilder = new GuestAccreditationBuilder();
-        GuestAccreditationBuilder.guest = guest;
-        guestAccreditationBuilder.invitee = INVITEE;
-        GuestAccreditation guestAccreditation = guestAccreditationBuilder.build();
+        GuestAccreditation guestAccreditation = guestAccreditationBuilder.buildGuestAccreditation();
 
-        // Add accreditation to lists, avoid shared lists via static context
         guestAccreditationList = new ArrayList<>();
         guestAccreditationList.add(guestAccreditation);
 

@@ -20,7 +20,7 @@ public class EmployeeAccreditationTest {
     private static final String URL = "url";
     private static final String QRCODE = "qrcode";
     private static final String EMAIL = "email";
-    private static final String INVITEE = "unittest";
+    private static final String INVITEDBY = "unittest";
     private ZonedDateTime invitedAt;
     private Employee party;
 
@@ -35,21 +35,21 @@ public class EmployeeAccreditationTest {
     @Test
     public void shouldCreateAccreditationWithId() {
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation("id", party,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt);
         assertNotEquals(null, employeeAccreditation);
     }
 
     @Test
     public void shouldCreateAccreditationWithOutId() {
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation(party,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt);
         assertNotEquals(null, employeeAccreditation);
     }
 
     @Test
     public void shouldCreateAccreditationWithIdQrEmailUrl() {
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation("id", party,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt, URL, EMAIL, QRCODE);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt, URL, EMAIL, QRCODE);
         assertNotEquals(null, employeeAccreditation);
     }
 
@@ -57,7 +57,8 @@ public class EmployeeAccreditationTest {
     public void shouldCreateAccreditationWithCorrelation() {
         Correlation correlation = new Correlation();
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation("id", party,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt, URL, EMAIL, QRCODE, correlation);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt, URL, EMAIL, QRCODE,
+            correlation);
         assertNotEquals(null, employeeAccreditation);
     }
 
@@ -66,7 +67,7 @@ public class EmployeeAccreditationTest {
     public void shouldInitiateAccreditation() throws InvalidAccreditationInitialStateException {
         // Given accreditation
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation(party,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         //when
         employeeAccreditation
@@ -78,14 +79,14 @@ public class EmployeeAccreditationTest {
         assertEquals(employeeAccreditation.getInvitationQrCode(), QRCODE);
         assertEquals(employeeAccreditation.getInvitationUrl(), URL);
         assertEquals(employeeAccreditation.getInvitedAt(), invitedAt);
-        assertEquals(employeeAccreditation.getInvitedBy(), INVITEE);
+        assertEquals(employeeAccreditation.getInvitedBy(), INVITEDBY);
     }
 
     @Test
     public void shouldUpdateStatusOnCredentialOffer() {
         // Given accreditation with status OPEN
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation(party,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // when offered credential
         employeeAccreditation.offerAccreditation(new Correlation());
@@ -97,7 +98,7 @@ public class EmployeeAccreditationTest {
     @Test
     public void shouldThrowInvalidAccreditationStateExceptionWhenPartyIsNull() {
         EmployeeAccreditation employeeAccreditation = new EmployeeAccreditation(null,
-            EmployeeAccreditationStatus.OPEN, INVITEE, invitedAt);
+            EmployeeAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         assertThrows(InvalidAccreditationInitialStateException.class, () -> {
             employeeAccreditation

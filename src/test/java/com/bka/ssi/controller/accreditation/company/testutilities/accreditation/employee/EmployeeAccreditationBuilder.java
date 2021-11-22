@@ -1,7 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.testutilities.accreditation.employee;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.EmployeeAccreditation;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
@@ -13,36 +12,74 @@ import org.junit.jupiter.api.Test;
 import java.time.ZonedDateTime;
 
 public class EmployeeAccreditationBuilder {
-    public static Employee employee;
+
+    private EmployeeBuilder builder;
+
     public String id;
-    public Correlation correlation;
+    public Employee employee;
     public EmployeeAccreditationStatus status;
+    public String invitedBy;
+    public ZonedDateTime invitedAt;
+    public String invitationUrl;
+    public String invitationEmail;
+    public String invitationQrCode;
+    public Correlation employeeCredentialIssuanceCorrelation;
 
     public EmployeeAccreditationBuilder() {
-        EmployeeBuilder builder = new EmployeeBuilder();
-        employee = builder.build();
+        this.builder = new EmployeeBuilder();
     }
 
     public EmployeeAccreditation build() {
-        if (this.status == null) {
-            this.status = EmployeeAccreditationStatus.OPEN;
-        }
-        return new EmployeeAccreditation(id, employee, this.status,
-            "unit test",
-            ZonedDateTime.now(), "url", "email", "qrCode", correlation);
+        return new EmployeeAccreditation(this.id, this.employee, this.status,
+            this.invitedBy, this.invitedAt, this.invitationUrl, this.invitationEmail,
+            this.invitationQrCode, this.employeeCredentialIssuanceCorrelation);
     }
 
     public void reset() {
-        employee = null;
+        this.id = null;
+        this.employee = null;
+        this.status = null;
+        this.invitedBy = null;
+        this.invitedAt = null;
+        this.invitationUrl = null;
+        this.invitationEmail = null;
+        this.invitationQrCode = null;
+        this.employeeCredentialIssuanceCorrelation = null;
+    }
+
+    public EmployeeAccreditation buildEmployeeAccreditation() {
+        this.id = this.id != null ? this.id : "id";
+        this.employee = this.employee != null ? this.employee : this.builder.buildEmployee();
+        this.status = this.status != null ? this.status : EmployeeAccreditationStatus.OPEN;
+        this.invitedBy = this.invitedBy != null ? this.invitedBy : "unit test";
+        this.invitedAt = this.invitedAt != null ? this.invitedAt : ZonedDateTime.now();
+        this.invitationUrl = this.invitationUrl != null ? this.invitationUrl : "url";
+        this.invitationEmail = this.invitationEmail != null ? this.invitationEmail : "email";
+        this.invitationQrCode = this.invitationQrCode != null ? this.invitationQrCode : "qrCode";
+        this.employeeCredentialIssuanceCorrelation =
+            this.employeeCredentialIssuanceCorrelation != null ?
+                this.employeeCredentialIssuanceCorrelation : new Correlation(
+                "connectionId", "threadId",
+                "presentationExchangeId");
+
+        return this.build();
     }
 
     @Test
-    private void buildEmployeeAccreditation() {
-        employee = new EmployeeBuilder().buildEmployee();
-        EmployeeAccreditation employeeAccreditation = this.build();
-        assertEquals(employeeAccreditation.getStatus(), EmployeeAccreditationStatus.OPEN);
-        assertEquals(employeeAccreditation.getInvitedBy(), "unit test");
-        assertNull(employeeAccreditation.getId());
+    void buildEmployeeAccreditationTest() {
+        EmployeeAccreditation accreditation = this.buildEmployeeAccreditation();
+
+        assertEquals(this.id, accreditation.getId());
+        assertEquals(this.employee, accreditation.getParty());
+        assertEquals(this.status, accreditation.getStatus());
+        assertEquals(this.invitedBy, accreditation.getInvitedBy());
+        assertEquals(this.invitedAt, accreditation.getInvitedAt());
+        assertEquals(this.invitationUrl, accreditation.getInvitationUrl());
+        assertEquals(this.invitationEmail, accreditation.getInvitationEmail());
+        assertEquals(this.invitationQrCode, accreditation.getInvitationQrCode());
+        assertEquals(this.employeeCredentialIssuanceCorrelation,
+            accreditation.getEmployeeCredentialIssuanceCorrelation());
+
         this.reset();
     }
 }

@@ -36,9 +36,11 @@ public abstract class Party<T extends Credential> extends Entity {
         throws UpdatingPartyWithoutIdentityException {
         if (this.id == null) {
             throw new UpdatingPartyWithoutIdentityException();
-        } else {
-            this.credentialOffer = newParty.credentialOffer;
         }
+        this.credentialOffer = newParty.credentialOffer;
+        this.createdBy = newParty.createdBy;
+        this.createdAt = newParty.createdAt;
+
         return this;
     }
 

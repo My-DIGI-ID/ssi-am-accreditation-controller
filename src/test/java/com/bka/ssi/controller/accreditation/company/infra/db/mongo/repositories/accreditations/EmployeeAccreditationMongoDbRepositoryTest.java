@@ -1,40 +1,114 @@
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.repositories.accreditations;
 
-import org.junit.After;
-import org.junit.Before;
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.documents.accreditations.EmployeeAccreditationMongoDbDocument;
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common.CorrelationMongoDbDocument;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.List;
+import java.util.Optional;
+
+@DataMongoTest
+@ExtendWith(SpringExtension.class)
 class EmployeeAccreditationMongoDbRepositoryTest {
 
+    @Autowired
+    private EmployeeAccreditationMongoDbRepository repository;
 
-    @After
-    void clean() {
+    EmployeeAccreditationMongoDbDocument document;
+    EmployeeAccreditationMongoDbDocument otherDocument;
 
+    @BeforeAll
+    static void init() {
     }
 
-    @Before
-    void setup() throws Exception {
+    @BeforeEach
+    void setup() {
+        // ToDo - Improvement: implement EmployeeAccreditationMongoDbDocument builder
+        document = new EmployeeAccreditationMongoDbDocument();
 
+        CorrelationMongoDbDocument correlation = new CorrelationMongoDbDocument();
+        correlation.setConnectionId("connectionId");
+
+        document.setId("id");
+        document.setPartyId("partyId");
+        document.setInvitedBy("hr-admin-01");
+        document.setEmployeeCredentialIssuanceCorrelation(correlation);
+        repository.save(document);
+
+        otherDocument = new EmployeeAccreditationMongoDbDocument();
+        otherDocument.setId("otherId");
+        otherDocument.setPartyId("partyId");
+        otherDocument.setInvitedBy("hr-admin-01");
+        repository.save(otherDocument);
     }
 
-    @Test
-    void test() throws Exception {
-        
+    @AfterAll
+    static void clean() {
+    }
+
+    @AfterEach
+    void teardown() {
+        repository.deleteAll();
     }
 
     @Test
     void findAllByPartyId() {
+        List<EmployeeAccreditationMongoDbDocument> result = repository.findAllByPartyId("partyId");
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(2, result.size());
+    }
+
+    @Test
+    void findByPartyId() {
+        // ToDo - findByPartyId might be obsolete, reconsider to remove when not used
+        repository.deleteById("otherId");
+
+        Optional<EmployeeAccreditationMongoDbDocument> result = repository.findByPartyId("partyId");
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertNotNull(result.get());
+        Assertions.assertEquals("id", result.get().getId());
+        Assertions.assertEquals("partyId", result.get().getPartyId());
     }
 
     @Test
     void findByIdAndInvitedBy() {
+        Optional<EmployeeAccreditationMongoDbDocument> result = repository.findByIdAndInvitedBy(
+            "id", "hr-admin-01");
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertNotNull(result.get());
+        Assertions.assertEquals("id", result.get().getId());
+        Assertions.assertEquals("hr-admin-01", result.get().getInvitedBy());
     }
 
     @Test
     void findAllByInvitedBy() {
+        List<EmployeeAccreditationMongoDbDocument> result =
+            repository.findAllByInvitedBy("hr-admin-01");
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(2, result.size());
     }
 
     @Test
     void findByEmployeeCredentialIssuanceCorrelationConnectionId() {
+        Optional<EmployeeAccreditationMongoDbDocument> result =
+            repository.findByEmployeeCredentialIssuanceCorrelationConnectionId(
+                "connectionId");
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isPresent());
+        Assertions.assertNotNull(result.get());
+        Assertions.assertEquals("id", result.get().getId());
+        Assertions.assertEquals("connectionId",
+            result.get().getEmployeeCredentialIssuanceCorrelation().getConnectionId());
     }
 }

@@ -22,7 +22,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.URLDecoder;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -66,29 +70,34 @@ public class GuestAccreditationController {
     @Operation(summary = "Create accreditation with invitation email for guest",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Created draft accreditation with "
-            + "invitation email for guest",
-            content = {@Content(mediaType = "application/json",
-                schema = @Schema(implementation = GuestAccreditationOpenOutputDto.class))})
+        @ApiResponse(responseCode = "201",
+            description = "Created draft accreditation with invitation email for guest",
+            content = @Content(schema = @Schema(type = "file")))
     })
-    @PostMapping(path = "/initiate/invitation-email/{partyId}", produces =
-        {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(path = "/initiate/invitation-email/{partyId}")
     @SSOProtectedTransaction(scope = "scope:create", resource = "res:guest-accreditation")
-    public ResponseEntity<GuestAccreditationOpenOutputDto> initiateAccreditationWithInvitationEmail(
-        @PathVariable String partyId)
-        throws Exception {
+    public ResponseEntity<InputStreamResource> initiateAccreditationWithInvitationEmail(
+        @PathVariable String partyId) throws Exception {
         logger.info("start: initiating new accreditation for guest via link in the email");
 
         String userName = bearerTokenParser.parseUserFromJWTToken();
 
-        GuestAccreditation guestAccreditation =
+        GuestAccreditation accreditation =
             guestAccreditationService.initiateAccreditation(partyId, userName);
 
-        GuestAccreditationOpenOutputDto outputDto = mapper
-            .entityToOpenDto(guestAccreditation);
+        byte[] email =
+            guestAccreditationService
+                .generateAccreditationWithEmailAsMessage(accreditation.getId());
 
-        logger.info("end: initiating new accreditation for guest via link in the email");
-        return ResponseEntity.status(201).body(outputDto);
+        try (InputStream inputStream = new ByteArrayInputStream(email);) {
+            logger.info("end: initiating new accreditation for guest via link in the email");
+            return ResponseEntity.status(201)
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(email.length)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + accreditation.getId() + "-invitation.eml\"")
+                .body(new InputStreamResource(inputStream));
+        }
     }
 
     /* Out of MVP Scope */

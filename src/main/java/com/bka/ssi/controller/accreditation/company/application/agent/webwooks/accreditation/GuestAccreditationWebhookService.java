@@ -30,7 +30,7 @@ public class GuestAccreditationWebhookService implements WebhookService {
             case "active":
             case "inactive":
             case "error":
-                logger.debug("Connection state: " + inputDto.getState());
+                logger.debug("Ignoring Connection state: " + inputDto.getState());
                 break;
             case "response":
                 logger.debug("Connection state: " + inputDto.getState());
@@ -38,7 +38,7 @@ public class GuestAccreditationWebhookService implements WebhookService {
                     .verifyBasisId(inputDto.getAlias(), inputDto.getConnectionId());
                 break;
             default:
-                logger.debug("Connection state: " + inputDto.getState());
+                logger.debug("Unknown Connection state: " + inputDto.getState());
                 break;
         }
     }
@@ -80,7 +80,7 @@ public class GuestAccreditationWebhookService implements WebhookService {
             case "request_received":
             case "presentation_sent":
             case "presentation_received":
-                logger.debug("Proof Request state: " + inputDto.getState());
+                logger.debug("Ignoring Proof Request state: " + inputDto.getState());
                 break;
             case "verified":
                 logger.debug("Proof Request state: " + inputDto.getState());
@@ -89,7 +89,7 @@ public class GuestAccreditationWebhookService implements WebhookService {
                     inputDto.getVerified());
                 break;
             default:
-                logger.debug("Proof Request state: " + inputDto.getState());
+                logger.debug("Unknown Proof Request state: " + inputDto.getState());
                 logger.debug(inputDto.toString());
                 break;
         }

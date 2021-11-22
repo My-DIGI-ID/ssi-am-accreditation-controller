@@ -3,55 +3,67 @@ package com.bka.ssi.controller.accreditation.company.application.services;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
 import com.bka.ssi.controller.accreditation.company.application.factories.AccreditationFactory;
 import com.bka.ssi.controller.accreditation.company.application.repositories.AccreditationRepository;
+import com.bka.ssi.controller.accreditation.company.application.repositories.PartyRepository;
 import com.bka.ssi.controller.accreditation.company.domain.entities.Accreditation;
+import com.bka.ssi.controller.accreditation.company.domain.entities.Party;
 import com.bka.ssi.controller.accreditation.company.domain.enums.AccreditationStatus;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AccreditationService<T extends Accreditation> {
+public abstract class AccreditationService<T extends Accreditation<R, U>, R extends Party,
+    U extends AccreditationStatus> {
 
     protected Logger logger;
-    protected AccreditationRepository<T> repository;
-    protected AccreditationFactory factory;
+    protected AccreditationRepository<T> accreditationRepository;
+    protected AccreditationFactory<R, T> factory;
+    protected PartyRepository<R> partyRepository;
 
     public AccreditationService(Logger logger,
-        AccreditationRepository<T> repository,
-        AccreditationFactory factory) {
+        AccreditationRepository<T> accreditationRepository,
+        AccreditationFactory<R, T> factory,
+        PartyRepository<R> partyRepository) {
         this.logger = logger;
-        this.repository = repository;
+        this.accreditationRepository = accreditationRepository;
         this.factory = factory;
+        this.partyRepository = partyRepository;
+    }
+
+    public List<T> getAllAccreditationsByPartyId(String id) throws Exception {
+        return this.accreditationRepository.findAllByPartyId(id);
     }
 
     public T getAccreditationById(String id) throws Exception {
-        T output = this.repository.findById(id).orElseThrow(NotFoundException::new);
+        T output = this.accreditationRepository.findById(id).orElseThrow(NotFoundException::new);
         return output;
     }
 
     public T getAccreditationById(String id, String userName) throws Exception {
         T output =
-            this.repository.findByIdAndInvitedBy(id, userName).orElseThrow(NotFoundException::new);
+            this.accreditationRepository.findByIdAndInvitedBy(id, userName).orElseThrow(NotFoundException::new);
         return output;
     }
 
     public List<T> getAllAccreditations() throws Exception {
-        List<T> output = (List<T>) this.repository.findAll();
+        List<T> output = new ArrayList<>();
+        this.accreditationRepository.findAll().forEach(output::add);
         return output;
     }
 
     public List<T> getAllAccreditations(String userName) throws Exception {
-        List<T> output = (List<T>) this.repository.findAllByInvitedBy(userName);
+        List<T> output = this.accreditationRepository.findAllByInvitedBy(userName);
         return output;
     }
 
-    public <R extends AccreditationStatus> List<T> getAllAccreditationsByStatus(R status)
+    public List<T> getAllAccreditationsByStatus(U status)
         throws Exception {
-        return this.repository.findAllByStatus(status);
+        return this.accreditationRepository.findAllByStatus(status);
     }
 
-    public <R extends AccreditationStatus> long countAccreditationsByStatus(R status)
+    public long countAccreditationsByStatus(U status)
         throws Exception {
-        return this.repository.countByStatus(status);
+        return this.accreditationRepository.countByStatus(status);
     }
 
     public T initiateAccreditation(String partyId)
@@ -64,6 +76,12 @@ public abstract class AccreditationService<T extends Accreditation> {
         throws Exception {
         throw new UnsupportedOperationException(
             "Operation initiateAccreditation is not yet implemented");
+    }
+
+    public byte[] generateAccreditationWithEmailAsMessage(String accreditationId)
+        throws Exception {
+        throw new UnsupportedOperationException(
+            "Operation initiateAccreditationWithEmailAsMessage is not yet implemented");
     }
 
     public T proceedWithAccreditation(String accreditationId)

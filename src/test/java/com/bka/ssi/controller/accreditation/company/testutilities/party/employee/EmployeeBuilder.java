@@ -23,11 +23,17 @@ public class EmployeeBuilder {
 
     // PartyId
     public String id;
+
+    // Creator
+    public String createdBy;
+    public ZonedDateTime createdAt;
+
     // EmployeeCredential
     // Persona
     public String personaTitle;
     public String personaFirstName;
     public String personaLastName;
+
     // ContactInformation
     public String contactInformationEmail;
     public String contactInformationPrimaryPhoneNumber;
@@ -35,8 +41,10 @@ public class EmployeeBuilder {
 
     public String employeeId;
     public String employeeState;
+
     // Position
     public String position;
+
     // Employer
     public String employerName;
     public String employerSubject;
@@ -47,6 +55,7 @@ public class EmployeeBuilder {
     public String employerCountry;
     public String employerHouseNumber;
     public String employerDoorNumber;
+
     // IdentityManagement
     public String identityManagementReference;
     public String identityManagementUsername;
@@ -56,10 +65,6 @@ public class EmployeeBuilder {
     public String issuedBy;
     public ZonedDateTime issuedAt;
     public ZonedDateTime credentialMetadataPersonalDataDeleted;
-
-    // Creator
-    public String createdBy;
-    public ZonedDateTime createdAt;
 
     public EmployeeBuilder() {
     }
@@ -102,97 +107,130 @@ public class EmployeeBuilder {
 
     public void reset() {
         // PartyId
-        this.id = "";
-        // EmployeeCredential
-        // Persona
-        this.personaTitle = "";
-        this.personaFirstName = "";
-        this.personaLastName = "";
-        // ContactInformation
-        this.contactInformationEmail = "";
-        this.contactInformationPrimaryPhoneNumber = "";
-        this.contactInformationSecondaryPhoneNumber = "";
-
-        this.employeeId = "";
-        this.employeeState = "";
-        // Position
-        this.position = "";
-        // Employer
-        this.employerName = "";
-        this.employerSubject = "";
-        this.employerProofOfOwnership = "";
-        this.employerStreet = "";
-        this.employerPostalCode = "";
-        this.employerCity = "";
-        this.employerCountry = "";
-        this.employerHouseNumber = "";
-        this.employerDoorNumber = "";
-        // IdentityManagement
-        this.identityManagementReference = "";
-        this.identityManagementUsername = "";
-        this.identityManagementEmail = "";
-
-        // CredentialMetadata
-        this.issuedBy = "";
-        this.issuedAt = null;
-        this.credentialMetadataPersonalDataDeleted = null;
+        this.id = null;
 
         // Creator
-        this.createdBy = "";
+        this.createdBy = null;
         this.createdAt = null;
+
+        // EmployeeCredential
+        // Persona
+        this.personaTitle = null;
+        this.personaFirstName = null;
+        this.personaLastName = null;
+
+        // ContactInformation
+        this.contactInformationEmail = null;
+        this.contactInformationPrimaryPhoneNumber = null;
+        this.contactInformationSecondaryPhoneNumber = null;
+
+        this.employeeId = null;
+        this.employeeState = null;
+
+        // Position
+        this.position = null;
+
+        // Employer
+        this.employerName = null;
+        this.employerSubject = null;
+        this.employerProofOfOwnership = null;
+        this.employerStreet = null;
+        this.employerPostalCode = null;
+        this.employerCity = null;
+        this.employerCountry = null;
+        this.employerHouseNumber = null;
+        this.employerDoorNumber = null;
+
+        // IdentityManagement
+        this.identityManagementReference = null;
+        this.identityManagementUsername = null;
+        this.identityManagementEmail = null;
+
+        // CredentialMetadata
+        this.issuedBy = null;
+        this.issuedAt = null;
+        this.credentialMetadataPersonalDataDeleted = null;
     }
 
     public Employee buildEmployee() {
-        this.reset();
-
         // PartyId
-        this.id = "12345";
-        // EmployeeCredential
-        // Persona
-        this.personaTitle = "Mr.";
-        this.personaFirstName = "Erika";
-        this.personaLastName = "Mustermann";
-        // ContactInformation
-        this.contactInformationEmail = "mustermann@test.de";
-        this.contactInformationPrimaryPhoneNumber = "1234567890";
-        this.contactInformationSecondaryPhoneNumber = "1234567890";
-
-        this.employeeId = "12345";
-        this.employeeState = "";
-        // Position
-        this.position = "Employed";
-        // Employer
-        this.employerName = "IBM";
-        this.employerSubject = "This Subject";
-        this.employerProofOfOwnership = "";
-        this.employerStreet = "Bakerstreet";
-        this.employerPostalCode = "10001";
-        this.employerCity = "London";
-        this.employerCountry = "United Kingdom";
-        this.employerHouseNumber = "1";
-        this.employerDoorNumber = "12";
-        // IdentityManagement
-        this.identityManagementReference = "This Reference";
-        this.identityManagementUsername = "this@reference.test";
-        this.identityManagementEmail = "managament@reference.test";
-
-        // CredentialMetadata
-        this.issuedBy = "TBD";
-        this.issuedAt = ZonedDateTime.now();
-        this.credentialMetadataPersonalDataDeleted = ZonedDateTime.now();
+        this.id = this.id != null ? this.id : "12345";
 
         // Creator
-        this.createdBy = "hr-admin-01";
-        this.createdAt = ZonedDateTime.now();
+        this.createdBy = this.createdBy != null ? this.createdBy : "hr-admin-01";
+        this.createdAt = this.createdAt != null ? this.createdAt : ZonedDateTime.now();
+
+        // EmployeeCredential
+        // Persona
+        this.personaTitle = this.personaTitle != null ? this.personaTitle : "Mr.";
+        this.personaFirstName = this.personaFirstName != null ? this.personaFirstName : "Erika";
+        this.personaLastName = this.personaLastName != null ? this.personaLastName : "Mustermann";
+
+        // ContactInformation
+        this.contactInformationEmail =
+            this.contactInformationEmail != null ? this.contactInformationEmail :
+                "mustermann@test.de";
+        this.contactInformationPrimaryPhoneNumber =
+            this.contactInformationPrimaryPhoneNumber != null ?
+                this.contactInformationPrimaryPhoneNumber : "1234567890";
+        this.contactInformationSecondaryPhoneNumber =
+            this.contactInformationSecondaryPhoneNumber != null ?
+                this.contactInformationSecondaryPhoneNumber : "1234567890";
+
+        this.employeeId = this.employeeId != null ? this.employeeId : "12345";
+        this.employeeState = this.employeeState != null ? this.employeeState : "employeeState";
+
+        // Position
+        this.position = this.position != null ? this.position : "Employed";
+
+        // Employer
+        this.employerName = this.employerName != null ? this.employerName : "IBM";
+        this.employerSubject = this.employerSubject != null ? this.employerSubject : "This Subject";
+        this.employerProofOfOwnership =
+            this.employerProofOfOwnership != null ? this.employerProofOfOwnership :
+                "employerProofOfOwnership";
+        this.employerStreet = this.employerStreet != null ? this.employerStreet : "Bakerstreet";
+        this.employerPostalCode =
+            this.employerPostalCode != null ? this.employerPostalCode : "10001";
+        this.employerCity = this.employerCity != null ? this.employerCity : "London";
+        this.employerCountry =
+            this.employerCountry != null ? this.employerCountry : "United Kingdom";
+        this.employerHouseNumber =
+            this.employerHouseNumber != null ? this.employerHouseNumber : "1";
+        this.employerDoorNumber = this.employerDoorNumber != null ? this.employerDoorNumber : "12";
+
+        // IdentityManagement
+        this.identityManagementReference =
+            this.identityManagementReference != null ? this.identityManagementReference :
+                "This Reference";
+        this.identityManagementUsername =
+            this.identityManagementUsername != null ? this.identityManagementUsername :
+                "this@reference.test";
+        this.identityManagementEmail =
+            this.identityManagementEmail != null ? this.identityManagementEmail :
+                "managament@reference.test";
+
+        // CredentialMetadata
+        this.issuedBy = this.issuedBy != null ? this.issuedBy : "TBD";
+        this.issuedAt = this.issuedAt != null ? this.issuedAt : ZonedDateTime.now();
+        this.credentialMetadataPersonalDataDeleted =
+            this.credentialMetadataPersonalDataDeleted != null ?
+                this.credentialMetadataPersonalDataDeleted : ZonedDateTime.now();
 
         return this.build();
     }
 
     @Test
-    private void buildEmployeeTest() {
+    void buildEmployeeTest() {
         Employee employeeDto = this.buildEmployee();
         // PartyId
         assertEquals(this.id, employeeDto.getCredentialOffer().getCredential().getEmployeeId());
+
+        // Creator
+        assertEquals(this.credentialMetadataPersonalDataDeleted,
+            employeeDto.getCredentialOffer().getCredentialMetadata().getPartyPersonalDataDeleted());
+        assertEquals(this.createdBy, employeeDto.getCreatedBy());
+        assertEquals(this.createdAt.toString(), employeeDto.getCreatedAt().toString());
 
         // EmployeeCredential
         // Persona
@@ -202,6 +240,7 @@ public class EmployeeBuilder {
             employeeDto.getCredentialOffer().getCredential().getPersona().getFirstName());
         assertEquals(this.personaLastName,
             employeeDto.getCredentialOffer().getCredential().getPersona().getLastName());
+
         // ContactInformation
         assertTrue(
             employeeDto.getCredentialOffer().getCredential().getContactInformation().getEmails()
@@ -214,9 +253,11 @@ public class EmployeeBuilder {
             employeeDto.getCredentialOffer().getCredential().getEmployeeId());
         assertEquals(this.employeeState,
             employeeDto.getCredentialOffer().getCredential().getEmployeeState());
+
         // Position
         assertEquals(this.position,
             employeeDto.getCredentialOffer().getCredential().getPosition().getName());
+
         // Employer
         assertEquals(this.employerName,
             employeeDto.getCredentialOffer().getCredential().getEmployer().getName());
@@ -241,6 +282,7 @@ public class EmployeeBuilder {
         assertEquals(this.employerDoorNumber,
             employeeDto.getCredentialOffer().getCredential().getEmployer().getAddress()
                 .getDoorNumber());
+
         // IdentityManagement
         assertEquals(this.identityManagementReference,
             employeeDto.getCredentialOffer().getCredential().getIdentityManagement()
@@ -249,16 +291,12 @@ public class EmployeeBuilder {
             employeeDto.getCredentialOffer().getCredential().getIdentityManagement().getUsername());
         assertEquals(this.identityManagementEmail,
             employeeDto.getCredentialOffer().getCredential().getIdentityManagement().getEmail());
+
         // CredentialMetadata
         assertEquals(this.issuedBy,
             employeeDto.getCredentialOffer().getCredentialMetadata().getIssuedBy());
         assertEquals(this.issuedAt,
             employeeDto.getCredentialOffer().getCredentialMetadata().getIssuedAt());
-        // Creator
-        assertEquals(this.credentialMetadataPersonalDataDeleted,
-            employeeDto.getCredentialOffer().getCredentialMetadata().getPartyPersonalDataDeleted());
-        assertEquals(this.createdBy, employeeDto.getCreatedBy());
-        assertEquals(this.createdAt.toString(), employeeDto.getCreatedAt().toString());
 
         this.reset();
     }

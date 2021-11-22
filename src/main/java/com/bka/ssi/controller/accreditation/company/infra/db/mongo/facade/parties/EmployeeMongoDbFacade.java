@@ -86,7 +86,6 @@ public class EmployeeMongoDbFacade implements EmployeeRepository {
         documents.forEach(document -> employees.add(this.mapper.documentToEntity(document)));
 
         return employees;
-
     }
 
     @Override
@@ -124,7 +123,7 @@ public class EmployeeMongoDbFacade implements EmployeeRepository {
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException("Operation deleteAll is not yet implemented");
+        this.repository.deleteAll();
     }
 
     @Override

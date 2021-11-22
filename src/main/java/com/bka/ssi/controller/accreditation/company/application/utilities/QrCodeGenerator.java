@@ -9,7 +9,6 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.jfree.graphics2d.svg.SVGGraphics2D;
 import org.jfree.graphics2d.svg.ViewBox;
-import org.springframework.stereotype.Component;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -18,10 +17,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Hashtable;
 
-@Component
 public class QrCodeGenerator {
 
-    public byte[] generateQrCodePng(String text, int width, int height)
+    public static byte[] generateQrCodePng(String text, int width, int height)
         throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
@@ -33,7 +31,8 @@ public class QrCodeGenerator {
         return pngData;
     }
 
-    public String generateQrCodeSvg(String text, int width, int height) throws WriterException {
+    public static String generateQrCodeSvg(String text, int width, int height)
+        throws WriterException {
         Hashtable<EncodeHintType, Object> hintMap = new Hashtable<>();
 
         hintMap.put(EncodeHintType.ERROR_CORRECTION,

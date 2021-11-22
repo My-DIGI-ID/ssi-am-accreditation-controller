@@ -6,7 +6,7 @@ import com.bka.ssi.controller.accreditation.company.domain.values.ContactInforma
 import com.bka.ssi.controller.accreditation.company.domain.values.GuestPrivateInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
 import com.bka.ssi.controller.accreditation.company.domain.values.ValidityTimeframe;
-import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.ValidTimeframeBuilder;
+import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.ValidityTimeframeBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +42,7 @@ public class GuestCredentialTest {
     public Date issuedAt;
     public Date credentialMetadataPersonalDataDeleted;
     private Persona persona;
-    private ValidTimeframeBuilder validTimeframeBuilder;
+    private ValidityTimeframeBuilder validityTimeframeBuilder;
     private ValidityTimeframe validityTimeframe;
     private ContactInformation contactInformation;
 
@@ -51,9 +51,9 @@ public class GuestCredentialTest {
         persona = new Persona(this.personaTitle, this.personaFirstName,
             this.personaLastName);
 
-        validTimeframeBuilder = new ValidTimeframeBuilder();
+        validityTimeframeBuilder = new ValidityTimeframeBuilder();
 
-        validityTimeframe = validTimeframeBuilder.build();
+        validityTimeframe = validityTimeframeBuilder.build();
 
         contactInformation =
             new ContactInformation(Arrays.asList(this.contactInformationEmail),

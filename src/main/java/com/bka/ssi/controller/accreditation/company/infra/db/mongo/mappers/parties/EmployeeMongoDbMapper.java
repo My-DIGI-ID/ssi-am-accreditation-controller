@@ -145,7 +145,7 @@ public class EmployeeMongoDbMapper {
     }
 
     public Employee documentToEntity(EmployeeMongoDbDocument document) {
-        logger.debug("Mapping a MongoDb document to a employee");
+        logger.debug("Mapping a MongoDb document to an employee");
 
         if (document == null) {
             // throw instead ?

@@ -5,10 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.AlreadyExistsException;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthenticatedException;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthorizedException;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -311,6 +308,46 @@ class CommonExceptionsHandlerTest {
 
         // when
         response = handler.handleIllegalFallbackException(exception, request);
+
+        // then
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
+        assertEquals(response.getBody().getPath(), "/test/api/endpoint");
+        assertEquals(response.getBody().getStatus(), 409);
+        assertEquals(response.getBody().getMessage(), "No message available");
+        assertNotEquals(response.getBody().getTimestamp(), null);
+    }
+
+    @Test
+    void handleInvalidAccreditationStatusForPartyException() {
+        // given
+        InvalidAccreditationStatusForPartyException exception = new InvalidAccreditationStatusForPartyException();
+        Mockito.when(
+                messageSource
+                        .getMessage("message.common.rest.error.invalid_accreditation_status_for_party_placeholder",
+                                null, Locale.ENGLISH)).thenReturn("Invalid accreditation status for party");
+
+        // when
+        response = handler.handleInvalidAccreditationStatusForPartyException(exception, request);
+
+        // then
+        assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);
+        assertEquals(response.getBody().getPath(), "/test/api/endpoint");
+        assertEquals(response.getBody().getStatus(), 409);
+        assertEquals(response.getBody().getMessage(), "Invalid accreditation status for party");
+        assertNotEquals(response.getBody().getTimestamp(), null);
+    }
+
+    @Test
+    void handleInvalidAccreditationStatusForPartyExceptionWithoutMessage() {
+        // given
+        InvalidAccreditationStatusForPartyException exception = new InvalidAccreditationStatusForPartyException();
+        Mockito.when(
+                messageSource
+                        .getMessage("message.common.rest.error.invalid_accreditation_status_for_party_placeholder",
+                                null, Locale.ENGLISH)).thenThrow(new NoSuchMessageException("No message available"));
+
+        // when
+        response = handler.handleInvalidAccreditationStatusForPartyException(exception, request);
 
         // then
         assertEquals(response.getStatusCode(), HttpStatus.CONFLICT);

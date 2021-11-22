@@ -4,11 +4,13 @@
       "title": "Ausloggen",
       "aria-label": "Ausloggen"
     },
-    "company-name": "SSI Zugangsmanagement"
+    "company-name": "SSI Zugangsmanagement",
+    "logout": "AUSLOGGEN"
   },
   "employee": {
     "employee-overview-component": {
       "table-title": "Mitarbeiterübersicht",
+      "employee-verification-button": "MitarbeiterVerifizierung",
       "table-add-button": "Mitarbeiter anlegen",
       "table-search": "Suche",
       "table-tab-invited": "Einladungen",
@@ -22,8 +24,16 @@
         "status": "Status",
         "download-email": "Einladungsmail herunterladen",
         "action-menu": {
+          "downlod-employee-email": "Einladungsmail herunterladen",
+          "delete-employee": "Mitarbeterausweis löschen",
           "go-to-employee-details": "Mitarbeiter-Informationen anzeigen"
         }
+      },
+      "delete-employee-dialog": {
+        "title": "Löschen",
+        "discription": "Sind Sie sicher, dass Sie diesen digitalen Mitarbeiterausweis löschen wollen? Sie können dies nicht rückgängig machen.",
+        "firstButtonText": "ABBRECHEN",
+        "secondButtonText": "MITARBEITERAUSWEIS LÖSCHEN"
       },
       "empty-table-message": "Keine Daten entsprechen Ihrer Auswahl"
     },
@@ -45,6 +55,11 @@
         }
       },
       "form": {
+        "employee-status-enum": {
+          "internal": "Intern",
+          "external": "Extern",
+          "service-provider": "Dienstleister"
+        },
         "employee-information": {
           "title": "Mitarbeiterinformation",
           "field": {
@@ -76,45 +91,45 @@
         },
         "error": {
           "max-length": {
-            "first-name": "Achtung: Vorname ist auf 50 Zeichen begrenzt",
-            "last-name": "Achtung: Nachname ist auf 50 Zeichen begrenzt",
-            "title": "Achtung: Anrede ist auf 50 Zeichen begrenzt",
-            "employee-role": "Achtung: Tätigkeit ist auf 50 Zeichen begrenzt",
-            "employee-id": "Achtung: Mitarbeiterreferenz ist auf 50 Zeichen begrenzt",
-            "company-name": "Achtung: Firmenname ist auf 100 Zeichen begrenzt",
-            "company-street": "Achtung: Straße ist auf 50 Zeichen begrenzt",
-            "company-postal-code": "Achtung: Postleitzahl ist auf 50 Zeichen begrenzt",
-            "company-city": "Achtung: Stadt ist auf 50 Zeichen begrenzt",
-            "company-reference": "Achtung: Firmenreferenz ist auf 50 Zeichen begrenzt"
+            "first-name": "Achtung: Vorname ist auf 50 Zeichen begrenzt.",
+            "last-name": "Achtung: Nachname ist auf 50 Zeichen begrenzt.",
+            "title": "Achtung: Anrede ist auf 50 Zeichen begrenzt.",
+            "employee-role": "Achtung: Tätigkeit ist auf 50 Zeichen begrenzt.",
+            "employee-id": "Achtung: Mitarbeiterreferenz ist auf 50 Zeichen begrenzt.",
+            "company-name": "Achtung: Firmenname ist auf 100 Zeichen begrenzt.",
+            "company-street": "Achtung: Straße ist auf 50 Zeichen begrenzt.",
+            "company-postal-code": "Achtung: Postleitzahl ist auf 50 Zeichen begrenzt.",
+            "company-city": "Achtung: Stadt ist auf 50 Zeichen begrenzt.",
+            "company-reference": "Achtung: Firmenreferenz ist auf 50 Zeichen begrenzt."
           },
           "required": {
-            "first-name": "Achtung: Vorname ist erforderlich",
-            "last-name": "Achtung: Nachname ist erforderlich",
-            "email-address": "Achtung: Email ist erforderlich",
-            "primary-phone": "Achtung: Die Telefonnummer ist erforderlich",
-            "employee-status": "Achtung: Mitarbeiterstatus ist erforderlich",
-            "company-name": "Achtung: Firmenname ist erforderlich",
-            "company-street": "Achtung: Straße ist erforderlich",
-            "company-postal-code": "Achtung: Postleitzahl ist erforderlich",
-            "company-city": "Achtung: Stadt ist erforderlich",
-            "company-reference": "Achtung: Vorname ist erforderlich"
+            "first-name": "Achtung: Vorname ist erforderlich.",
+            "last-name": "Achtung: Nachname ist erforderlich.",
+            "email-address": "Achtung: Email ist erforderlich.",
+            "primary-phone": "Achtung: Die Telefonnummer ist erforderlich.",
+            "employee-status": "Achtung: Mitarbeiterstatus ist erforderlich.",
+            "company-name": "Achtung: Firmenname ist erforderlich.",
+            "company-street": "Achtung: Straße ist erforderlich.",
+            "company-postal-code": "Achtung: Postleitzahl ist erforderlich.",
+            "company-city": "Achtung: Stadt ist erforderlich.",
+            "company-reference": "Achtung: Vorname ist erforderlich."
           },
           "forbidden-characters": {
-            "first-name": "Achtung: Vorname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "last-name": "Achtung: Nachname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "title": "Achtung: Anrede kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "primary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
-            "secondary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
-            "employee-role": "Achtung: Tätigkeit kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "employee-id": "Achtung: Mitarbeiterreferenz kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "company-name": "Achtung: Firmenname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "company-street": "Achtung: Straße kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "company-postal-code": "Achtung: Postleitzahl kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "company-city": "Achtung: Stadt kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "company-reference": "Achtung: Firmenreferenz kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &"
+            "first-name": "Achtung: Vorname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "last-name": "Achtung: Nachname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "title": "Achtung: Anrede kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "primary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: + - ().",
+            "secondary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: + - ().",
+            "employee-role": "Achtung: Tätigkeit kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "employee-id": "Achtung: Mitarbeiterreferenz kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "company-name": "Achtung: Firmenname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "company-street": "Achtung: Straße kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "company-postal-code": "Achtung: Postleitzahl kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "company-city": "Achtung: Stadt kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "company-reference": "Achtung: Firmenreferenz kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &."
           },
           "format": {
-            "email-address": "Achtung: Bitte geben Sie eine gültige E-Mail Adresse an"
+            "email-address": "Achtung: Bitte geben Sie eine gültige E-Mail Adresse an."
           }
         }
       }
@@ -164,7 +179,7 @@
         "start-button": "START"
       },
       "faq": {
-        "text": "Sie haben weitere Fragen? FAQ",
+        "text": "Sie haben weitere Fragen?",
         "link": "FAQ"
       },
       "support": {
@@ -178,10 +193,10 @@
       "circle-caption-3": "Bestätigung",
       "verification-component": {
         "gdpr": {
-          "text": "Mit dem Aktivieren des Kontrollkästchen willigens Sie in die in den Datenschutzhinweisen beschriebene Verarbeitung Ihrer personenbezogenen Daten durch die DB Systel GmbH zum Zweck der Teilnahme am Pilotprojekt „Self Sovereign Identity (SSI) Managementsystem - Pilot“ ein. Die DB Systel GmbH, Jürgen-Ponto-Platz 1, 60329 Frankfurt am Main erhebt und verarbeitet Ihre Daten als Verantwortlicher. Nach Abschluss des Pilotprojektes werden alle personenbezogenen Daten gelöscht, die aufgrund dieser Einwilligung verarbeitet wurden. Die Einverständniserklärung kann jederzeit ohne Angabe von Gründen widerrufen werden. Im Falle des Widerrufs Ihrer Einwilligung werden alle personenbezogenen Daten gelöscht, die aufgrund dieser Einwilligung verarbeitet wurden. Die Teilnahme am Pilotprojekt ist freiwillig. Ohne eine Einwilligung in die Datenverarbeitung kann eine Teilnahme nicht erfolgen. Weitere Informationen, insbesondere zu Umfang und Zweck der Datenverarbeitung, finden Sie in unseren ",
+          "text": "Mit dem Aktivieren des Kontrollkästchen willigen Sie in die in den Datenschutzhinweisen beschriebene Verarbeitung Ihrer personenbezogenen Daten durch die DB Systel GmbH zum Zweck der Teilnahme am Pilotprojekt „Self Sovereign Identity (SSI) Managementsystem - Pilot“ ein. Die DB Systel GmbH, Jürgen-Ponto-Platz 1, 60329 Frankfurt am Main erhebt und verarbeitet Ihre Daten als Verantwortlicher. Nach Abschluss des Pilotprojektes werden alle personenbezogenen Daten gelöscht, die aufgrund dieser Einwilligung verarbeitet wurden. Die Einverständniserklärung kann jederzeit ohne Angabe von Gründen widerrufen werden. Im Falle des Widerrufs Ihrer Einwilligung werden alle personenbezogenen Daten gelöscht, die aufgrund dieser Einwilligung verarbeitet wurden. Die Teilnahme am Pilotprojekt ist freiwillig. Ohne eine Einwilligung in die Datenverarbeitung kann eine Teilnahme nicht erfolgen. Weitere Informationen, insbesondere zu Umfang und Zweck der Datenverarbeitung, finden Sie in unseren ",
           "link": "Datenschutzhinweisen"
         },
-        "scan-caption": "Scannen sie diesen QR Code um Ihre Identität zu bestätigen."
+        "scan-caption": "Scannen Sie diesen QR Code um Ihre Identität zu bestätigen."
       },
       "visit-and-guest-details-component": {
         "form": {
@@ -217,23 +232,23 @@
           },
           "error": {
             "max-length": {
-              "company-street": "Achtung: Firmenadresse ist auf 50 Zeichen begrenzt",
-              "company-city": "Achtung: Ort der Firma ist auf 50 Zeichen begrenzt",
-              "company-post-code": "Achtung: Postleitzahl der Firma ist auf 50 Zeichen begrenzt",
-              "licence-plate-number": "Achtung: Nummerschildkennung ist auf 50 Zeichen begrenzt"
+              "company-street": "Achtung: Firmenadresse ist auf 50 Zeichen begrenzt.",
+              "company-city": "Achtung: Ort der Firma ist auf 50 Zeichen begrenzt.",
+              "company-post-code": "Achtung: Postleitzahl der Firma ist auf 50 Zeichen begrenzt.",
+              "licence-plate-number": "Achtung: Nummerschildkennung ist auf 50 Zeichen begrenzt."
             },
             "required": {
-              "company-street": "Achtung: Firmenadresse ist erforderlich",
-              "company-city": "Achtung: Ort der Firma ist erforderlich",
-              "company-post-code": "Achtung: Postleitzahl der Firma ist erforderlich"
+              "company-street": "Achtung: Firmenadresse ist erforderlich.",
+              "company-city": "Achtung: Ort der Firma ist erforderlich.",
+              "company-post-code": "Achtung: Postleitzahl der Firma ist erforderlich."
             },
             "forbidden-characters": {
-              "primary-phone-number": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
-              "secondary-phone-number": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: +, -, ()",
-              "company-street": "Achtung: Firmenadresse kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-              "company-city": "Achtung: Ort der Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-              "company-post-code": "Achtung: Postleitzahl der Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-              "licence-plate-number": "Achtung: Nummerschildkennung kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &"
+              "primary-phone-number": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: + - ().",
+              "secondary-phone-number": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: + - ().",
+              "company-street": "Achtung: Firmenadresse kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+              "company-city": "Achtung: Ort der Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+              "company-post-code": "Achtung: Postleitzahl der Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+              "licence-plate-number": "Achtung: Nummerschildkennung kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &."
             }
           },
           "button": {
@@ -256,6 +271,8 @@
             "first-name": "Vorname",
             "last-name": "Nachname",
             "company-name": "Firma",
+            "primary-phone": "Telefonnummer",
+            "secondary-phone": "Alternative Telefonnummer",
             "title": "Titel",
             "email": "E-Mail-Adresse"
           }
@@ -268,52 +285,56 @@
             "valid-from-date": "Ankunftsdatum",
             "valid-from-time": "Ankunftszeit",
             "valid-until-date": "Abreisedatum",
-            "valid-until-time": "Abreisezeit"
+            "valid-until-time": "Abreisezeit",
+            "issued-by": "Eingeladen von"
           }
         },
         "error": {
           "max-length": {
-            "first-name": "Achtung: Vorname ist auf 50 Zeichen begrenzt",
-            "last-name": "Achtung: Nachname ist auf 50 Zeichen begrenzt",
-            "company-name": "Achtung: Firma ist auf 200 Zeichen begrenzt",
-            "title": "Achtung: Titel ist auf 50 Zeichen begrenzt",
-            "type-of-visit": "Achtung: Besuchsgrund ist auf 50 Zeichen begrenzt",
-            "location": "Achtung: Ort / Gebäude ist auf 50 Zeichen begrenzt"
+            "first-name": "Achtung: Vorname ist auf 50 Zeichen begrenzt.",
+            "last-name": "Achtung: Nachname ist auf 50 Zeichen begrenzt.",
+            "company-name": "Achtung: Firma ist auf 200 Zeichen begrenzt.",
+            "title": "Achtung: Titel ist auf 50 Zeichen begrenzt.",
+            "type-of-visit": "Achtung: Besuchsgrund ist auf 50 Zeichen begrenzt.",
+            "location": "Achtung: Ort / Gebäude ist auf 50 Zeichen begrenzt."
           },
           "required": {
-            "first-name": "Achtung: Vorname ist erforderlich",
-            "last-name": "Achtung: Nachname ist erforderlich",
-            "company-name": "Achtung: Firma ist erforderlich",
-            "email": "Achtung: Email ist erforderlich",
-            "type-of-visit": "Achtung: Besuchsgrund ist erforderlich",
-            "location": "Achtung: Ort / Gebäude ist erforderlich",
-            "valid-from-time": "Achtung: Ankunftszeit ist erforderlich",
-            "valid-until-time": " Achtung: Abreisezeit ist erforderlich"
+            "first-name": "Achtung: Vorname ist erforderlich.",
+            "last-name": "Achtung: Nachname ist erforderlich.",
+            "company-name": "Achtung: Firma ist erforderlich.",
+            "primary-phone": "Achtung: Die Telefonnummer ist erforderlich.",
+            "email": "Achtung: Email ist erforderlich.",
+            "type-of-visit": "Achtung: Besuchsgrund ist erforderlich.",
+            "location": "Achtung: Ort / Gebäude ist erforderlich.",
+            "valid-from-time": "Achtung: Ankunftszeit ist erforderlich.",
+            "valid-until-time": " Achtung: Abreisezeit ist erforderlich."
           },
           "forbidden-characters": {
-            "first-name": "Achtung: Vorname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "last-name": "Achtung: Nachname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "company-name": "Achtung: Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "title": "Achtung: Titel kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "type-of-visit": "Achtung: Besuchsgrund kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &",
-            "location": "Achtung: Ort / Gebäude kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &"
+            "first-name": "Achtung: Vorname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "last-name": "Achtung: Nachname kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "company-name": "Achtung: Firma kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "title": "Achtung: Titel kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "primary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: + - ().",
+            "secondary-phone": "Achtung: Die Telefonummer kann nur Zahlen sowie die folgenden Sonderzeichen enthalten: + - ().",
+            "type-of-visit": "Achtung: Besuchsgrund kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &.",
+            "location": "Achtung: Ort / Gebäude kann nur alphanumerische Zeichen sowie die folgenden Sonderzeichen enthalten: _ , . - &."
           },
           "format": {
-            "email": "Achtung: Bitte geben Sie eine gültige E-Mail Adresse an",
+            "email": "Achtung: Bitte geben Sie eine gültige E-Mail Adresse an.",
             "valid-from-date": {
               "invalid-and-required": "Achtung: Ankunftsdatum ist erforderlich, Bitte geben Sie ein gültiges Datum ein.",
-              "past": "Achtung: Das Ankunftsdatum muss in der Zukunft liegen"
+              "past": "Achtung: Das Ankunftsdatum muss in der Zukunft liegen."
             },
             "valid-from-time": {
-              "invalid": "Achtung: Das Ankunftsdatum muss in der Zukunft liegen"
+              "invalid": "Achtung: Das Ankunftsdatum muss in der Zukunft liegen."
             },
             "valid-until-date": {
               "invalid-and-required": "Achtung: Abreisedatum ist erforderlich, Bitte geben Sie ein gültiges Datum ein.",
-              "past": "Achtung: Das Abreisedatum muss in der Zukunft liegen",
-              "invalid-date-range": "Achtung: Der Zeitpunkt der Abreise muss hinter der Ankunftszeit liegen"
+              "past": "Achtung: Das Abreisedatum muss in der Zukunft liegen.",
+              "invalid-date-range": "Achtung: Der Zeitpunkt der Abreise muss hinter der Ankunftszeit liegen."
             },
             "valid-until-time": {
-              "invalid-time-range": "Achtung: Der Zeitpunkt der Abreise muss hinter der Ankunftszeit liegen"
+              "invalid-time-range": "Achtung: Der Zeitpunkt der Abreise muss hinter der Ankunftszeit liegen."
             }
           }
         },
@@ -325,7 +346,7 @@
     "guest-creation-status-component": {
       "success": {
         "header": "Gästeeinladung erfolgreich versendet!",
-        "text": "Sie haben die Einladung erfolgreich an den Gast versendet. Ihr Gast wird eine Email mit einer Anleitung und einem QR-Code erhalten mit welchen sie Ihren digitalen Gästeausweis erstellen können."
+        "text": "Sie haben die Einladung erfolgreich an den Gast versendet. Ihr Gast wird eine Email mit einer Anleitung und einem QR-Code erhalten mit welchen Sie Ihren digitalen Gästeausweis erstellen können."
       },
       "error": {
         "header": "Erstellung des digitalen Gästeausweises fehlgeschlagen!",
@@ -360,6 +381,17 @@
           },
           "add-button": "Neuen Gast Anlegen"
         }
+      },
+      "delete-guest-dialog": {
+        "title": "Löschen",
+        "discription": "Sind Sie sicher, dass Sie diesen digitalen Gästeausweis löschen wollen? Dies kann nicht Rückgängig gemacht werden.",
+        "firstButtonText": "ABBRECHEN",
+        "secondButtonText": "GAST LÖSCHEN"
+      },
+      "guest-status": {
+        "accepted": "Angenommen",
+        "pending": "Ausstehend",
+        "cancelled": "Abgebrochen"
       }
     }
   }

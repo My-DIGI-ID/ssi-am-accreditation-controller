@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -14,21 +13,15 @@ import java.nio.file.Files;
 
 public class QrCodeGeneratorTest {
 
-    private static QrCodeGenerator qrCodeGenerator;
     private final String testQrCodePngPath = "src/test/resources/qrCode/TestQrCode.png";
     private final String testQrCodeSvgPath = "src/test/resources/qrCode/TestQrCode.svg";
-
-    @BeforeAll
-    static void setUp() {
-        qrCodeGenerator = new QrCodeGenerator();
-    }
 
     @Test
     void generateQrCodePng() {
         byte[] qrCode = null;
 
         try {
-            qrCode = qrCodeGenerator.generateQrCodePng("http://0.0.0.0", 300, 300);
+            qrCode = QrCodeGenerator.generateQrCodePng("http://0.0.0.0", 300, 300);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -51,7 +44,7 @@ public class QrCodeGeneratorTest {
         String qrCode = null;
 
         try {
-            qrCode = qrCodeGenerator.generateQrCodeSvg("http://0.0.0.0", 300, 300);
+            qrCode = QrCodeGenerator.generateQrCodeSvg("http://0.0.0.0", 300, 300);
         } catch (Exception e) {
             fail(e.getMessage());
         }

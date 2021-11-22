@@ -1,31 +1,33 @@
 package com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations;
 
+import java.util.List;
+
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.AlreadyExistsException;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
 import com.bka.ssi.controller.accreditation.company.application.factories.accreditations.EmployeeAccreditationFactory;
 import com.bka.ssi.controller.accreditation.company.application.repositories.accreditations.EmployeeAccreditationRepository;
+import com.bka.ssi.controller.accreditation.company.application.repositories.parties.EmployeeRepository;
 import com.bka.ssi.controller.accreditation.company.application.services.AccreditationService;
-import com.bka.ssi.controller.accreditation.company.application.services.strategies.parties.EmployeePartyService;
 import com.bka.ssi.controller.accreditation.company.application.utilities.EmailBuilder;
 import com.bka.ssi.controller.accreditation.company.application.utilities.QrCodeGenerator;
 import com.bka.ssi.controller.accreditation.company.application.utilities.UrlBuilder;
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.EmployeeAccreditation;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
+import com.bka.ssi.controller.accreditation.company.domain.enums.EmployeeAccreditationStatus;
 import com.bka.ssi.controller.accreditation.company.domain.specifications.accreditations.AccreditationCompletedSpecification;
 import com.bka.ssi.controller.accreditation.company.domain.values.ConnectionInvitation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
+
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class EmployeeAccreditationService
-    extends AccreditationService<EmployeeAccreditation> {
+    extends AccreditationService<EmployeeAccreditation, Employee, EmployeeAccreditationStatus> {
 
     @Value("${accreditation.employee.connection.qr.size}")
     private int qrSize;
@@ -33,8 +35,6 @@ public class EmployeeAccreditationService
     private final ACAPYClient acapyClient;
     private final EmailBuilder emailBuilder;
     private final UrlBuilder urlBuilder;
-    private final QrCodeGenerator qrCodeGenerator;
-    private final EmployeePartyService employeePartyService;
 
     public EmployeeAccreditationService(Logger logger,
         @Qualifier("employeeAccreditationMongoDbFacade")
@@ -43,14 +43,13 @@ public class EmployeeAccreditationService
         ACAPYClient acapyClient,
         EmailBuilder emailBuilder,
         UrlBuilder urlBuilder,
-        QrCodeGenerator qrCodeGenerator,
-        EmployeePartyService employeePartyService) {
-        super(logger, employeeAccreditationRepository, employeeAccreditationFactory);
+        @Qualifier("employeeMongoDbFacade")
+            EmployeeRepository employeeRepository) {
+        super(logger, employeeAccreditationRepository, employeeAccreditationFactory,
+            employeeRepository);
         this.acapyClient = acapyClient;
         this.emailBuilder = emailBuilder;
         this.urlBuilder = urlBuilder;
-        this.qrCodeGenerator = qrCodeGenerator;
-        this.employeePartyService = employeePartyService;
     }
 
     @Override
@@ -60,32 +59,34 @@ public class EmployeeAccreditationService
             "Initiating accreditation with invitation email including qr code for employee with id {}",
             partyId);
 
-        /* Check if an accreditation has been created previously, if so return it */
+        Employee employee =
+            partyRepository.findByIdAndCreatedBy(partyId, userName)
+                .orElseThrow(NotFoundException::new);
+
         List<EmployeeAccreditation> existingAccreditation =
-            this.repository.findAllByPartyId(partyId);
+            this.accreditationRepository.findAllByPartyId(partyId);
         if (!existingAccreditation.isEmpty()) {
             logger.warn("Accreditation already exists, returning existing one at index 0");
             return existingAccreditation.get(0);
         }
 
-        Employee employee = this.employeePartyService.getPartyById(partyId);
         EmployeeAccreditation accreditation =
             ((EmployeeAccreditationFactory) this.factory).create(employee, userName);
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         ConnectionInvitation connectionInvitation =
             this.acapyClient.createConnectionInvitation(accreditation.getId());
         String connectionUrl = connectionInvitation.getInvitationUrl();
 
         String connectionQrCode =
-            this.qrCodeGenerator.generateQrCodeSvg(connectionUrl, qrSize, qrSize);
+            QrCodeGenerator.generateQrCodeSvg(connectionUrl, qrSize, qrSize);
         String invitationEmail =
             this.emailBuilder.buildEmployeeInvitationEmail(accreditation.getParty(),
                 connectionQrCode);
 
         accreditation.initiateAccreditation(connectionUrl, invitationEmail, connectionQrCode,
             connectionInvitation.getConnectionId());
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {} with invitation url {}, invitation"
                 + " email {} and invitation QR code {}",
@@ -95,8 +96,23 @@ public class EmployeeAccreditationService
     }
 
     @Override
+    public byte[] generateAccreditationWithEmailAsMessage(String accreditationId) throws Exception {
+        EmployeeAccreditation accreditation =
+            this.accreditationRepository.findById(accreditationId)
+                .orElseThrow(NotFoundException::new);
+
+        List<String> emailAddresses =
+            accreditation.getParty().getCredentialOffer().getCredential().getContactInformation()
+                .getEmails();
+        String email = accreditation.getInvitationEmail();
+        return this.emailBuilder
+            .buildInvitationEmailAsMessage(emailAddresses, "Invitation for Employee Credential",
+                email);
+    }
+
+    @Override
     public EmployeeAccreditation offerAccreditation(String accreditationId) throws Exception {
-        EmployeeAccreditation accreditation = this.repository.findById(accreditationId)
+        EmployeeAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
         logger.info("Offer accreditation with id {}", accreditationId);
 
@@ -121,7 +137,7 @@ public class EmployeeAccreditationService
             acapyClient.issueCredential(employeeCredentialOffer, connectionId);
 
         accreditation.offerAccreditation(correlation);
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {}", accreditation.getId(),
             accreditation.getStatus());
@@ -136,13 +152,14 @@ public class EmployeeAccreditationService
 
         Correlation correlation = acapyClient.getRevocationCorrelation(credentialExchangeId);
 
-        EmployeeAccreditation accreditation = ((EmployeeAccreditationRepository) this.repository)
-            .findByEmployeeCredentialIssuanceCorrelationConnectionId(
-                connectionId).orElseThrow(NotFoundException::new);
+        EmployeeAccreditation accreditation =
+            ((EmployeeAccreditationRepository) this.accreditationRepository)
+                .findByEmployeeCredentialIssuanceCorrelationConnectionId(
+                    connectionId).orElseThrow(NotFoundException::new);
 
         accreditation.completeAccreditation(correlation, issuedBy);
         accreditation.deletePersonalData();
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {}", accreditation.getId(),
             accreditation.getStatus());
@@ -154,7 +171,7 @@ public class EmployeeAccreditationService
         throws NotFoundException, Exception {
         logger.info("Revoke accreditation with id {}", accreditationId);
 
-        EmployeeAccreditation accreditation = this.repository
+        EmployeeAccreditation accreditation = this.accreditationRepository
             .findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
@@ -169,7 +186,7 @@ public class EmployeeAccreditationService
         /* ToDo - Discuss if accreditation totally or partly must be removed/ blackened, if so implement
             in domain revokeAccreditation() method */
         accreditation.revokeAccreditation();
-        accreditation = this.repository.save(accreditation);
+        accreditation = this.accreditationRepository.save(accreditation);
 
         logger.debug("Accreditation with id {} is in status {}", accreditation.getId(),
             accreditation.getStatus());
@@ -178,7 +195,7 @@ public class EmployeeAccreditationService
 
     @Override
     public boolean isAccreditationCompleted(String accreditationId) throws Exception {
-        EmployeeAccreditation accreditation = this.repository.findById(accreditationId)
+        EmployeeAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
 
         return new AccreditationCompletedSpecification().isSatisfiedBy(accreditation);

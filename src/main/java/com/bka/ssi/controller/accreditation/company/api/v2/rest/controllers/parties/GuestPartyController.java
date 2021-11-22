@@ -42,8 +42,8 @@ public class GuestPartyController {
     private final Logger logger;
 
     public GuestPartyController(
-        GuestPartyService guestPartyService, BearerTokenParser bearerTokenParser,
-        GuestOutputDtoMapper guestOutputDtoMapper, Logger logger) {
+        GuestPartyService guestPartyService,
+        BearerTokenParser bearerTokenParser, GuestOutputDtoMapper guestOutputDtoMapper, Logger logger) {
         this.guestPartyService = guestPartyService;
         this.mapper = guestOutputDtoMapper;
         this.bearerTokenParser = bearerTokenParser;
@@ -151,22 +151,15 @@ public class GuestPartyController {
     public ResponseEntity<GuestOpenOutputDto> updateGuest(@Valid @RequestBody
         GuestInputDto inputDto, @PathVariable String guestId)
         throws Exception {
-
-        /* This endpoint is kept for API overview - out of scope for MVP */
-        throw new UnsupportedOperationException();
-
-        /* WARNING! API implementation is disabled for MVP
-
         logger.info("start: updating existing guest as a party");
 
         String userName = bearerTokenParser.parseUserFromJWTToken();
 
-        Guest guest = this.guestPartyService.updateParty(inputDTO, guestId, userName);
+        Guest guest = this.guestPartyService.updateParty(inputDto, guestId, userName);
         GuestOpenOutputDto updatedGuestOutputDTO =
-            guestOutputDtoMapper.guestToGuestOpenOutputDto(guest);
+                mapper.entityToOpenDto(guest);
 
         logger.info("end: updating existing guest as a party");
         return ResponseEntity.status(200).body(updatedGuestOutputDTO);
-        */
     }
 }

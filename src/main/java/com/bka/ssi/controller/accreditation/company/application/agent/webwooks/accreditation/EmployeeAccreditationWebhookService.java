@@ -30,14 +30,14 @@ public class EmployeeAccreditationWebhookService implements WebhookService {
             case "active":
             case "inactive":
             case "error":
-                logger.debug("Connection state: " + inputDto.getState());
+                logger.debug("Ignoring Connection state: " + inputDto.getState());
                 break;
             case "response":
                 logger.debug("Connection state: " + inputDto.getState());
                 employeeAccreditationService.offerAccreditation(inputDto.getAlias());
                 break;
             default:
-                logger.debug("Connection state: " + inputDto.getState());
+                logger.debug("Unknown Connection state: " + inputDto.getState());
                 break;
         }
     }

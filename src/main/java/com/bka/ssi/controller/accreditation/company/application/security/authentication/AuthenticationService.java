@@ -1,5 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.application.security.authentication;
 
+import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthenticatedException;
 import com.bka.ssi.controller.accreditation.company.application.security.SSOClient;
 import com.bka.ssi.controller.accreditation.company.application.security.authentication.dto.GuestToken;
@@ -37,7 +38,7 @@ public class AuthenticationService {
         this.logger = logger;
     }
 
-    public boolean verifySSOToken(String token) throws Exception {
+    public boolean verifySSOToken(String token) throws UnauthenticatedException {
         logger.info("Verifying SSO token");
 
         if (token == null || token.equals("") || token.equals("null")) {
@@ -45,7 +46,13 @@ public class AuthenticationService {
             throw new UnauthenticatedException();
         }
 
-        boolean isValid = ssoClient.verifyToken(token);
+        boolean isValid = false;
+        try {
+            isValid = ssoClient.verifyToken(token);
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
+            throw new UnauthenticatedException("Could not verify SSO token by SSO Client");
+        }
 
         if (!isValid) {
             logger.debug("SSO token not valid");
@@ -55,15 +62,23 @@ public class AuthenticationService {
         return true;
     }
 
-    public GuestToken issueGuestAccessToken(String accreditationId) {
+    public GuestToken issueGuestAccessToken(String accreditationId)
+        throws UnauthenticatedException {
         logger.info("Issuing guest access token");
 
         UUID uuid = UUID.randomUUID();
         ZonedDateTime expire =
-            ZonedDateTime.now().plusNanos(TimeUnit.MILLISECONDS.toNanos(guestTokenLifetime));
+            currentTime().plusNanos(TimeUnit.MILLISECONDS.toNanos(guestTokenLifetime));
 
         GuestToken inputToken = new GuestToken(uuid.toString(), accreditationId, expire);
-        GuestToken savedToken = repository.save(inputToken);
+
+        GuestToken savedToken;
+        try {
+            savedToken = repository.save(inputToken);
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
+            throw new UnauthenticatedException("Could not save guest access token");
+        }
 
         return savedToken;
     }
@@ -76,12 +91,24 @@ public class AuthenticationService {
             throw new UnauthenticatedException();
         }
 
-        GuestToken token = repository.findById(id)
-            .orElseThrow(UnauthenticatedException::new);
+        GuestToken token = null;
+        try {
+            token = repository.findById(id)
+                .orElseThrow(NotFoundException::new);
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
+            throw new UnauthenticatedException(
+                "Could not find guest access token for verification");
+        }
 
         if (ZonedDateTime.now().isAfter(token.getExpiring())) {
-            repository.deleteById(id);
             logger.debug("Guest access token expired");
+            try {
+                repository.deleteById(id);
+            } catch (Exception e) {
+                logger.debug(e.getMessage());
+                throw new UnauthenticatedException("Could not delete guest access token");
+            }
             throw new UnauthenticatedException();
         }
 
@@ -113,5 +140,9 @@ public class AuthenticationService {
         }
 
         return true;
+    }
+
+    public ZonedDateTime currentTime() {
+        return ZonedDateTime.now();
     }
 }

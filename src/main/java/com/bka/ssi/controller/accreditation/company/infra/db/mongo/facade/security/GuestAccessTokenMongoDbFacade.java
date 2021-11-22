@@ -53,6 +53,10 @@ public class GuestAccessTokenMongoDbFacade implements GuestAccessTokenRepository
         Optional<GuestAccessTokenMongoDbDocument> document =
             this.repository.findById(id);
 
+        if (document.isEmpty()) {
+            return Optional.empty();
+        }
+
         GuestToken token = this.mapper.documentToEntity(document.get());
 
         return Optional.of(token);
@@ -69,8 +73,8 @@ public class GuestAccessTokenMongoDbFacade implements GuestAccessTokenRepository
 
         Iterable<GuestAccessTokenMongoDbDocument> documents =
             this.repository.findAll();
-        List<GuestToken> tokens = new ArrayList<>();
 
+        List<GuestToken> tokens = new ArrayList<>();
         documents.forEach(document -> tokens
             .add(this.mapper
                 .documentToEntity(document)));
@@ -120,6 +124,6 @@ public class GuestAccessTokenMongoDbFacade implements GuestAccessTokenRepository
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException("Operation deleteAll is not yet implemented");
+        this.repository.deleteAll();
     }
 }

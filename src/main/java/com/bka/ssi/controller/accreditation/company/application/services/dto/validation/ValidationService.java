@@ -1,8 +1,10 @@
 package com.bka.ssi.controller.accreditation.company.application.services.dto.validation;
 
+import com.bka.ssi.controller.accreditation.company.application.exceptions.BundleConstraintViolationExceptionsException;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
@@ -12,8 +14,8 @@ import javax.validation.Validator;
 @Component
 public class ValidationService {
 
-    private Validator validator;
-    private Logger logger;
+    private final Validator validator;
+    private final Logger logger;
 
     public ValidationService(Validator validator, Logger logger) {
         this.validator = validator;
@@ -24,41 +26,29 @@ public class ValidationService {
         Set<ConstraintViolation<T>> violations = validator.validate(dto);
 
         if (!violations.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-
-            for (ConstraintViolation<T> constraintViolation : violations) {
-                sb.append(constraintViolation.getMessage());
-            }
-
-            logger.debug("Validation failed in: " + sb.toString());
-            throw new ConstraintViolationException("Validation failed: " + sb.toString(),
-                violations);
+            throw new ConstraintViolationException(violations);
         }
 
-        return violations.isEmpty();
+        return true;
     }
 
-    public <T> boolean validate(List<T> dtos) throws ConstraintViolationException {
-        boolean isValid = true;
+    public <T> boolean validate(List<T> dtos) throws BundleConstraintViolationExceptionsException {
+        List<ConstraintViolationException> exceptions = new ArrayList<>();
 
-        for (T dto : dtos) {
-            Set<ConstraintViolation<T>> violations = validator.validate(dto);
-
-            if (!violations.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-
-                for (ConstraintViolation<T> constraintViolation : violations) {
-                    sb.append(constraintViolation.getMessage());
-                }
-
-                logger.debug("Validation failed in: " + sb.toString());
-                throw new ConstraintViolationException(
-                    "Validation failed: " + sb.toString(), violations);
+        for (int i = 0; i < dtos.size(); i++) {
+            try {
+                this.validate(dtos.get(i));
+            } catch (ConstraintViolationException e) {
+                exceptions
+                    .add(new ConstraintViolationException("index: " + i + ", " + e.getMessage(),
+                        e.getConstraintViolations()));
             }
-
-            isValid = isValid && violations.isEmpty();
         }
 
-        return isValid;
+        if (!exceptions.isEmpty()) {
+            throw new BundleConstraintViolationExceptionsException(exceptions);
+        }
+
+        return true;
     }
 }

@@ -13,12 +13,16 @@ import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidVal
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialMetadata;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
+import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.GuestAccreditationBuilder;
+import com.bka.ssi.controller.accreditation.company.testutilities.party.guest.GuestBuilder;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +31,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("integrationtest")
@@ -92,5 +98,37 @@ public class GuestAccreditationServiceIntegrationTest {
             emailBuilder.buildGuestInvitationEmail(testGuest, redirectUrl);
         // Then
         assertEquals("Unit test\nTest User", invitation);
+    }
+
+    // Disabled until refactoring of unit tests
+    @Test
+    @Disabled
+    void generateAccreditationWithEmailAsMessage() throws Exception {
+        // Given
+        GuestBuilder guestBuilder = new GuestBuilder();
+        GuestAccreditationBuilder guestAccreditationBuilder =
+            new GuestAccreditationBuilder();
+
+        Guest guest = guestBuilder.buildGuest();
+        guestAccreditationBuilder.guest = guest;
+        GuestAccreditation accreditation = guestAccreditationBuilder.build();
+
+        String email = "Email content";
+        byte[] emailAsByteArray = email.getBytes(StandardCharsets.UTF_8);
+
+        Mockito.when(repository.findById(Mockito.anyString()))
+            .thenReturn(Optional.of(accreditation));
+        Mockito.when(emailBuilder.buildInvitationEmailAsMessage(
+            Mockito.eq(guest.getCredentialOffer().getCredential().getContactInformation()
+                .getEmails()),
+            Mockito.eq("Invitation for Guest Credential"),
+            Mockito.eq(accreditation.getInvitationEmail()))).thenReturn(emailAsByteArray);
+
+        // When
+        byte[] result =
+            accreditationService.generateAccreditationWithEmailAsMessage("accreditationId");
+
+        //Then
+        Assertions.assertEquals(emailAsByteArray, result);
     }
 }

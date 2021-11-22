@@ -1,7 +1,10 @@
 package com.bka.ssi.controller.accreditation.company.application.repositories;
 
+import org.springframework.stereotype.Repository;
+
 import java.util.Optional;
 
+@Repository
 public interface BaseRepository<T, ID> {
 
     <S extends T> S save(S entity) throws Exception;

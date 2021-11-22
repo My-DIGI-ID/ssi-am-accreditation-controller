@@ -12,6 +12,7 @@ import java.io.IOException;
 public class EmployeeInputDtoBuilder {
 
     private final String json;
+
     public String title;
     public String firstName;
     public String lastName;
@@ -56,40 +57,45 @@ public class EmployeeInputDtoBuilder {
     }
 
     public void reset() {
-        this.title = "";
-        this.firstName = "";
-        this.lastName = "";
-        this.email = "";
-        this.primaryPhoneNumber = "";
-        this.secondaryPhoneNumber = "";
-        this.employeeId = "";
-        this.employeeState = "";
-        this.position = "";
-        this.companyName = "";
-        this.companyStreet = "";
-        this.companyPostalCode = "";
-        this.companyCity = "";
+        this.title = null;
+        this.firstName = null;
+        this.lastName = null;
+        this.email = null;
+        this.primaryPhoneNumber = null;
+        this.secondaryPhoneNumber = null;
+        this.employeeId = null;
+        this.employeeState = null;
+        this.position = null;
+        this.companyName = null;
+        this.companyStreet = null;
+        this.companyPostalCode = null;
+        this.companyCity = null;
+    }
+
+    public EmployeeInputDto buildEmployeeInputDto() {
+        this.title = this.title != null ? this.title : "title";
+        this.firstName = this.firstName != null ? this.firstName : "firstName";
+        this.lastName = this.lastName != null ? this.lastName : "lastName";
+        this.email = this.email != null ? this.email : "email@email.xyz";
+        this.primaryPhoneNumber =
+            this.primaryPhoneNumber != null ? this.primaryPhoneNumber : "0123456789";
+        this.secondaryPhoneNumber =
+            this.secondaryPhoneNumber != null ? this.secondaryPhoneNumber : "9876543210";
+        this.employeeId = this.employeeId != null ? this.employeeId : "employeeId";
+        this.employeeState = this.employeeState != null ? this.employeeState : "employeeState";
+        this.position = this.position != null ? this.position : "position";
+        this.companyName = this.companyName != null ? this.companyName : "companyName";
+        this.companyStreet = this.companyStreet != null ? this.companyStreet : "companyStreet";
+        this.companyPostalCode =
+            this.companyPostalCode != null ? this.companyPostalCode : "companyPostalCode";
+        this.companyCity = this.companyCity != null ? this.companyCity : "companyCity";
+
+        return this.build();
     }
 
     @Test
-    void buildEmployeeInputDto() {
-        this.reset();
-
-        this.title = "title";
-        this.firstName = "firstName";
-        this.lastName = "lastName";
-        this.email = "email@email.xyz";
-        this.primaryPhoneNumber = "0123456789";
-        this.secondaryPhoneNumber = "9876543210";
-        this.employeeId = "employeeId";
-        this.employeeState = "employeeState";
-        this.position = "position";
-        this.companyName = "companyName";
-        this.companyStreet = "companyStreet";
-        this.companyPostalCode = "companyPostalCode";
-        this.companyCity = "companyCity";
-
-        EmployeeInputDto dto = this.build();
+    void buildEmployeeInputDtoTest() {
+        EmployeeInputDto dto = this.buildEmployeeInputDto();
 
         assertEquals(this.title, dto.getTitle());
         assertEquals(this.firstName, dto.getFirstName());

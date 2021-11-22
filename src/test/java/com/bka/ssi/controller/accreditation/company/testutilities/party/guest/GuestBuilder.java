@@ -13,13 +13,15 @@ import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffe
 import com.bka.ssi.controller.accreditation.company.domain.values.GuestPrivateInformation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
 import com.bka.ssi.controller.accreditation.company.domain.values.ValidityTimeframe;
-import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.ValidTimeframeBuilder;
+import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.ValidityTimeframeBuilder;
 import org.junit.jupiter.api.Test;
 
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 public class GuestBuilder {
+
+    private ValidityTimeframeBuilder builder;
 
     public String id;
 
@@ -29,6 +31,8 @@ public class GuestBuilder {
     public String personaLastName;
 
     public GuestPrivateInformation guestPrivateInformation;
+
+    public ValidityTimeframe validityTimeframe;
 
     // ContactInformation
     public String contactInformationEmail;
@@ -42,6 +46,7 @@ public class GuestBuilder {
 
     public String invitedBy;
 
+    // Creator
     public String createdBy;
     public ZonedDateTime createdAt;
 
@@ -51,108 +56,117 @@ public class GuestBuilder {
     public ZonedDateTime credentialMetadataPersonalDataDeleted;
 
     public GuestBuilder() {
+        this.builder = new ValidityTimeframeBuilder();
     }
 
     public Guest build() throws InvalidValidityTimeframeException {
         Persona persona = new Persona(this.personaTitle, this.personaFirstName,
             this.personaLastName);
 
-        ValidTimeframeBuilder validTimeframeBuilder = new ValidTimeframeBuilder();
-
-        ValidityTimeframe validityTimeframe = validTimeframeBuilder.build();
-
         ContactInformation contactInformation =
             new ContactInformation(Arrays.asList(this.contactInformationEmail),
                 Arrays.asList(this.contactInformationPrimaryPhoneNumber,
                     this.contactInformationSecondaryPhoneNumber));
 
-        GuestCredential guestCredential = new GuestCredential(validityTimeframe,
-            persona, contactInformation,
-            companyName, typeOfVisit, location, invitedBy, referenceBasisId,
-            guestPrivateInformation);
+        GuestCredential guestCredential = new GuestCredential(this.validityTimeframe,
+            persona, contactInformation, this.companyName, this.typeOfVisit, this.location,
+            this.invitedBy, this.referenceBasisId, this.guestPrivateInformation);
 
         CredentialMetadata credentialMetadata = new CredentialMetadata(this.issuedBy, this.issuedAt,
-            this.credentialMetadataPersonalDataDeleted, CredentialType.EMPLOYEE);
+            this.credentialMetadataPersonalDataDeleted, CredentialType.GUEST);
 
         CredentialOffer<GuestCredential> credentialOffer =
             new CredentialOffer<>(credentialMetadata, guestCredential);
-        return new Guest(id, credentialOffer, createdBy, createdAt);
+        return new Guest(this.id, credentialOffer, this.createdBy, this.createdAt);
     }
 
     public void reset() {
-        this.id = "";
-
+        this.id = null;
 
         // Persona
-        this.personaTitle = "";
-        this.personaFirstName = "";
-        this.personaLastName = "";
+        this.personaTitle = null;
+        this.personaFirstName = null;
+        this.personaLastName = null;
 
         this.guestPrivateInformation = null;
 
+        this.validityTimeframe = null;
+
         // ContactInformation
-        this.contactInformationEmail = "";
-        this.contactInformationPrimaryPhoneNumber = "";
-        this.contactInformationSecondaryPhoneNumber = "";
+        this.contactInformationEmail = null;
+        this.contactInformationPrimaryPhoneNumber = null;
+        this.contactInformationSecondaryPhoneNumber = null;
 
-        this.companyName = "";
-        this.typeOfVisit = "";
-        this.location = "";
-        this.referenceBasisId = "";
+        this.companyName = null;
+        this.typeOfVisit = null;
+        this.location = null;
+        this.referenceBasisId = null;
 
-        this.invitedBy = "";
+        this.invitedBy = null;
 
-        this.createdBy = "";
+        this.createdBy = null;
         this.createdAt = null;
 
         // CredentialMetadata
-        this.issuedBy = "";
+        this.issuedBy = null;
         this.issuedAt = null;
         this.credentialMetadataPersonalDataDeleted = null;
     }
 
     public Guest buildGuest() throws InvalidValidityTimeframeException {
-
-        this.id = "123456789";
+        this.id = this.id != null ? this.id : "123456789";
 
         // ValidityTimeFrame
-        ValidityTimeframe validityTimeframe = new ValidTimeframeBuilder().build();
+        this.validityTimeframe =
+            this.validityTimeframe != null ? this.validityTimeframe :
+                this.builder.buildDynamicValidityTimeframe();
 
         // Persona
-        this.personaTitle = "Mrs.";
-        this.personaFirstName = "Erika";
-        this.personaLastName = "Mustermann";
+        this.personaTitle = this.personaTitle != null ? this.personaTitle : "Mrs.";
+        this.personaFirstName = this.personaFirstName != null ? this.personaFirstName : "Erika";
+        this.personaLastName = this.personaLastName != null ? this.personaLastName : "Mustermann";
 
-        guestPrivateInformation = new GuestPrivateInformation(
-            "1970-01-01",
-            "licencePlateNumber",
-            "companyStreet",
-            "companyCity",
-            "companyPostCode",
-            "acceptedDocument");
+        this.guestPrivateInformation =
+            this.guestPrivateInformation != null ? this.guestPrivateInformation :
+                new GuestPrivateInformation(
+                    "1970-01-01",
+                    "licencePlateNumber",
+                    "companyStreet",
+                    "companyCity",
+                    "companyPostCode",
+                    "acceptedDocument");
 
         // ContactInformation
-        this.contactInformationEmail = "mustermann@test.tld";
-        this.contactInformationPrimaryPhoneNumber = "0123456789";
-        this.contactInformationSecondaryPhoneNumber = "9876543210";
+        this.contactInformationEmail =
+            this.contactInformationEmail != null ? this.contactInformationEmail :
+                "mustermann@test.tld";
+        this.contactInformationPrimaryPhoneNumber =
+            this.contactInformationPrimaryPhoneNumber != null ?
+                this.contactInformationPrimaryPhoneNumber : "0123456789";
+        this.contactInformationSecondaryPhoneNumber =
+            this.contactInformationSecondaryPhoneNumber != null ?
+                this.contactInformationSecondaryPhoneNumber : "9876543210";
 
-        this.companyName = "Test Company";
-        this.typeOfVisit = "Test Visit";
-        this.location = "Test location";
-        this.referenceBasisId = "Reference";
+        this.companyName = this.companyName != null ? this.companyName : "Test Company";
+        this.typeOfVisit = this.typeOfVisit != null ? this.typeOfVisit : "Test Visit";
+        this.location = this.location != null ? this.location : "Test location";
+        this.referenceBasisId = this.referenceBasisId != null ? this.referenceBasisId : "Reference";
 
-
-        this.createdAt = ZonedDateTime.now();
+        this.createdBy = this.createdBy != null ? this.createdBy : "unittest";
+        this.createdAt = this.createdAt != null ? this.createdAt : ZonedDateTime.now();
 
         // CredentialMetadata
-        this.issuedAt = ZonedDateTime.now();
-        this.credentialMetadataPersonalDataDeleted = ZonedDateTime.now();
+        this.issuedAt = this.issuedAt != null ? this.issuedAt : ZonedDateTime.now();
+        this.issuedBy = this.issuedBy != null ? this.issuedBy : "unittest";
+        this.credentialMetadataPersonalDataDeleted =
+            this.credentialMetadataPersonalDataDeleted != null ?
+                this.credentialMetadataPersonalDataDeleted : ZonedDateTime.now();
 
         return this.build();
     }
 
     @Test
-    private void buildGuestTest() throws InvalidValidityTimeframeException {
+    void buildGuestTest() throws InvalidValidityTimeframeException {
         Guest guestDto = this.buildGuest();
 
         // id
@@ -210,6 +224,11 @@ public class GuestBuilder {
         assertEquals(this.createdAt, guestDto.getCreatedAt());
         assertEquals(this.credentialMetadataPersonalDataDeleted,
             guestDto.getCredentialOffer().getCredentialMetadata().getPartyPersonalDataDeleted());
+
+        assertEquals(this.validityTimeframe.getValidFrom(),
+            guestDto.getCredentialOffer().getCredential().getValidityTimeframe().getValidFrom());
+        assertEquals(this.validityTimeframe.getValidUntil(),
+            guestDto.getCredentialOffer().getCredential().getValidityTimeframe().getValidUntil());
 
         this.reset();
     }

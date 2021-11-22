@@ -66,5 +66,5 @@ public interface GuestAccreditationMongoDbRepository
     List<GuestAccreditationMongoDbDocument> findAllByInvitedBy(String invitedBy);
 
     List<GuestAccreditationMongoDbDocument> findAllByInvitedByAndStatusIsNot(
-        String invitedBy, List<String> firstStatus);
+        String invitedBy, List<String> stats);
 }

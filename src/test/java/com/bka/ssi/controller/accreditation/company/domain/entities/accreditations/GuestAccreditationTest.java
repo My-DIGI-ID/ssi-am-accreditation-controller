@@ -25,8 +25,8 @@ public class GuestAccreditationTest {
     private static final String URL = "url";
     private static final String QRCODE = "qrcode";
     private static final String EMAIL = "email";
-    private static final String INVITEE = "unittest";
-    private static final String NOTINVITEE = "anothertest";
+    private static final String INVITEDBY = "unittest";
+    private static final String NOTINVITEDBY = "anothertest";
     private static final String BIRTHDATE = "1970-01-01";
     private ZonedDateTime invitedAt;
     private Guest party;
@@ -37,8 +37,8 @@ public class GuestAccreditationTest {
         SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
 
         GuestBuilder builder = new GuestBuilder();
-        builder.invitedBy = INVITEE;
-        builder.createdBy = INVITEE;
+        builder.invitedBy = INVITEDBY;
+        builder.createdBy = INVITEDBY;
         try {
             this.party = builder.buildGuest();
         } catch (InvalidValidityTimeframeException e) {
@@ -49,7 +49,7 @@ public class GuestAccreditationTest {
     @Test
     public void shouldCreateAccreditationWithoutId() {
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         assertNotEquals(null, guestAccreditation);
     }
@@ -60,21 +60,21 @@ public class GuestAccreditationTest {
         assertThrows(IllegalArgumentException.class, () -> {
             // When
             GuestAccreditation guestAccreditation = new GuestAccreditation("id", party,
-                GuestAccreditationStatus.OPEN, NOTINVITEE, invitedAt);
+                GuestAccreditationStatus.OPEN, NOTINVITEDBY, invitedAt);
         });
 
         // Then
         assertThrows(IllegalArgumentException.class, () -> {
             // When
             GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-                GuestAccreditationStatus.OPEN, NOTINVITEE, invitedAt);
+                GuestAccreditationStatus.OPEN, NOTINVITEDBY, invitedAt);
         });
     }
 
     @Test
     public void shouldCreateAccreditationWithId() {
         GuestAccreditation guestAccreditation = new GuestAccreditation("id", party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         assertNotEquals(null, guestAccreditation);
     }
@@ -84,7 +84,7 @@ public class GuestAccreditationTest {
         Correlation basisIdCorrelation = new Correlation();
         Correlation guestIssuanceCorrelation = new Correlation();
         GuestAccreditation guestAccreditation = new GuestAccreditation("id", party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt, URL, EMAIL, QRCODE,
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt, URL, EMAIL, QRCODE,
             basisIdCorrelation, guestIssuanceCorrelation);
 
         assertNotEquals(null, guestAccreditation);
@@ -95,7 +95,7 @@ public class GuestAccreditationTest {
         throws InvalidAccreditationInitialStateException {
         // Given
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // When
         guestAccreditation.initiateAccreditationWithInvitationUrlAndInvitationEmail(URL, EMAIL);
@@ -112,7 +112,7 @@ public class GuestAccreditationTest {
         throws InvalidAccreditationInitialStateException {
         // Given
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // Then
         assertThrows(InvalidAccreditationInitialStateException.class, () -> {
@@ -128,7 +128,7 @@ public class GuestAccreditationTest {
     public void shouldUpdateStatusOnStartBasisVerification() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
         Correlation correlation = new Correlation();
 
         // when started basis id verification
@@ -145,7 +145,7 @@ public class GuestAccreditationTest {
     public void shouldUpdateStatusOnDeferDueToInvalidBasisId() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // when deferred credential
         guestAccreditation.deferAccreditationDueToInvalidBasisId();
@@ -158,7 +158,7 @@ public class GuestAccreditationTest {
     public void shouldAddPrivateInformation() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
         String licencePlateNumber = "license";
         String companyStreet = "street";
         String companyCity = "city";
@@ -209,7 +209,7 @@ public class GuestAccreditationTest {
     public void shouldAssociateQrCodeWithAccreditation() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // when
         guestAccreditation.associateInvitationQrCodeWithAccreditation(QRCODE);
@@ -221,7 +221,7 @@ public class GuestAccreditationTest {
     @Test
     public void shouldUpdateStatusAndPartyOnAccreditationCompletion() {
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
         Correlation correlation = new Correlation("connectionId");
 
         // When
@@ -240,7 +240,7 @@ public class GuestAccreditationTest {
     public void shouldUpdateStatusSetCorrelationAndDateOfBirthOnCompletingBasisIdVerification() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // When
         guestAccreditation
@@ -267,7 +267,7 @@ public class GuestAccreditationTest {
     public void shouldUpdateOnRevocation() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // when revoked credential
         guestAccreditation.revokeAccreditation();
@@ -280,7 +280,7 @@ public class GuestAccreditationTest {
     public void shouldDeleteEmailOnCleanUp() {
         // Given accreditation with status OPEN
         GuestAccreditation guestAccreditation = new GuestAccreditation(party,
-            GuestAccreditationStatus.OPEN, INVITEE, invitedAt);
+            GuestAccreditationStatus.OPEN, INVITEDBY, invitedAt);
 
         // When
         guestAccreditation.cleanGuestInformationOnCheckout();

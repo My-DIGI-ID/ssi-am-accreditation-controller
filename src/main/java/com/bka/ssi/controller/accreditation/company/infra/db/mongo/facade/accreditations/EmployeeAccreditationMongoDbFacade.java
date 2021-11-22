@@ -163,7 +163,7 @@ public class EmployeeAccreditationMongoDbFacade implements EmployeeAccreditation
 
     @Override
     public void deleteAll() {
-        throw new UnsupportedOperationException("Operation deleteAll is not yet implemented");
+        this.repository.deleteAll();
     }
 
     @Override

@@ -1,55 +1,115 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.accreditations;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.EmployeeAccreditationOutputDto;
-import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.accreditations.statistics.GuestAccreditationStatisticOutputMapperTest;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.parties.EmployeeOutputDtoMapper;
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.EmployeeAccreditation;
-import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
 import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.employee.EmployeeAccreditationBuilder;
-import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 public class EmployeeAccreditationOutputDtoMapperTest {
+
     private static final Logger logger =
-            LoggerFactory.getLogger(GuestAccreditationStatisticOutputMapperTest.class);
-    private Employee employee;
-    private EmployeeAccreditation employeeAccreditation;
+        LoggerFactory.getLogger(EmployeeAccreditationOutputDtoMapperTest.class);
     private static EmployeeAccreditationOutputDtoMapper employeeAccreditationOutputDtoMapper;
+    private static EmployeeOutputDtoMapper employeeOutputDtoMapper;
+
+    private static EmployeeAccreditationBuilder employeeAccreditationBuilder;
+
+    private EmployeeAccreditation employeeAccreditation;
 
     @BeforeAll
     static void init() {
-        // Mapper
-        EmployeeOutputDtoMapper employeeOutputDtoMapper = new EmployeeOutputDtoMapper(logger);
+        employeeOutputDtoMapper = new EmployeeOutputDtoMapper(logger);
         employeeAccreditationOutputDtoMapper =
-                new EmployeeAccreditationOutputDtoMapper(employeeOutputDtoMapper, logger);
+            new EmployeeAccreditationOutputDtoMapper(employeeOutputDtoMapper, logger);
+        employeeAccreditationBuilder = new EmployeeAccreditationBuilder();
     }
 
     @BeforeEach
-    void setUp() {
-        // Initiate employee accreditation
-        EmployeeBuilder employeeBuilder = new EmployeeBuilder();
-        employee = employeeBuilder.buildEmployee();
-
-        EmployeeAccreditationBuilder employeeAccreditationBuilder = new EmployeeAccreditationBuilder();
-        EmployeeAccreditationBuilder.employee = employee;
-        employeeAccreditation = employeeAccreditationBuilder.build();
+    void setup() {
+        employeeAccreditation = employeeAccreditationBuilder.buildEmployeeAccreditation();
     }
 
     @Test
     public void shouldMapEntityToDto() {
         // when
         EmployeeAccreditationOutputDto employeeAccreditationOutputDto =
-                employeeAccreditationOutputDtoMapper.entityToDto(employeeAccreditation);
+            employeeAccreditationOutputDtoMapper.entityToDto(employeeAccreditation);
 
         // then
-        assertEquals(employeeAccreditationOutputDto.getEmployee().getEmployeeId(), employee.getId());
-        assertEquals(employeeAccreditationOutputDto.getInvitedBy(), "unit test");
-        assertEquals(employeeAccreditationOutputDto.getStatus(), "OPEN");
+        assertEquals(employeeAccreditation.getId(), employeeAccreditationOutputDto.getId());
+        assertEquals(employeeAccreditation.getStatus().getName(),
+            employeeAccreditationOutputDto.getStatus());
+        assertEquals(employeeAccreditation.getInvitedBy(),
+            employeeAccreditationOutputDto.getInvitedBy());
+        assertEquals(employeeAccreditation.getInvitedAt(),
+            employeeAccreditationOutputDto.getInvitedAt());
+        assertEquals(employeeAccreditation.getInvitationUrl(),
+            employeeAccreditationOutputDto.getInvitationUrl());
+        assertEquals(employeeAccreditation.getInvitationEmail(),
+            employeeAccreditationOutputDto.getInvitationEmail());
+        assertEquals(employeeAccreditation.getInvitationQrCode(),
+            employeeAccreditationOutputDto.getInvitationQrCode());
+
+        // implicitly testing EmployeeOutputDtoMapper
+        assertEquals(employeeAccreditation.getParty().getId(),
+            employeeAccreditationOutputDto.getEmployee().getId());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getPersona()
+                .getTitle(),
+            employeeAccreditationOutputDto.getEmployee().getTitle());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getPersona()
+                .getFirstName(),
+            employeeAccreditationOutputDto.getEmployee().getFirstName());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getPersona()
+                .getLastName(),
+            employeeAccreditationOutputDto.getEmployee().getLastName());
+        assertEquals(employeeAccreditation.getParty().getCredentialOffer().getCredential()
+                .getContactInformation().getEmails().get(0),
+            employeeAccreditationOutputDto.getEmployee().getEmail());
+        assertEquals(employeeAccreditation.getParty().getCredentialOffer().getCredential()
+                .getContactInformation().getPhoneNumbers().get(0),
+            employeeAccreditationOutputDto.getEmployee().getPrimaryPhoneNumber());
+        assertEquals(employeeAccreditation.getParty().getCredentialOffer().getCredential()
+                .getContactInformation().getPhoneNumbers().get(1),
+            employeeAccreditationOutputDto.getEmployee().getSecondaryPhoneNumber());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getEmployeeId(),
+            employeeAccreditationOutputDto.getEmployee().getEmployeeId());
+        assertEquals(employeeAccreditation.getParty().getCredentialOffer().getCredential()
+                .getEmployeeState(),
+            employeeAccreditationOutputDto.getEmployee().getEmployeeState());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getPosition()
+                .getName(),
+            employeeAccreditationOutputDto.getEmployee().getPosition());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getEmployer()
+                .getName(),
+            employeeAccreditationOutputDto.getEmployee().getCompanyName());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getEmployer()
+                .getAddress().getPostalCode(),
+            employeeAccreditationOutputDto.getEmployee().getCompanyPostalCode());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getEmployer()
+                .getAddress().getCity(),
+            employeeAccreditationOutputDto.getEmployee().getCompanyCity());
+        assertEquals(
+            employeeAccreditation.getParty().getCredentialOffer().getCredential().getEmployer()
+                .getAddress().getStreet(),
+            employeeAccreditationOutputDto.getEmployee().getCompanyStreet());
+        assertEquals(employeeAccreditation.getParty().getCreatedBy(),
+            employeeAccreditationOutputDto.getEmployee().getCreatedBy());
+        assertEquals(employeeAccreditation.getParty().getCreatedAt(),
+            employeeAccreditationOutputDto.getEmployee().getCreatedAt());
     }
 }

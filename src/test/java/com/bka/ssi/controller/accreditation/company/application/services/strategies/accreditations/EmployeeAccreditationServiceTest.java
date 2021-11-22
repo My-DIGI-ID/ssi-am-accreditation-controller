@@ -2,14 +2,15 @@ package com.bka.ssi.controller.accreditation.company.application.services.strate
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
+import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.AlreadyExistsException;
 import com.bka.ssi.controller.accreditation.company.application.factories.accreditations.EmployeeAccreditationFactory;
 import com.bka.ssi.controller.accreditation.company.application.repositories.accreditations.EmployeeAccreditationRepository;
-import com.bka.ssi.controller.accreditation.company.application.services.strategies.parties.EmployeePartyService;
+import com.bka.ssi.controller.accreditation.company.application.repositories.parties.EmployeeRepository;
 import com.bka.ssi.controller.accreditation.company.application.utilities.EmailBuilder;
 import com.bka.ssi.controller.accreditation.company.application.utilities.QrCodeGenerator;
 import com.bka.ssi.controller.accreditation.company.application.utilities.UrlBuilder;
@@ -18,14 +19,14 @@ import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Empl
 import com.bka.ssi.controller.accreditation.company.domain.enums.EmployeeAccreditationStatus;
 import com.bka.ssi.controller.accreditation.company.domain.values.ConnectionInvitation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
-import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.ACAPYClientV6;
 import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.employee.EmployeeAccreditationBuilder;
 import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeBuilder;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
@@ -33,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,16 +46,16 @@ class EmployeeAccreditationServiceTest {
     @Value("${template.email.invitation.employee.path}")
     String emailTemplatePath;
 
-    @Mock
-    private EmployeePartyService partyService;
-
     private Employee employee;
 
     private final Logger logger =
         LoggerFactory.getLogger(EmployeeAccreditationServiceTest.class);
 
     @Mock
-    private EmployeeAccreditationRepository repository;
+    private EmployeeAccreditationRepository employeeAccreditationRepository;
+
+    @Mock
+    private EmployeeRepository employeeRepository;
 
     @Mock
     private EmployeeAccreditationFactory factory;
@@ -68,15 +70,7 @@ class EmployeeAccreditationServiceTest {
     private UrlBuilder urlBuilder;
 
     @Mock
-    private ACAPYConfiguration configuration;
-
-    @Mock
-    private ACAPYClientV6 acapyClient;
-
-
-    @Mock
-    private QrCodeGenerator qrCodeGenerator;
-
+    private ACAPYClient acapyClient;
 
     private EmployeeAccreditation accreditation;
     private String expectedUUID;
@@ -95,26 +89,24 @@ class EmployeeAccreditationServiceTest {
         Correlation correlation = new Correlation(expectedUUID);
 
         EmployeeAccreditationBuilder builder = new EmployeeAccreditationBuilder();
-        builder.correlation = correlation;
-        accreditation = builder.build();
+        builder.employeeCredentialIssuanceCorrelation = correlation;
+        accreditation = builder.buildEmployeeAccreditation();
         accreditationService =
-            new EmployeeAccreditationService(logger, repository, factory, acapyClient, emailBuilder,
-                urlBuilder, qrCodeGenerator, partyService);
+            new EmployeeAccreditationService(logger, employeeAccreditationRepository, factory,
+                acapyClient, emailBuilder, urlBuilder, employeeRepository);
     }
 
     @Test
     void offerAccreditation() throws Exception {
         // Given
-
-
-        Mockito.when(repository.findById(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(
             acapyClient.issueCredential(Mockito.any(), Mockito.eq(UUID.randomUUID().toString())))
             .thenReturn(new Correlation(expectedUUID));
 
-        Mockito.when(repository.save(Mockito.any()))
+        Mockito.when(employeeAccreditationRepository.save(Mockito.any()))
             .thenReturn(accreditation);
 
         // When
@@ -131,17 +123,17 @@ class EmployeeAccreditationServiceTest {
         EmployeeAccreditationBuilder builder = new EmployeeAccreditationBuilder();
 
         Correlation correlation = new Correlation(expectedUUID);
-        builder.correlation = correlation;
+        builder.employeeCredentialIssuanceCorrelation = correlation;
         builder.status = EmployeeAccreditationStatus.REVOKED;
 
         EmployeeAccreditation revokedAccreditation = builder.build();
 
-        Mockito.when(repository.findById(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(revokedAccreditation));
 
         EmployeeAccreditationService accreditationService =
-            new EmployeeAccreditationService(logger, repository, factory, acapyClient, emailBuilder,
-                urlBuilder, qrCodeGenerator, partyService);
+            new EmployeeAccreditationService(logger, employeeAccreditationRepository, factory,
+                acapyClient, emailBuilder, urlBuilder, employeeRepository);
 
         // Then
         assertThrows(AlreadyExistsException.class, () -> {
@@ -156,12 +148,12 @@ class EmployeeAccreditationServiceTest {
         EmployeeAccreditationBuilder builder = new EmployeeAccreditationBuilder();
 
         Correlation correlation = new Correlation(expectedUUID);
-        builder.correlation = correlation;
+        builder.employeeCredentialIssuanceCorrelation = correlation;
         builder.status = EmployeeAccreditationStatus.ACCEPTED;
 
         EmployeeAccreditation acceptedAccreditation = builder.build();
 
-        Mockito.when(repository.findById(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(acceptedAccreditation));
 
 
@@ -174,63 +166,73 @@ class EmployeeAccreditationServiceTest {
 
 
     @Test
-    @Disabled
-        //ToDo figure out why connectioninvitation is always null
-    void testInitiateAccreditation() throws Exception {
+//    @Disabled
+    void initiateAccreditation() throws Exception {
         // Given
+        Mockito.when(employeeRepository.findByIdAndCreatedBy(Mockito.anyString(),
+            Mockito.anyString())).thenReturn(Optional.of(employee));
+
         List<EmployeeAccreditation> accreditations = new ArrayList<EmployeeAccreditation>();
 
-        Mockito.when(repository.findAllByPartyId(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findAllByPartyId(Mockito.anyString()))
             .thenReturn(accreditations);
 
-        Mockito.when(partyService.getPartyById(Mockito.anyString())).thenReturn(employee);
-
-        Mockito.when(factory.create(Mockito.any(Employee.class), Mockito.anyString()))
+        Mockito.when(factory.create(Mockito.any(), Mockito.anyString()))
             .thenReturn(accreditation);
 
-        Mockito.when(repository.save(Mockito.any()))
+        Mockito.when(employeeAccreditationRepository.save(Mockito.any()))
             .thenReturn(accreditation);
 
+        ConnectionInvitation connectionInvitation = new ConnectionInvitation("invitationUrl",
+            "connectionId");
 
-        ConnectionInvitation connectionInvitation = Mockito.mock(ConnectionInvitation.class);
-
-        Mockito.when(acapyClient.createConnectionInvitation(Mockito.anyString()))
+        Mockito.when(acapyClient.createConnectionInvitation(Mockito.any()))
             .thenReturn(connectionInvitation);
-
-        Mockito.when(connectionInvitation.getInvitationUrl()).thenReturn("url");
-
-        Mockito.when(qrCodeGenerator.generateQrCodeSvg(Mockito.anyString(), Mockito.anyInt(),
-            Mockito.anyInt())).thenReturn("qrCode");
 
         Mockito.when(emailBuilder.buildEmployeeInvitationEmail(Mockito.any(),
             Mockito.anyString())).thenReturn("invitationEmail");
 
-        // When
-        EmployeeAccreditation returnedAccreditation =
-            accreditationService.initiateAccreditation("123", "username");
+        try (MockedStatic<QrCodeGenerator> qrCodeGeneratorMockedStatic = Mockito
+            .mockStatic(QrCodeGenerator.class)) {
+            qrCodeGeneratorMockedStatic
+                .when(() -> QrCodeGenerator.generateQrCodeSvg(Mockito.anyString(), Mockito.anyInt(),
+                    Mockito.anyInt()))
+                .thenReturn("qrCode");
 
-        //Then
-        assertEquals("qrCode", returnedAccreditation.getInvitationQrCode());
+            // When
+            EmployeeAccreditation returnedAccreditation =
+                accreditationService.initiateAccreditation(
+                    "partyId", "userName");
+
+            // Then
+            assertEquals("qrCode", returnedAccreditation.getInvitationQrCode());
+        }
     }
 
     @Test
     void shouldReturnExistingAccreditationIfExists() throws Exception {
         // Given
-        EmployeeAccreditation accreditation =
-            new EmployeeAccreditationBuilder().build();
+        Mockito.when(employeeRepository.findByIdAndCreatedBy(Mockito.anyString(),
+            Mockito.anyString())).thenReturn(Optional.of(employee));
+        EmployeeAccreditationBuilder accreditationBuilder = new EmployeeAccreditationBuilder();
+        accreditationBuilder.status = EmployeeAccreditationStatus.PENDING;
+
+        EmployeeAccreditation existingAccreditation = accreditationBuilder.build();
 
         List<EmployeeAccreditation> existingAccreditations = new ArrayList<EmployeeAccreditation>();
+        existingAccreditations.add(existingAccreditation);
         existingAccreditations.add(accreditation);
 
-        Mockito.when(repository.findAllByPartyId(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findAllByPartyId(Mockito.anyString()))
             .thenReturn(existingAccreditations);
 
         // When
-        EmployeeAccreditation employeeAccreditation = accreditationService.initiateAccreditation(
+        EmployeeAccreditation returnedAccreditation = accreditationService.initiateAccreditation(
             "123", "username");
 
         // Then
-        assertEquals(accreditation, employeeAccreditation);
+        assertNotEquals(accreditation, returnedAccreditation);
+        assertEquals(existingAccreditation, returnedAccreditation);
     }
 
     @Test
@@ -242,22 +244,20 @@ class EmployeeAccreditationServiceTest {
             .thenReturn(correlation);
 
         Mockito.when(
-            repository.findByEmployeeCredentialIssuanceCorrelationConnectionId(Mockito.anyString()))
+            employeeAccreditationRepository
+                .findByEmployeeCredentialIssuanceCorrelationConnectionId(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
-        Mockito.when(repository.save(Mockito.any()))
+        Mockito.when(employeeAccreditationRepository.save(Mockito.any()))
             .thenReturn(accreditation);
 
         // When
-
         EmployeeAccreditation employeeAccreditation = accreditationService.completeAccreditation(
             "connectionId", "exchangeId", "issuer");
 
         //Then
         assertEquals(EmployeeAccreditationStatus.ACCEPTED, employeeAccreditation.getStatus());
-
         assertEquals("deleted", employeeAccreditation.getInvitationEmail());
-
         assertEquals("deleted",
             employeeAccreditation.getParty().getCredentialOffer().getCredential().getEmployeeId());
         assertEquals("deleted",
@@ -271,10 +271,10 @@ class EmployeeAccreditationServiceTest {
     @Test
     void revokeAccreditation() throws Exception {
         // Given
-        Mockito.when(repository.findById(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
-        Mockito.when(repository.save(Mockito.any()))
+        Mockito.when(employeeAccreditationRepository.save(Mockito.any()))
             .thenReturn(accreditation);
 
         // When
@@ -291,12 +291,13 @@ class EmployeeAccreditationServiceTest {
         EmployeeAccreditationBuilder builder = new EmployeeAccreditationBuilder();
 
         Correlation correlation = new Correlation(expectedUUID);
-        builder.correlation = correlation;
+        builder.id = "accreditationId";
+        builder.employeeCredentialIssuanceCorrelation = correlation;
         builder.status = EmployeeAccreditationStatus.ACCEPTED;
 
-        EmployeeAccreditation acceptedAccreditation = builder.build();
+        EmployeeAccreditation acceptedAccreditation = builder.buildEmployeeAccreditation();
 
-        Mockito.when(repository.findById(Mockito.anyString()))
+        Mockito.when(employeeAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(acceptedAccreditation));
 
         // When
@@ -305,5 +306,35 @@ class EmployeeAccreditationServiceTest {
 
         //Then
         assertTrue(result);
+    }
+
+    @Test
+    void generateAccreditationWithEmailAsMessage() throws Exception {
+        // Given
+        EmployeeBuilder employeeBuilder = new EmployeeBuilder();
+        EmployeeAccreditationBuilder employeeAccreditationBuilder =
+            new EmployeeAccreditationBuilder();
+
+        Employee employee = employeeBuilder.buildEmployee();
+        employeeAccreditationBuilder.employee = employee;
+        EmployeeAccreditation accreditation = employeeAccreditationBuilder.build();
+
+        String email = "Email content";
+        byte[] emailAsByteArray = email.getBytes(StandardCharsets.UTF_8);
+
+        Mockito.when(employeeAccreditationRepository.findById(Mockito.anyString()))
+            .thenReturn(Optional.of(accreditation));
+        Mockito.when(emailBuilder.buildInvitationEmailAsMessage(
+            Mockito.eq(employee.getCredentialOffer().getCredential().getContactInformation()
+                .getEmails()),
+            Mockito.eq("Invitation for Employee Credential"),
+            Mockito.eq(accreditation.getInvitationEmail()))).thenReturn(emailAsByteArray);
+
+        // When
+        byte[] result =
+            accreditationService.generateAccreditationWithEmailAsMessage("accreditationId");
+
+        //Then
+        Assertions.assertEquals(emailAsByteArray, result);
     }
 }

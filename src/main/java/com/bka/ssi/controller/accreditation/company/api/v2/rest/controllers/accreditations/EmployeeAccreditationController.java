@@ -15,6 +15,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,15 +56,13 @@ public class EmployeeAccreditationController {
     @Operation(summary = "Create accreditation with invitation email for employee",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Created draft accreditation with "
-            + "invitation email for guest",
-            content = {@Content(mediaType = "application/json",
-                schema = @Schema(implementation = EmployeeAccreditationOutputDto.class))})
+        @ApiResponse(responseCode = "201",
+            description = "Created draft accreditation with invitation email for employee",
+            content = @Content(schema = @Schema(type = "file")))
     })
-    @PostMapping(path = "/initiate/invitation-email/{partyId}", produces =
-        {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(path = "/initiate/invitation-email/{partyId}")
     @SSOProtectedTransaction(scope = "scope:create", resource = "res:employee-accreditation")
-    public ResponseEntity<EmployeeAccreditationOutputDto> initiateAccreditationWithInvitationEmail(
+    public ResponseEntity<InputStreamResource> initiateAccreditationWithInvitationEmail(
         @PathVariable String partyId) throws Exception {
         logger.info("start: initiating new accreditation for employee via QR code in the email");
 
@@ -69,10 +71,19 @@ public class EmployeeAccreditationController {
         EmployeeAccreditation accreditation =
             employeeAccreditationService.initiateAccreditation(partyId, userName);
 
-        EmployeeAccreditationOutputDto outputDto = this.mapper.entityToDto(accreditation);
+        byte[] email =
+            employeeAccreditationService
+                .generateAccreditationWithEmailAsMessage(accreditation.getId());
 
-        logger.info("end: initiating new accreditation for employee via QR code in the email");
-        return ResponseEntity.status(201).body(outputDto);
+        try (InputStream inputStream = new ByteArrayInputStream(email);) {
+            logger.info("end: initiating new accreditation for employee via QR code in the email");
+            return ResponseEntity.status(201)
+                .contentType(MediaType.TEXT_PLAIN)
+                .contentLength(email.length)
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                    "attachment; filename=\"" + accreditation.getId() + "-invitation.eml\"")
+                .body(new InputStreamResource(inputStream));
+        }
     }
 
     @Operation(summary = "Offering accreditation to employee",

@@ -147,8 +147,15 @@ public class EmployeePartyController {
     public ResponseEntity<EmployeeOutputDto> updateEmployee(@Valid @RequestBody
         EmployeeInputDto inputDto, @PathVariable String employeeId)
         throws Exception {
+        logger.info("start: updating existing employee as a party");
 
-        /* This endpoint is kept for API overview - out of scope for MVP */
-        throw new UnsupportedOperationException();
+        String userName = bearerTokenParser.parseUserFromJWTToken();
+
+        Employee employee = this.employeePartyService.updateParty(inputDto, employeeId, userName);
+        EmployeeOutputDto updatedEmployeeOutputDTO =
+                mapper.entityToDto(employee);
+
+        logger.info("end: updating existing employee as a party");
+        return ResponseEntity.status(200).body(updatedEmployeeOutputDTO);
     }
 }
