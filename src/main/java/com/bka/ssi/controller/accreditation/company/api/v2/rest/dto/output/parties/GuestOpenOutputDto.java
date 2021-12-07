@@ -43,14 +43,17 @@ public class GuestOpenOutputDto {
 
     @Size(max = 200)
     @NotNull
+    @NotEmpty
     private String companyName;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String typeOfVisit;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String location;
 
     @NotNull
@@ -69,7 +72,6 @@ public class GuestOpenOutputDto {
     @NotNull
     private String createdBy;
 
-    @NotEmpty
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime createdAt;

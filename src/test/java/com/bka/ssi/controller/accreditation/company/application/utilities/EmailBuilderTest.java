@@ -48,7 +48,6 @@ public class EmailBuilderTest {
             "src/main/resources/templates/email/invitation/guest-invitation-email-template.html",
             "src/main/resources/templates/email/invitation/employee-invitation-email-template.html",
             logger);
-        qrCodeGenerator = new QrCodeGenerator();
         employeeBuilder = new EmployeeBuilder();
         guestBuilder = new GuestBuilder();
 
@@ -137,7 +136,36 @@ public class EmailBuilderTest {
     void buildEmployeeInvitationEmailAsMessage() {
         String qrCode = null;
         try {
-            qrCode = qrCodeGenerator.generateQrCodeSvg(redirectUrl, 300, 300);
+            qrCode = QrCodeGenerator.generateQrCodeSvg(redirectUrl, 300, 300);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+
+        byte[] email = null;
+        try {
+            email = emailBuilder.buildEmployeeInvitationEmailAsMessage(employee, qrCode);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
+
+        String emailAsString = new String(email);
+        Assertions.assertNotNull(email);
+        Assertions.assertTrue(emailAsString.contains("To: " +
+            employee.getCredentialOffer().getCredential().getContactInformation().getEmails()
+                .get(0)));
+        Assertions
+            .assertTrue(emailAsString.contains("Subject: Invitation for Employee Credential"));
+        Assertions.assertTrue(emailAsString.contains("MIME-Version: 1.0"));
+        Assertions.assertTrue(emailAsString.contains("Content-Type: multipart/mixed"));
+        Assertions.assertTrue(emailAsString.contains("X-Unsent: 1"));
+        Assertions.assertTrue(emailAsString.contains("Content-Type: text/html; charset=utf-8"));
+    }
+
+    @Test
+    void buildEmployeeInvitationEmailAsMessagePngQrCode() {
+        byte[] qrCode = null;
+        try {
+            qrCode = QrCodeGenerator.generateQrCodePng(redirectUrl, 300, 300);
         } catch (Exception e) {
             fail(e.getMessage());
         }

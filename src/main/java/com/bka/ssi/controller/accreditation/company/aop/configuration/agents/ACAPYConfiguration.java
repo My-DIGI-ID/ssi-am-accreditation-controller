@@ -1,8 +1,8 @@
 package com.bka.ssi.controller.accreditation.company.aop.configuration.agents;
 
-import com.bka.ssi.controller.accreditation.acapy_client.invoker.ApiClient;
-import com.bka.ssi.controller.accreditation.acapy_client.invoker.auth.ApiKeyAuth;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import io.github.my_digi_id.acapy_client.invoker.ApiClient;
+import io.github.my_digi_id.acapy_client.invoker.auth.ApiKeyAuth;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,16 +21,12 @@ public class ACAPYConfiguration {
     @Bean
     public ApiClient apiClient() {
         ApiClient apiClient =
-            com.bka.ssi.controller.accreditation.acapy_client.invoker.Configuration
-                .getDefaultApiClient();
+            io.github.my_digi_id.acapy_client.invoker.Configuration.getDefaultApiClient();
 
         apiClient.setBasePath(this.host + ":" + this.port);
 
         ((ApiKeyAuth) apiClient.getAuthentication("ApiKeyHeader")).setApiKey(this.apiKey);
 
-        /* ToDo - if this configuration works out as expected, there is no need for a
-            accreditation-acapy-openapi.v2.custom.json and accreditation-acapy-openapi.v2.json
-            can be used to generate ACAPY client lib again */
         apiClient.getJSON().getMapper()
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 

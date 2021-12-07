@@ -16,7 +16,6 @@ public class EmployeeOutputDto {
     private String id;
 
     @Size(max = 50)
-    @NotNull
     private String title;
 
     @Size(max = 50)
@@ -46,6 +45,7 @@ public class EmployeeOutputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String employeeState;
 
     @Size(max = 100)
@@ -53,24 +53,28 @@ public class EmployeeOutputDto {
 
     @Size(max = 200)
     @NotNull
+    @NotEmpty
     private String companyName;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyStreet;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyPostalCode;
 
     @Size(max = 50)
+    @NotNull
+    @NotEmpty
     private String companyCity;
 
     @NotEmpty
     @NotNull
     private String createdBy;
 
-    @NotEmpty
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime createdAt;

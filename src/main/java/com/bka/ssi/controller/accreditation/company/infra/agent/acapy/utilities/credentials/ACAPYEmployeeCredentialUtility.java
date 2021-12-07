@@ -1,7 +1,5 @@
 package com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.credentials;
 
-import com.bka.ssi.controller.accreditation.acapy_client.model.CredAttrSpec;
-import com.bka.ssi.controller.accreditation.acapy_client.model.CredentialPreview;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.EmployeeCredential;
 import com.bka.ssi.controller.accreditation.company.domain.values.Address;
 import com.bka.ssi.controller.accreditation.company.domain.values.ContactInformation;
@@ -9,6 +7,8 @@ import com.bka.ssi.controller.accreditation.company.domain.values.IdentityManage
 import com.bka.ssi.controller.accreditation.company.domain.values.Persona;
 import com.bka.ssi.controller.accreditation.company.domain.values.Position;
 import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.ACAPYCredentialUtility;
+import io.github.my_digi_id.acapy_client.model.CredAttrSpec;
+import io.github.my_digi_id.acapy_client.model.CredentialPreview;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;

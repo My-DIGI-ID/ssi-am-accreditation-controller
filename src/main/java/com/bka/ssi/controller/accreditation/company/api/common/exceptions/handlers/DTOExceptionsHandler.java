@@ -1,6 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.api.common.exceptions.handlers;
 
-import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
+import com.bka.ssi.controller.accreditation.company.aop.logging.LoggingUtility;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.BundleConstraintViolationExceptionsException;
@@ -33,11 +33,11 @@ public class DTOExceptionsHandler {
     public ResponseEntity<RestErrorResponse> handleMethodArgumentNotValidException(
         MethodArgumentNotValidException ex, HttpServletRequest request) {
 
+        /* ToDo - care about ex.getBindingResult().getFieldErrors() */
         RestErrorResponse response = restErrorResponseFactory
             .create(ex.getBindingResult().getFieldErrors(), HttpStatus.BAD_REQUEST, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -53,8 +53,7 @@ public class DTOExceptionsHandler {
         RestErrorResponse response = new RestErrorResponse(HttpStatus.BAD_REQUEST,
             ex.getMessage(), request.getRequestURI());
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

@@ -28,6 +28,7 @@ import com.bka.ssi.controller.accreditation.company.domain.values.ConnectionInvi
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
 import com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest.GuestAccreditationBuilder;
 import com.bka.ssi.controller.accreditation.company.testutilities.party.guest.GuestBuilder;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -115,7 +116,7 @@ public class GuestAccreditationServiceTest {
             .thenReturn(accreditation);
 
         Mockito.when(guestAccreditationRepository.findAllByPartyId(Mockito.anyString()))
-            .thenReturn(Arrays.asList(accreditation));
+            .thenReturn(new ArrayList<>());
 
         Mockito.when(guestPartyRepository.findByIdAndCreatedBy(Mockito.anyString(),
             Mockito.anyString())).thenReturn(Optional.ofNullable(guest));
@@ -137,6 +138,56 @@ public class GuestAccreditationServiceTest {
         assertEquals("unittest", returnedAccreditation.getInvitedBy());
         assertEquals("url", returnedAccreditation.getInvitationUrl());
         assertEquals("email", returnedAccreditation.getInvitationEmail());
+
+        Mockito.verify(guestAccreditationRepository, Mockito.times(2)).save(Mockito.any());
+    }
+
+    @Test
+    void initiateAccreditationExistingAccreditation() throws Throwable {
+        // Given
+        Mockito.when(factory.create(Mockito.eq(guest), Mockito.anyString()))
+            .thenReturn(accreditation);
+
+        Mockito.when(guestAccreditationRepository.findAllByPartyId(Mockito.anyString()))
+            .thenReturn(List.of(accreditation));
+
+        Mockito.when(guestPartyRepository.findByIdAndCreatedBy(Mockito.anyString(),
+            Mockito.anyString())).thenReturn(Optional.ofNullable(guest));
+
+        // When
+        GuestAccreditation returnedAccreditation = accreditationService.initiateAccreditation(
+            "partyId", "unittest");
+
+        // Then
+        assertEquals("unittest", returnedAccreditation.getInvitedBy());
+        assertEquals("url", returnedAccreditation.getInvitationUrl());
+        assertEquals("email", returnedAccreditation.getInvitationEmail());
+    }
+
+    @Test
+    void generateAccreditationWithEmailAsMessage() throws Exception {
+        // Given
+        Mockito.when(guestAccreditationRepository.findById("accreditationId"))
+            .thenReturn(Optional.of(accreditation));
+
+        byte[] email = "Test".getBytes();
+        Mockito.when(emailBuilder.buildInvitationEmailAsMessage(
+                Mockito.anyList(),
+                Mockito.eq("Invitation for Guest Credential"),
+                Mockito.eq(accreditation.getInvitationEmail())))
+            .thenReturn(email);
+
+        // When
+        byte[] returnedEmail = accreditationService.generateAccreditationWithEmailAsMessage(
+            "accreditationId");
+
+        Assertions.assertEquals(email, returnedEmail);
+
+        Mockito.verify(emailBuilder, Mockito.times(1))
+            .buildInvitationEmailAsMessage(
+                Mockito.anyList(),
+                Mockito.eq("Invitation for Guest Credential"),
+                Mockito.eq(accreditation.getInvitationEmail()));
     }
 
     @Test
@@ -196,9 +247,9 @@ public class GuestAccreditationServiceTest {
     void completeVerificationOfBasisId() throws Exception {
         // Given
         Mockito.when(
-            guestAccreditationRepository
-                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                    Mockito.anyString(), Mockito.anyString()))
+                guestAccreditationRepository
+                    .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                        Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         BasisIdPresentation basisIdPresentation = Mockito.mock(BasisIdPresentation.class);
@@ -239,9 +290,9 @@ public class GuestAccreditationServiceTest {
     void shouldDeferOnInvalidBasisId() throws Exception {
         // Given
         Mockito.when(
-            guestAccreditationRepository
-                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                    Mockito.anyString(), Mockito.anyString()))
+                guestAccreditationRepository
+                    .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                        Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -259,9 +310,9 @@ public class GuestAccreditationServiceTest {
     void shouldDeferIfPresentationMismatch() throws Exception {
         // Given
         Mockito.when(
-            guestAccreditationRepository
-                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                    Mockito.anyString(), Mockito.anyString()))
+                guestAccreditationRepository
+                    .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                        Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(basisIdPresentationUtility.isPresentationAndGuestMatchLoosely(Mockito.any(),
@@ -352,7 +403,7 @@ public class GuestAccreditationServiceTest {
 
         Correlation guestCorrelation = new Correlation(expectedUUID);
         Mockito.when(
-            acapyClient.issueCredential(Mockito.any(), Mockito.anyString()))
+                acapyClient.issueCredential(Mockito.any(), Mockito.anyString()))
             .thenReturn(guestCorrelation);
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -458,8 +509,8 @@ public class GuestAccreditationServiceTest {
             .thenReturn(correlation);
 
         Mockito.when(
-            guestAccreditationRepository
-                .findByGuestCredentialIssuanceCorrelationConnectionId(Mockito.anyString()))
+                guestAccreditationRepository
+                    .findByGuestCredentialIssuanceCorrelationConnectionId(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -483,7 +534,7 @@ public class GuestAccreditationServiceTest {
         GuestAccreditation accreditationWithValidBasisId = builder.buildGuestAccreditation();
 
         Mockito.when(
-            guestAccreditationRepository.findById(Mockito.anyString()))
+                guestAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditationWithValidBasisId));
 
         // When
@@ -505,7 +556,7 @@ public class GuestAccreditationServiceTest {
         GuestAccreditation accreditationWithInValidBasisId = builder.buildGuestAccreditation();
 
         Mockito.when(
-            guestAccreditationRepository.findById(Mockito.anyString()))
+                guestAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditationWithInValidBasisId));
 
         // Then
@@ -540,16 +591,16 @@ public class GuestAccreditationServiceTest {
     void getUniqueAccreditationByPartyParams() throws Exception {
         // Given
         Mockito.when(
-            guestAccreditationRepository.findByPartyParams(
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.any(ZonedDateTime.class),
-                Mockito.any(ZonedDateTime.class),
-                Mockito.anyString()
-            ))
+                guestAccreditationRepository.findByPartyParams(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.any(ZonedDateTime.class),
+                    Mockito.any(ZonedDateTime.class),
+                    Mockito.anyString()
+                ))
             .thenReturn(Optional.of(accreditation));
 
         // When
@@ -572,16 +623,16 @@ public class GuestAccreditationServiceTest {
     void shouldThrowNotFoundIfNoUniqueAccreditation() throws Exception {
         // Given
         Mockito.when(
-            guestAccreditationRepository.findByPartyParams(
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.anyString(),
-                Mockito.any(ZonedDateTime.class),
-                Mockito.any(ZonedDateTime.class),
-                Mockito.anyString()
-            ))
+                guestAccreditationRepository.findByPartyParams(
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.anyString(),
+                    Mockito.any(ZonedDateTime.class),
+                    Mockito.any(ZonedDateTime.class),
+                    Mockito.anyString()
+                ))
             .thenReturn(Optional.empty());
 
         // Then
@@ -604,7 +655,7 @@ public class GuestAccreditationServiceTest {
     void cleanGuestInformationOnCheckout() throws Exception {
         // Given
         Mockito.when(
-            guestAccreditationRepository.findById(Mockito.anyString()))
+                guestAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -779,7 +830,7 @@ public class GuestAccreditationServiceTest {
     void countOfAccreditationsGroupedByStatus() {
         //Given
         Mockito.when(
-            guestAccreditationRepository.countByStatus(Mockito.any(GuestAccreditationStatus.class)))
+                guestAccreditationRepository.countByStatus(Mockito.any(GuestAccreditationStatus.class)))
             .thenReturn(
                 (long) 3);
 
@@ -829,8 +880,8 @@ public class GuestAccreditationServiceTest {
         guestAccreditationList.add(accreditation);
 
         Mockito.when(
-            guestAccreditationRepository
-                .findAllByInvitedByAndValidStatus(Mockito.anyString(), Mockito.anyList()))
+                guestAccreditationRepository
+                    .findAllByInvitedByAndValidStatus(Mockito.anyString(), Mockito.anyList()))
             .thenReturn(guestAccreditationList);
 
         // When

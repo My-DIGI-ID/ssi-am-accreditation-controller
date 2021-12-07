@@ -3,6 +3,9 @@ package com.bka.ssi.controller.accreditation.company.application.security.authen
 import java.time.ZonedDateTime;
 
 public class GuestToken {
+
+    // ToDo - separate dto from domain and infra object even though they look the same
+
     String id;
     String accreditationId;
     ZonedDateTime expiring;

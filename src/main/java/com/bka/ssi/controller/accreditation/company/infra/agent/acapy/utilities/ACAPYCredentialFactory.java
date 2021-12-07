@@ -1,12 +1,12 @@
 package com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities;
 
-import com.bka.ssi.controller.accreditation.acapy_client.model.CredentialPreview;
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.CredentialsConfiguration;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.EmployeeCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.GuestCredential;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
 import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.credentials.ACAPYEmployeeCredentialUtility;
 import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.credentials.ACAPYGuestCredentialUtility;
+import io.github.my_digi_id.acapy_client.model.CredentialPreview;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
@@ -43,8 +43,7 @@ public class ACAPYCredentialFactory {
         }
     }
 
-    public CredentialPreview buildCredPreview(
-        CredentialOffer credentialOffer) {
+    public CredentialPreview buildCredPreview(CredentialOffer credentialOffer) {
 
         switch (credentialOffer.getCredentialMetadata().getCredentialType()) {
             case EMPLOYEE:

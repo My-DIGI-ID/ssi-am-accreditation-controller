@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -153,9 +154,24 @@ public class EmployeePartyController {
 
         Employee employee = this.employeePartyService.updateParty(inputDto, employeeId, userName);
         EmployeeOutputDto updatedEmployeeOutputDTO =
-                mapper.entityToDto(employee);
+            mapper.entityToDto(employee);
 
         logger.info("end: updating existing employee as a party");
         return ResponseEntity.status(200).body(updatedEmployeeOutputDTO);
+    }
+
+    @Operation(summary = "Delete employee party")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Delete employee party", content = @Content)
+    })
+    @DeleteMapping(path = "/{employeeId}")
+    @SSOProtectedTransaction(scope = "scope:delete", resource = "res:employee")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable String employeeId) throws Exception {
+        logger.info("start: deleting employee party");
+
+        this.employeePartyService.deleteParty(employeeId);
+
+        logger.info("end: deleting employee party");
+        return ResponseEntity.status(200).build();
     }
 }

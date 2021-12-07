@@ -7,24 +7,25 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 @Component
-public class i18nMessageBuilder {
+public class I18nMessageBuilder {
 
     private final MessageSource messageSource;
 
-    public i18nMessageBuilder(MessageSource messageSource) {
+    public I18nMessageBuilder(MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
-
     public String create(String messageKey) {
         String errorMessage;
-        Locale loc = LocaleContextHolder.getLocale();
+        Locale locale = LocaleContextHolder.getLocale();
+
         try {
             errorMessage =
-                messageSource.getMessage(messageKey, null, loc);
+                messageSource.getMessage(messageKey, null, locale);
         } catch (Exception e) {
             errorMessage = "No message available";
         }
+
         return errorMessage;
     }
 }

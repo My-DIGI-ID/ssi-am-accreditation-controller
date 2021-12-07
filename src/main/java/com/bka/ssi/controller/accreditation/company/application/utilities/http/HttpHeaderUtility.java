@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 
 public class HttpHeaderUtility {
 
+    private HttpHeaderUtility() {
+    }
+
     public static HttpServletRequest getHttpServletRequest() {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         ServletRequestAttributes servletRequestAttributes =

@@ -39,4 +39,10 @@ public class RestErrorResponse {
     public String getPath() {
         return path;
     }
+
+    @Override
+    public String toString() {
+        return "status: " + this.status + "; message: " + this.message
+            + "; path: " + this.path + ";";
+    }
 }

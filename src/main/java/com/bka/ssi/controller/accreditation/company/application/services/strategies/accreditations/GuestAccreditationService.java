@@ -1,11 +1,5 @@
 package com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations;
 
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.AlreadyExistsException;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidAccreditationStateChangeException;
@@ -34,11 +28,16 @@ import com.bka.ssi.controller.accreditation.company.domain.values.BasisIdPresent
 import com.bka.ssi.controller.accreditation.company.domain.values.ConnectionInvitation;
 import com.bka.ssi.controller.accreditation.company.domain.values.Correlation;
 import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffer;
-
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GuestAccreditationService
@@ -144,6 +143,23 @@ public class GuestAccreditationService
 
         GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
+
+        switch (accreditation.getStatus()) {
+            case REVOKED:
+            case ACCEPTED:
+            case PENDING:
+                throw new AlreadyExistsException(
+                    "Accreditation either pending, revoked or already accepted");
+            case BASIS_ID_INVALID:
+            case BASIS_ID_VERIFICATION_PENDING:
+                throw new InvalidAccreditationStateChangeException(
+                    "Cannot offer accreditation when basis id verification is pending or " +
+                        "has failed.");
+            case OPEN:
+            case CANCELLED:
+            case BASIS_ID_VALID:
+                break;
+        }
 
         ConnectionInvitation connectionInvitation =
             acapyClient.createConnectionInvitation(accreditationId);

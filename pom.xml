@@ -82,9 +82,9 @@
             <version>3.4.1</version>
         </dependency>
         <dependency>
-            <groupId>com.bka.ssi.controller</groupId>
-            <artifactId>accreditation.acapy-client</artifactId>
-            <version>0.6.0</version>
+            <groupId>io.github.my-digi-id</groupId>
+            <artifactId>acapy-client</artifactId>
+            <version>0.7.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

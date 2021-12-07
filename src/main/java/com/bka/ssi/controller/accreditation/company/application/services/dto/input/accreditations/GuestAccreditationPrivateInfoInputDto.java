@@ -1,5 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.application.services.dto.input.accreditations;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -10,18 +11,20 @@ public class GuestAccreditationPrivateInfoInputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyStreet;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyCity;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyPostCode;
 
     @Size(max = 50)
-    @NotNull
     private String acceptedDocument;
 
     @Size(max = 50)

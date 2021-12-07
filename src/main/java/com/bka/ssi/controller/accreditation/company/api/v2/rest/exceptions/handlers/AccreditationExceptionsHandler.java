@@ -1,6 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.exceptions.handlers;
 
-import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
+import com.bka.ssi.controller.accreditation.company.aop.logging.LoggingUtility;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidAccreditationStateChangeException;
@@ -41,7 +41,6 @@ public class AccreditationExceptionsHandler {
         /* ToDo - this handler should handle any kind of accreditation state exceptions, refactor
          *    accreditation state exceptions to give a meaningful response and logging output
          */
-
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.accreditation_state_exception_placeholder",
             HttpStatus.CONFLICT, request);
@@ -49,15 +48,14 @@ public class AccreditationExceptionsHandler {
         /* ToDo - keep default fallback debug log until accreditation state exceptions are
          *   refactored for meaningful logging output
          */
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({InvalidValidityTimeframeException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<RestErrorResponse> handleInvalidValidityTimeframeException(Exception ex
-        , HttpServletRequest request) {
+    public ResponseEntity<RestErrorResponse> handleInvalidValidityTimeframeException(Exception ex,
+        HttpServletRequest request) {
 
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.validity_timeframe_exception_placeholder",
@@ -67,8 +65,7 @@ public class AccreditationExceptionsHandler {
         /* ToDo - keep default fallback debug log until validity timeframe exceptions are
          *   refactored for meaningful logging output
          */
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }

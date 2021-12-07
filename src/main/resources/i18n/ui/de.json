@@ -391,7 +391,9 @@
       "guest-status": {
         "accepted": "Angenommen",
         "pending": "Ausstehend",
-        "cancelled": "Abgebrochen"
+        "cancelled": "Abgebrochen",
+        "check-in": "Eingecheckt",
+        "check-out": "Ausgecheckt"
       }
     }
   }

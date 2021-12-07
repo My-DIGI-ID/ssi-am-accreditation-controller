@@ -1,10 +1,10 @@
 package com.bka.ssi.controller.accreditation.company.api.common.rest.controllers;
 
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.WebhookServiceFactory;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYConnectionDto;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYIssueCredentialDto;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYPresentProofDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.WebhookServiceFactory;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input.ACAPYConnectionDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input.ACAPYIssueCredentialDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input.ACAPYPresentProofDto;
 import com.bka.ssi.controller.accreditation.company.application.security.facade.APIKeyProtectedTransaction;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

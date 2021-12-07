@@ -1,20 +1,5 @@
 package com.bka.ssi.controller.accreditation.company.infra.agent.acapy;
 
-import com.bka.ssi.controller.accreditation.acapy_client.api.ConnectionApi;
-import com.bka.ssi.controller.accreditation.acapy_client.api.IssueCredentialV10Api;
-import com.bka.ssi.controller.accreditation.acapy_client.api.PresentProofV10Api;
-import com.bka.ssi.controller.accreditation.acapy_client.api.RevocationApi;
-import com.bka.ssi.controller.accreditation.acapy_client.invoker.ApiException;
-import com.bka.ssi.controller.accreditation.acapy_client.model.CredentialPreview;
-import com.bka.ssi.controller.accreditation.acapy_client.model.IndyProofReqAttrSpec;
-import com.bka.ssi.controller.accreditation.acapy_client.model.IndyProofRequest;
-import com.bka.ssi.controller.accreditation.acapy_client.model.InvitationResult;
-import com.bka.ssi.controller.accreditation.acapy_client.model.RawEncoded;
-import com.bka.ssi.controller.accreditation.acapy_client.model.RevokeRequest;
-import com.bka.ssi.controller.accreditation.acapy_client.model.V10CredentialExchange;
-import com.bka.ssi.controller.accreditation.acapy_client.model.V10CredentialFreeOfferRequest;
-import com.bka.ssi.controller.accreditation.acapy_client.model.V10PresentationExchange;
-import com.bka.ssi.controller.accreditation.acapy_client.model.V10PresentationSendRequestRequest;
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.CredentialsConfiguration;
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
@@ -30,9 +15,26 @@ import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.exceptions
 import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.exceptions.ACAPYVerificationException;
 import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.exceptions.ACAPYVerificationPresentationException;
 import com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.ACAPYCredentialFactory;
+import io.github.my_digi_id.acapy_client.api.ConnectionApi;
+import io.github.my_digi_id.acapy_client.api.IssueCredentialV10Api;
+import io.github.my_digi_id.acapy_client.api.PresentProofV10Api;
+import io.github.my_digi_id.acapy_client.api.RevocationApi;
+import io.github.my_digi_id.acapy_client.invoker.ApiException;
+import io.github.my_digi_id.acapy_client.model.CredentialPreview;
+import io.github.my_digi_id.acapy_client.model.IndyProofReqAttrSpec;
+import io.github.my_digi_id.acapy_client.model.IndyProofRequest;
+import io.github.my_digi_id.acapy_client.model.IndyProofRequestNonRevoked;
+import io.github.my_digi_id.acapy_client.model.InvitationResult;
+import io.github.my_digi_id.acapy_client.model.RawEncoded;
+import io.github.my_digi_id.acapy_client.model.RevokeRequest;
+import io.github.my_digi_id.acapy_client.model.V10CredentialExchange;
+import io.github.my_digi_id.acapy_client.model.V10CredentialFreeOfferRequest;
+import io.github.my_digi_id.acapy_client.model.V10PresentationExchange;
+import io.github.my_digi_id.acapy_client.model.V10PresentationSendRequestRequest;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -113,6 +115,10 @@ public class ACAPYClientV6 implements ACAPYClient {
         Map<String, IndyProofReqAttrSpec> requestedAttributes = new HashMap<>();
         requestedAttributes.put("basisid", indyProofReqAttrSpec);
 
+        IndyProofRequestNonRevoked indyProofRequestNonRevoked = new IndyProofRequestNonRevoked();
+        indyProofRequestNonRevoked.from(0);
+        indyProofRequestNonRevoked.to((int) Instant.now().getEpochSecond());
+
         // TODO - factory?
         logger.debug("Building basisId proof request");
         IndyProofRequest indyProofRequest = new IndyProofRequest();
@@ -120,6 +126,7 @@ public class ACAPYClientV6 implements ACAPYClient {
         indyProofRequest.setVersion("0.1");
         indyProofRequest.setRequestedAttributes(requestedAttributes);
         indyProofRequest.setRequestedPredicates(new HashMap<>());
+        indyProofRequest.setNonRevoked(indyProofRequestNonRevoked);
         indyProofRequest.setNonce(nonce);
 
         V10PresentationSendRequestRequest v10PresentationSendRequestRequest =

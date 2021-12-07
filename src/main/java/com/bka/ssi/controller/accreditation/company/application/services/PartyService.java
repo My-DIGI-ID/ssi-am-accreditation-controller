@@ -1,6 +1,7 @@
 package com.bka.ssi.controller.accreditation.company.application.services;
 
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidAccreditationStatusForPartyException;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidPartyOperationException;
 import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
 import com.bka.ssi.controller.accreditation.company.application.factories.PartyFactory;
 import com.bka.ssi.controller.accreditation.company.application.repositories.AccreditationRepository;
@@ -82,16 +83,25 @@ public abstract class PartyService<T extends Party, R, U extends Accreditation<T
     }
 
     public void deleteParty(String id) throws Exception {
+        T party = this.partyRepository.findById(id).orElseThrow(NotFoundException::new);
+
+        List<U> accreditations = this.accreditationRepository.findAllByPartyId(id);
+
+        if (!accreditations.isEmpty()) {
+            throw new InvalidPartyOperationException();
+        }
+
         this.partyRepository.deleteById(id);
     }
 
     public T updateParty(R inputDto, String partyId, String userName) throws Exception {
         T existingParty = this.partyRepository.findById(partyId)
-                .orElseThrow(NotFoundException::new);
+            .orElseThrow(NotFoundException::new);
 
         List<U> accreditations = this.accreditationRepository.findAllByPartyId(partyId);
-        for (Accreditation<T, ?> accreditation: accreditations) {
-            if (accreditation.getStatus().getName().equals(DefaultAccreditationStatus.ACCEPTED.getName())) {
+        for (Accreditation<T, ?> accreditation : accreditations) {
+            if (accreditation.getStatus().getName()
+                .equals(DefaultAccreditationStatus.ACCEPTED.getName())) {
                 throw new InvalidAccreditationStatusForPartyException(partyId);
             }
         }

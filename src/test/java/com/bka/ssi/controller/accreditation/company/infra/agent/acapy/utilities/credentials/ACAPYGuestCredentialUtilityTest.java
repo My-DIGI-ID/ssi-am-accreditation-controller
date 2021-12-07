@@ -1,10 +1,10 @@
 package com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.credentials;
 
-import com.bka.ssi.controller.accreditation.acapy_client.model.CredentialPreview;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.GuestCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Guest;
 import com.bka.ssi.controller.accreditation.company.domain.exceptions.InvalidValidityTimeframeException;
 import com.bka.ssi.controller.accreditation.company.testutilities.party.guest.GuestBuilder;
+import io.github.my_digi_id.acapy_client.model.CredentialPreview;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

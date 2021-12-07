@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,7 +44,8 @@ public class GuestPartyController {
 
     public GuestPartyController(
         GuestPartyService guestPartyService,
-        BearerTokenParser bearerTokenParser, GuestOutputDtoMapper guestOutputDtoMapper, Logger logger) {
+        BearerTokenParser bearerTokenParser, GuestOutputDtoMapper guestOutputDtoMapper,
+        Logger logger) {
         this.guestPartyService = guestPartyService;
         this.mapper = guestOutputDtoMapper;
         this.bearerTokenParser = bearerTokenParser;
@@ -157,9 +159,24 @@ public class GuestPartyController {
 
         Guest guest = this.guestPartyService.updateParty(inputDto, guestId, userName);
         GuestOpenOutputDto updatedGuestOutputDTO =
-                mapper.entityToOpenDto(guest);
+            mapper.entityToOpenDto(guest);
 
         logger.info("end: updating existing guest as a party");
         return ResponseEntity.status(200).body(updatedGuestOutputDTO);
+    }
+
+    @Operation(summary = "Delete guest party")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Delete guest party", content = @Content)
+    })
+    @DeleteMapping(path = "/{guestId}")
+    @SSOProtectedTransaction(scope = "scope:delete", resource = "res:guest")
+    public ResponseEntity<Void> deleteGuest(@PathVariable String guestId) throws Exception {
+        logger.info("start: deleting guest party");
+
+        this.guestPartyService.deleteParty(guestId);
+
+        logger.info("end: deleting guest party");
+        return ResponseEntity.status(200).build();
     }
 }

@@ -1,98 +1,120 @@
 package com.bka.ssi.controller.accreditation.company.application.services.dto.validation;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import com.bka.ssi.controller.accreditation.company.application.exceptions.BundleConstraintViolationExceptionsException;
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties.EmployeeInputDto;
-import com.bka.ssi.controller.accreditation.company.application.utilities.CsvBuilderTest;
+import com.bka.ssi.controller.accreditation.company.testutilities.TestConstraintValidatorFactory;
 import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeInputDtoBuilder;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 public class ValidationServiceTest {
 
-    private final static Logger logger = LoggerFactory.getLogger(CsvBuilderTest.class);
+    private final static Logger logger = LoggerFactory.getLogger(ValidationServiceTest.class);
+
     private static Validator validator;
     private static ValidationService validationService;
-    private static EmployeeInputDtoBuilder employeeBuilder;
-    private static ValidatorFactory validatorFactory;
+
+    private static EmployeeInputDtoBuilder employeeInputDtoBuilder;
 
     @BeforeAll
-    public static void setUp() {
-        validatorFactory = Validation.buildDefaultValidatorFactory();
-        validator = validatorFactory.getValidator();
-        employeeBuilder = new EmployeeInputDtoBuilder();
-        validationService = new ValidationService(validator, logger);
-    }
+    public static void init() {
+        TestConstraintValidatorFactory testConstraintValidatorFactory =
+            new TestConstraintValidatorFactory();
+        testConstraintValidatorFactory.init();
 
-    @AfterAll
-    public static void close() {
-        validatorFactory.close();
+        validator = Validation.byDefaultProvider().configure()
+            .constraintValidatorFactory(testConstraintValidatorFactory)
+            .buildValidatorFactory()
+            .getValidator();
+
+        validationService = new ValidationService(validator, logger);
+
+        employeeInputDtoBuilder = new EmployeeInputDtoBuilder();
     }
 
     @BeforeEach
-    public void resetStrings() {
-        this.employeeBuilder.reset();
+    public void setup() {
+        this.employeeInputDtoBuilder.reset();
     }
 
     @Test
-    @Disabled
-    /*
-    ToDo: Same problem with Mocking of i18nMessageBuilder as in BKAACMGT-173 and BKAACMGT-174
-    */
-    void validEmployeeCompositeInputDTO() {
+    void validEmployeeInputDto() {
         // given:
-        employeeBuilder.firstName = "Test";
-        employeeBuilder.lastName = "Test";
-        employeeBuilder.email = "test@example.com";
-        employeeBuilder.companyName = "";
-        employeeBuilder.companyCity = "";
-        employeeBuilder.companyPostalCode = "";
-        employeeBuilder.companyStreet = "";
-
-        EmployeeInputDto employee = employeeBuilder.build();
+        EmployeeInputDto dto = employeeInputDtoBuilder.buildEmployeeInputDto();
 
         // when:
-        Boolean isValid = this.validationService.validate(employee);
+        boolean isValid = this.validationService.validate(dto);
 
         // then:
-        assertTrue(isValid);
+        Assertions.assertTrue(isValid);
     }
 
     @Test
-    @Disabled
-    /*
-    ToDo: Same problem with Mocking of i18nMessageBuilder as in BKAACMGT-173 and BKAACMGT-174
-    */
-    void invalidEmployeeCompositeInputDTO() {
+    void invalidEmployeeInputDto() {
         // given:
-        employeeBuilder.firstName = "Test";
-        employeeBuilder.lastName = "Test";
-        employeeBuilder.email = "test@example.com";
-        employeeBuilder.companyName = "";
-        employeeBuilder.companyCity = "";
-        employeeBuilder.companyPostalCode = "";
-        employeeBuilder.companyStreet = "";
+        employeeInputDtoBuilder.firstName = "$%&";
+        EmployeeInputDto dto = employeeInputDtoBuilder.buildEmployeeInputDto();
 
-        EmployeeInputDto employee = employeeBuilder.build();
-
-        assertThrows(ConstraintViolationException.class, () -> {
+        Exception exception = Assertions.assertThrows(ConstraintViolationException.class, () -> {
             // when:
-            Boolean isValid = this.validationService.validate(employee);
+            boolean isValid = this.validationService.validate(dto);
 
             // then:
-            assertFalse(isValid);
+            Assertions.assertFalse(isValid);
         });
+
+        Assertions.assertEquals("firstName: " + TestConstraintValidatorFactory.i18n_ERROR_MESSAGE,
+            exception.getMessage());
+    }
+
+    @Test
+    void validEmployeeInputDtos() throws BundleConstraintViolationExceptionsException {
+        // given:
+        EmployeeInputDto dto = employeeInputDtoBuilder.buildEmployeeInputDto();
+        List<EmployeeInputDto> dtos = Arrays.asList(dto);
+
+        // when:
+        boolean isValid = this.validationService.validate(dtos);
+
+        // then:
+        Assertions.assertTrue(isValid);
+    }
+
+    @Test
+    void invalidEmployeeInputDtos() {
+        // given:
+        employeeInputDtoBuilder.firstName = "$%&";
+        EmployeeInputDto invalidDto = employeeInputDtoBuilder.buildEmployeeInputDto();
+        employeeInputDtoBuilder.reset();
+        EmployeeInputDto validDto = employeeInputDtoBuilder.buildEmployeeInputDto();
+
+        List<EmployeeInputDto> dtos = Arrays.asList(validDto, invalidDto);
+
+        BundleConstraintViolationExceptionsException exception =
+            Assertions.assertThrows(BundleConstraintViolationExceptionsException.class, () -> {
+                // when:
+                boolean isValid = this.validationService.validate(dtos);
+
+                // then:
+                Assertions.assertFalse(isValid);
+            });
+
+        Assertions.assertEquals(1, exception.getExceptions().size());
+        Assertions.assertEquals(
+            "index: 1, firstName: " + TestConstraintValidatorFactory.i18n_ERROR_MESSAGE
+            , exception.getExceptions().get(0).getMessage());
+        Assertions.assertEquals(
+            "index: 1, firstName: " + TestConstraintValidatorFactory.i18n_ERROR_MESSAGE,
+            exception.getMessage());
     }
 }

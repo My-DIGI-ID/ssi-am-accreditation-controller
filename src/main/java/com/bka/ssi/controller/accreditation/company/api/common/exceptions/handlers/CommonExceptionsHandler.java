@@ -1,9 +1,12 @@
 package com.bka.ssi.controller.accreditation.company.api.common.exceptions.handlers;
 
-import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
+import com.bka.ssi.controller.accreditation.company.aop.logging.LoggingUtility;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
-import com.bka.ssi.controller.accreditation.company.application.exceptions.*;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.AlreadyExistsException;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthenticatedException;
+import com.bka.ssi.controller.accreditation.company.application.exceptions.UnauthorizedException;
 import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +39,7 @@ public class CommonExceptionsHandler {
             "message.common.rest.error.not_implemented_exception_placeholder",
             HttpStatus.NOT_IMPLEMENTED, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -50,8 +52,7 @@ public class CommonExceptionsHandler {
             "message.common.rest.error.unauthorized_exception_placeholder", HttpStatus.FORBIDDEN,
             request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
     }
 
@@ -64,8 +65,7 @@ public class CommonExceptionsHandler {
             "message.common.rest.error.unauthenticated_exception_placeholder",
             HttpStatus.UNAUTHORIZED, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
     }
 
@@ -79,8 +79,7 @@ public class CommonExceptionsHandler {
                 .create("message.common.rest.error.unknown_exception_placeholder",
                     HttpStatus.INTERNAL_SERVER_ERROR, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
@@ -93,8 +92,7 @@ public class CommonExceptionsHandler {
             "message.common.rest.error.not_found_exception_placeholder",
             HttpStatus.NOT_FOUND, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -107,8 +105,7 @@ public class CommonExceptionsHandler {
             "message.common.rest.error.already_exists_exception_placeholder",
             HttpStatus.CONFLICT, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
@@ -122,23 +119,7 @@ public class CommonExceptionsHandler {
             "message.common.rest.error.illegal_fallback_exception_placeholder",
             HttpStatus.CONFLICT, request);
 
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
-        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
-    }
-
-
-    @ExceptionHandler(InvalidAccreditationStatusForPartyException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<RestErrorResponse> handleInvalidAccreditationStatusForPartyException(
-            Exception ex, HttpServletRequest request) {
-
-        RestErrorResponse response = restErrorResponseFactory.create(
-                "message.common.rest.error.invalid_accreditation_status_for_party_placeholder",
-                HttpStatus.CONFLICT, request);
-
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }

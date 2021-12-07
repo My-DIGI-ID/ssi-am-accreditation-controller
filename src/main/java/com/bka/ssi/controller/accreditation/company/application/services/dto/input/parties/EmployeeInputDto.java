@@ -1,6 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties;
 
-import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.general.NoForbiddenCharacters;
+import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.common.NoForbiddenCharacters;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 
@@ -11,9 +11,7 @@ import javax.validation.constraints.Size;
 
 public class EmployeeInputDto {
 
-    /* TODO - Implement characters escape annotation */
     /* TODO - Validation of PostalCode and PhoneNumbers */
-    /* TODO - companySubject? */
 
     @Size(max = 50)
     @NoForbiddenCharacters
@@ -57,6 +55,7 @@ public class EmployeeInputDto {
 
     @Size(max = 50)
     @NoForbiddenCharacters
+    //@EmployeeId - enable once FE is ready
     @CsvBindByName(column = "employeeId")
     @CsvBindByPosition(position = 6)
     private String employeeId;
@@ -64,7 +63,7 @@ public class EmployeeInputDto {
     @Size(max = 50)
     @NotNull
     @NotEmpty
-    @NoForbiddenCharacters
+    //@EmployeeState - enable once FE is ready
     @CsvBindByName(column = "employeeState")
     @CsvBindByPosition(position = 7)
     private String employeeState;

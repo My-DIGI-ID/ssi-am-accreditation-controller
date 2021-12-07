@@ -19,6 +19,9 @@ import java.util.Hashtable;
 
 public class QrCodeGenerator {
 
+    private QrCodeGenerator() {
+    }
+
     public static byte[] generateQrCodePng(String text, int width, int height)
         throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();

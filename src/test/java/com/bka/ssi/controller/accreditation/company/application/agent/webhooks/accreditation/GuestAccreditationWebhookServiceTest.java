@@ -1,9 +1,8 @@
 package com.bka.ssi.controller.accreditation.company.application.agent.webhooks.accreditation;
 
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.accreditation.GuestAccreditationWebhookService;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYConnectionDto;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYIssueCredentialDto;
-import com.bka.ssi.controller.accreditation.company.application.agent.webwooks.dto.input.ACAPYPresentProofDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input.ACAPYConnectionDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input.ACAPYIssueCredentialDto;
+import com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input.ACAPYPresentProofDto;
 import com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations.GuestAccreditationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

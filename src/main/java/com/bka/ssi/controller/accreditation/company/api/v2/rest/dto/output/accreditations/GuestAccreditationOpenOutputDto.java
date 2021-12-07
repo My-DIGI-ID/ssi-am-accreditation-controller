@@ -26,7 +26,6 @@ public class GuestAccreditationOpenOutputDto {
     @NotNull
     private String invitedBy;
 
-    @NotEmpty
     @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime invitedAt;

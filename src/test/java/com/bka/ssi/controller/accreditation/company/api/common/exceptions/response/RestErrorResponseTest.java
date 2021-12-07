@@ -51,4 +51,10 @@ class RestErrorResponseTest {
     void getPath() {
         assertEquals(response.getPath(), "/test/api/endpoint");
     }
+
+    @Test
+    void testToString() {
+        assertEquals("status: 400; message: Bad request message; path: /test/api/endpoint;",
+            response.toString());
+    }
 }

@@ -2,6 +2,7 @@ package com.bka.ssi.controller.accreditation.company.application.security.utilit
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
 import com.bka.ssi.controller.accreditation.company.aop.configuration.security.ApiKeyConfiguration;
@@ -37,5 +38,12 @@ public class ApiKeyParserTest {
 
         assertNotNull(apiKey);
         assertEquals("123", apiKey);
+    }
+
+    @Test
+    public void getApiKeyByIdNoEntry() {
+        String apiKey = this.parser.getApiKeyById("");
+
+        assertNull(apiKey);
     }
 }

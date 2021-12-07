@@ -1,5 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.application.services.dto.input.parties;
 
+import com.bka.ssi.controller.accreditation.company.application.services.dto.validation.common.NoForbiddenCharacters;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -13,6 +14,7 @@ import javax.validation.constraints.Size;
 public class GuestInputDto {
 
     @Size(max = 50)
+    @NoForbiddenCharacters
     @CsvBindByName(column = "title")
     @CsvBindByPosition(position = 0)
     private String title;
@@ -20,6 +22,7 @@ public class GuestInputDto {
     @Size(max = 50)
     @NotNull
     @NotEmpty
+    @NoForbiddenCharacters
     @CsvBindByName(column = "firstName")
     @CsvBindByPosition(position = 1)
     private String firstName;
@@ -27,6 +30,7 @@ public class GuestInputDto {
     @Size(max = 50)
     @NotNull
     @NotEmpty
+    @NoForbiddenCharacters
     @CsvBindByName(column = "lastName")
     @CsvBindByPosition(position = 2)
     private String lastName;
@@ -52,6 +56,7 @@ public class GuestInputDto {
     @Size(max = 200)
     @NotNull
     @NotEmpty
+    @NoForbiddenCharacters
     @CsvBindByName(column = "companyName")
     @CsvBindByPosition(position = 6)
     private String companyName;
@@ -59,6 +64,7 @@ public class GuestInputDto {
     @Size(max = 100)
     @NotNull
     @NotEmpty
+    @NoForbiddenCharacters
     @CsvBindByName(column = "typeOfVisit")
     @CsvBindByPosition(position = 7)
     private String typeOfVisit;
@@ -66,6 +72,7 @@ public class GuestInputDto {
     @Size(max = 100)
     @NotNull
     @NotEmpty
+    @NoForbiddenCharacters
     @CsvBindByName(column = "location")
     @CsvBindByPosition(position = 8)
     private String location;

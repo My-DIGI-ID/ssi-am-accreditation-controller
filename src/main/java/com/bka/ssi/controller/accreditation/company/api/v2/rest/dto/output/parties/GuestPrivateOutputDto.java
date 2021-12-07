@@ -1,5 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -7,6 +8,7 @@ public class GuestPrivateOutputDto extends GuestOpenOutputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String dateOfBirth;
 
     @Size(max = 50)
@@ -14,18 +16,20 @@ public class GuestPrivateOutputDto extends GuestOpenOutputDto {
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyStreet;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyCity;
 
     @Size(max = 50)
     @NotNull
+    @NotEmpty
     private String companyPostCode;
 
     @Size(max = 50)
-    @NotNull
     private String acceptedDocument;
 
     public GuestPrivateOutputDto() {

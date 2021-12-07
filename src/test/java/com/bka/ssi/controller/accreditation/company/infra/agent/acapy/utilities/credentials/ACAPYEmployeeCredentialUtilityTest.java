@@ -1,9 +1,9 @@
 package com.bka.ssi.controller.accreditation.company.infra.agent.acapy.utilities.credentials;
 
-import com.bka.ssi.controller.accreditation.acapy_client.model.CredentialPreview;
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.EmployeeCredential;
 import com.bka.ssi.controller.accreditation.company.domain.entities.parties.Employee;
 import com.bka.ssi.controller.accreditation.company.testutilities.party.employee.EmployeeBuilder;
+import io.github.my_digi_id.acapy_client.model.CredentialPreview;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

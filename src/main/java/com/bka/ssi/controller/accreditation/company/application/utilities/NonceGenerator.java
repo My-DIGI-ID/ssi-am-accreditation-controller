@@ -6,6 +6,9 @@ public class NonceGenerator {
 
     private final static SecureRandom secureRandom = new SecureRandom();
 
+    private NonceGenerator() {
+    }
+
     public static int nextPositiveInt() {
         return secureRandom.nextInt() & Integer.MAX_VALUE;
     }

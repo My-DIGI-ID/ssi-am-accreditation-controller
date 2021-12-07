@@ -1,6 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.api.v1.rest.exceptions.handlers;
 
-import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
+import com.bka.ssi.controller.accreditation.company.aop.logging.LoggingUtility;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
 import com.bka.ssi.controller.accreditation.company.api.v1.rest.controllers.EmployeeController;
@@ -45,7 +45,7 @@ public class EmployeeControllerExceptionsHandler {
             "message.common.rest.error.application_exception_placeholder",
             HttpStatus.BAD_REQUEST,
             request);
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -63,7 +63,7 @@ public class EmployeeControllerExceptionsHandler {
             "message.common.rest.error.infrastructure_exception_placeholder",
             HttpStatus.BAD_REQUEST,
             request);
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -80,7 +80,7 @@ public class EmployeeControllerExceptionsHandler {
             "message.common.rest.error.domain_exception_placeholder",
             HttpStatus.BAD_REQUEST,
             request);
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 }

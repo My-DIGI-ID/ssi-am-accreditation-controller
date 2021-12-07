@@ -14,6 +14,10 @@ public class BearerTokenParserTest {
         "zY1NjA3NTAsImV4cCI6MTYzNjU2MDY1NiwiYXVkIjoiIiwic3ViIjoiIiwicHJlZmVycmVkX3VzZXJuYW1lIjoid" +
         "GVzdCJ9.tvzD1HhMllyEFhzujKkRcKr1lBsqRACLbXm-b6-UOEk";
 
+    private String invalidToken = "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.e3Rlc3QiaXNzIjoiIi" +
+        "wiaWF0IjoxNjM2NTYwNzUwLCJleHAiOjE2MzY1NjA2NTYsImF1ZCI6IiIsInN1YiI6IiIsInByZWZlcnJlZF91c2" +
+        "VybmFtZSI6InRlc3QifQ==";
+
     private BearerTokenParser bearerTokenParser;
 
     @BeforeEach
@@ -32,6 +36,18 @@ public class BearerTokenParserTest {
                 .thenReturn(token);
 
             Assertions.assertEquals("test", bearerTokenParser.parseUserFromJWTToken());
+        }
+    }
+
+    @Test
+    void parseUserFromInvalidToken() {
+        try (MockedStatic<HttpHeaderUtility> httpHeaderUtilityMockedStatic =
+                 Mockito.mockStatic(HttpHeaderUtility.class)) {
+            httpHeaderUtilityMockedStatic.when(
+                    () -> HttpHeaderUtility.getHttpHeader("authorization"))
+                .thenReturn(invalidToken);
+
+            Assertions.assertEquals("undefined", bearerTokenParser.parseUserFromJWTToken());
         }
     }
 }

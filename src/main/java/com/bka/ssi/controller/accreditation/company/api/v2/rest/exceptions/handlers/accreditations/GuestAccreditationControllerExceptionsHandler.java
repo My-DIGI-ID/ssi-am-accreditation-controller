@@ -1,6 +1,6 @@
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.exceptions.handlers.accreditations;
 
-import com.bka.ssi.controller.accreditation.company.api.common.exceptions.LogOutput;
+import com.bka.ssi.controller.accreditation.company.aop.logging.LoggingUtility;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories.RestErrorResponseFactory;
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.accreditations.GuestAccreditationController;
@@ -39,7 +39,6 @@ public class GuestAccreditationControllerExceptionsHandler {
          *   refactor guest accreditation state exceptions to give a meaningful response and
          *      logging output, otherwise messageKey needs to fine-granular
          */
-
         RestErrorResponse response = restErrorResponseFactory.create(
             "message.common.rest.error.guest_accreditation_state_exception_placeholder",
             HttpStatus.CONFLICT, request);
@@ -47,8 +46,7 @@ public class GuestAccreditationControllerExceptionsHandler {
         /* ToDo - keep default fallback debug log until guest accreditation state exceptions are
          *   refactored for meaningful logging output
          */
-        logger.debug(ex.getMessage());
-        logger.error(new LogOutput(response).toString());
+        LoggingUtility.logRestErrorResponse(logger, response, ex);
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }
