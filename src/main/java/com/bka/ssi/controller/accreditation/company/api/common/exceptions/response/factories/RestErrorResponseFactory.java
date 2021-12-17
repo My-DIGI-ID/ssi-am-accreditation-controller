@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.factories;
 
 import com.bka.ssi.controller.accreditation.company.api.common.exceptions.response.RestErrorResponse;
@@ -11,16 +27,32 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * The type Rest error response factory.
+ */
 @Component
 public class RestErrorResponseFactory {
 
     private final MessageSource messageSource;
 
+    /**
+     * Instantiates a new Rest error response factory.
+     *
+     * @param messageSource the message source
+     */
     public RestErrorResponseFactory(
         MessageSource messageSource) {
         this.messageSource = messageSource;
     }
 
+    /**
+     * Create rest error response.
+     *
+     * @param messageKey the message key
+     * @param httpStatus the http status
+     * @param request    the request
+     * @return the rest error response
+     */
     public RestErrorResponse create(String messageKey, HttpStatus httpStatus,
         HttpServletRequest request) {
         String errorMessage;
@@ -38,6 +70,14 @@ public class RestErrorResponseFactory {
         return response;
     }
 
+    /**
+     * Create rest error response.
+     *
+     * @param fieldErrors the field errors
+     * @param httpStatus  the http status
+     * @param request     the request
+     * @return the rest error response
+     */
     public RestErrorResponse create(List<FieldError> fieldErrors, HttpStatus httpStatus,
         HttpServletRequest request) {
         String errorMessage;

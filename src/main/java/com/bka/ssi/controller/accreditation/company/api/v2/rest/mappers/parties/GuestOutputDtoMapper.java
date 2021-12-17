@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.mappers.parties;
 
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.GuestOpenOutputDto;
@@ -8,15 +24,29 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * The type Guest output dto mapper.
+ */
 @Service
 public class GuestOutputDtoMapper {
 
     private final Logger logger;
 
+    /**
+     * Instantiates a new Guest output dto mapper.
+     *
+     * @param logger the logger
+     */
     public GuestOutputDtoMapper(Logger logger) {
         this.logger = logger;
     }
 
+    /**
+     * Entity to open dto guest open output dto.
+     *
+     * @param guest the guest
+     * @return the guest open output dto
+     */
     public GuestOpenOutputDto entityToOpenDto(Guest guest) {
         logger.debug("mapping a Guest to GuestOpenOutputDto");
 
@@ -31,6 +61,12 @@ public class GuestOutputDtoMapper {
         }
     }
 
+    /**
+     * Entity to private dto guest private output dto.
+     *
+     * @param guest the guest
+     * @return the guest private output dto
+     */
     public GuestPrivateOutputDto entityToPrivateDto(Guest guest) {
         logger.debug("mapping a Guest to GuestPrivateOutputDto");
 

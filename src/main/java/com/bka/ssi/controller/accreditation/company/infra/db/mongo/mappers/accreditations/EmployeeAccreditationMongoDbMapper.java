@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.accreditations;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.EmployeeAccreditation;
@@ -11,18 +27,33 @@ import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+/**
+ * The type Employee accreditation mongo db mapper.
+ */
 @Component
 public class EmployeeAccreditationMongoDbMapper {
 
     private final Logger logger;
     private final EmployeeMongoDbFacade employeeMongoDbFacade;
 
+    /**
+     * Instantiates a new Employee accreditation mongo db mapper.
+     *
+     * @param logger                the logger
+     * @param employeeMongoDbFacade the employee mongo db facade
+     */
     public EmployeeAccreditationMongoDbMapper(Logger logger,
         EmployeeMongoDbFacade employeeMongoDbFacade) {
         this.logger = logger;
         this.employeeMongoDbFacade = employeeMongoDbFacade;
     }
 
+    /**
+     * Entity to document employee accreditation mongo db document.
+     *
+     * @param employeeAccreditation the employee accreditation
+     * @return the employee accreditation mongo db document
+     */
     public EmployeeAccreditationMongoDbDocument entityToDocument(
         EmployeeAccreditation employeeAccreditation) {
         logger.debug("Mapping EmployeeAccreditation to MongoDb document");
@@ -75,6 +106,12 @@ public class EmployeeAccreditationMongoDbMapper {
         }
     }
 
+    /**
+     * Document to entity employee accreditation.
+     *
+     * @param document the document
+     * @return the employee accreditation
+     */
     public EmployeeAccreditation documentToEntity(EmployeeAccreditationMongoDbDocument document) {
         logger.debug("Mapping EmployeeAccreditationMongoDbDocument to domain entity");
 

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.parties;
 
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.EmployeeOutputDto;
@@ -31,6 +47,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 
+/**
+ * The type Employee party controller.
+ */
 @Tag(name = "Employee party controller",
     description = "Handle creation and retrieval of employee as a party")
 @RestController()
@@ -43,6 +62,14 @@ public class EmployeePartyController {
     private final BearerTokenParser bearerTokenParser;
     private final Logger logger;
 
+    /**
+     * Instantiates a new Employee party controller.
+     *
+     * @param employeePartyService    the employee party service
+     * @param bearerTokenParser       the bearer token parser
+     * @param employeeOutputDtoMapper the employee output dto mapper
+     * @param logger                  the logger
+     */
     public EmployeePartyController(
         EmployeePartyService employeePartyService, BearerTokenParser bearerTokenParser,
         EmployeeOutputDtoMapper employeeOutputDtoMapper, Logger logger) {
@@ -52,6 +79,13 @@ public class EmployeePartyController {
         this.logger = logger;
     }
 
+    /**
+     * Create employee response entity.
+     *
+     * @param inputDto the input dto
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Create employee as a party")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Created new employee as a party",
@@ -73,6 +107,13 @@ public class EmployeePartyController {
         return ResponseEntity.status(201).body(outputDto);
     }
 
+    /**
+     * Create employee by csv response entity.
+     *
+     * @param file the file
+     * @return the response entity
+     * @throws Exception the exception
+     */
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
     @Operation(summary = "Create employees as parties by CSV")
     @ApiResponses(value = {
@@ -96,6 +137,12 @@ public class EmployeePartyController {
         return ResponseEntity.ok(outputDtos);
     }
 
+    /**
+     * Gets all employees.
+     *
+     * @return the all employees
+     * @throws Exception the exception
+     */
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
     @Operation(summary = "Get all employees as parties")
     @ApiResponses(value = {
@@ -117,6 +164,13 @@ public class EmployeePartyController {
         return ResponseEntity.ok(outputDtos);
     }
 
+    /**
+     * Gets employee by id.
+     *
+     * @param employeeId the employee id
+     * @return the employee by id
+     * @throws Exception the exception
+     */
     @Operation(summary = "Get employee as a party by Id")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved employee as a party",
@@ -137,6 +191,14 @@ public class EmployeePartyController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Update employee response entity.
+     *
+     * @param inputDto   the input dto
+     * @param employeeId the employee id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Update employee as a party")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Updated employee as a party",
@@ -160,6 +222,13 @@ public class EmployeePartyController {
         return ResponseEntity.status(200).body(updatedEmployeeOutputDTO);
     }
 
+    /**
+     * Delete employee response entity.
+     *
+     * @param employeeId the employee id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Delete employee party")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Delete employee party", content = @Content)

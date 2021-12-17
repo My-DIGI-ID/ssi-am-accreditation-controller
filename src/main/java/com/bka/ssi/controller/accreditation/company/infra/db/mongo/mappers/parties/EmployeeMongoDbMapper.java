@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.parties;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.credentials.EmployeeCredential;
@@ -24,6 +40,9 @@ import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.partie
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+/**
+ * The type Employee mongo db mapper.
+ */
 @Component
 /*
  * TODO - Consider implicit mapping for reflected MongoDB Documents, then mapper is not needed
@@ -32,10 +51,21 @@ public class EmployeeMongoDbMapper {
 
     private final Logger logger;
 
+    /**
+     * Instantiates a new Employee mongo db mapper.
+     *
+     * @param logger the logger
+     */
     public EmployeeMongoDbMapper(Logger logger) {
         this.logger = logger;
     }
 
+    /**
+     * Entity to document employee mongo db document.
+     *
+     * @param employee the employee
+     * @return the employee mongo db document
+     */
     public EmployeeMongoDbDocument entityToDocument(Employee employee) {
         logger.debug("Mapping an employee to a MongoDb document");
 
@@ -144,6 +174,12 @@ public class EmployeeMongoDbMapper {
         }
     }
 
+    /**
+     * Document to entity employee.
+     *
+     * @param document the document
+     * @return the employee
+     */
     public Employee documentToEntity(EmployeeMongoDbDocument document) {
         logger.debug("Mapping a MongoDb document to an employee");
 

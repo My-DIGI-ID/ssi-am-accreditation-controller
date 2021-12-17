@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.accreditations;
 
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.accreditations.CompletionStatusOutputDto;
@@ -31,6 +47,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The type Employee accreditation controller.
+ */
 @Tag(name = "Employee accreditation controller",
     description = "Managing employee accreditation process")
 @RestController()
@@ -42,6 +61,14 @@ public class EmployeeAccreditationController {
     private final BearerTokenParser bearerTokenParser;
     private final Logger logger;
 
+    /**
+     * Instantiates a new Employee accreditation controller.
+     *
+     * @param employeeAccreditationService the employee accreditation service
+     * @param mapper                       the mapper
+     * @param bearerTokenParser            the bearer token parser
+     * @param logger                       the logger
+     */
     public EmployeeAccreditationController(
         EmployeeAccreditationService employeeAccreditationService,
         EmployeeAccreditationOutputDtoMapper mapper,
@@ -53,6 +80,13 @@ public class EmployeeAccreditationController {
         this.logger = logger;
     }
 
+    /**
+     * Initiate accreditation with invitation email response entity.
+     *
+     * @param partyId the party id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Create accreditation with invitation email for employee",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
@@ -86,6 +120,13 @@ public class EmployeeAccreditationController {
         }
     }
 
+    /**
+     * Offer accreditation response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Offering accreditation to employee",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
@@ -109,6 +150,12 @@ public class EmployeeAccreditationController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Gets all accreditations.
+     *
+     * @return the all accreditations
+     * @throws Exception the exception
+     */
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
     @Operation(summary = "Get all employee accreditations",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
@@ -131,6 +178,13 @@ public class EmployeeAccreditationController {
         return ResponseEntity.ok(outputDtos);
     }
 
+    /**
+     * Gets accreditation by id.
+     *
+     * @param accreditationId the accreditation id
+     * @return the accreditation by id
+     * @throws Exception the exception
+     */
     @Operation(summary = "Get accreditation instance by Id",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
@@ -154,6 +208,13 @@ public class EmployeeAccreditationController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Validate accreditation process completion response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Polling endpoint to check if accreditation is complete")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Accreditation completed",
@@ -180,6 +241,13 @@ public class EmployeeAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Revoke accreditation response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Revoke accreditation of employee",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {

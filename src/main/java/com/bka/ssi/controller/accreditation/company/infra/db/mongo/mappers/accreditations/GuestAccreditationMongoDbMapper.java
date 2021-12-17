@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.infra.db.mongo.mappers.accreditations;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.GuestAccreditation;
@@ -12,18 +28,33 @@ import com.bka.ssi.controller.accreditation.company.infra.db.mongo.values.common
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
+/**
+ * The type Guest accreditation mongo db mapper.
+ */
 @Component
 public class GuestAccreditationMongoDbMapper {
 
     private final Logger logger;
     private final GuestMongoDbFacade guestMongoDbFacade;
 
+    /**
+     * Instantiates a new Guest accreditation mongo db mapper.
+     *
+     * @param logger             the logger
+     * @param guestMongoDbFacade the guest mongo db facade
+     */
     public GuestAccreditationMongoDbMapper(Logger logger,
         GuestMongoDbFacade guestMongoDbFacade) {
         this.logger = logger;
         this.guestMongoDbFacade = guestMongoDbFacade;
     }
 
+    /**
+     * Entity to document guest accreditation mongo db document.
+     *
+     * @param guestAccreditation the guest accreditation
+     * @return the guest accreditation mongo db document
+     */
     public GuestAccreditationMongoDbDocument entityToDocument(
         GuestAccreditation guestAccreditation) {
         logger.debug("Mapping GuestAccreditation to MongoDb document");
@@ -95,6 +126,13 @@ public class GuestAccreditationMongoDbMapper {
         }
     }
 
+    /**
+     * Document to entity guest accreditation.
+     *
+     * @param document the document
+     * @return the guest accreditation
+     * @throws InvalidValidityTimeframeException the invalid validity timeframe exception
+     */
     public GuestAccreditation documentToEntity(
         GuestAccreditationMongoDbDocument document)
         throws InvalidValidityTimeframeException {

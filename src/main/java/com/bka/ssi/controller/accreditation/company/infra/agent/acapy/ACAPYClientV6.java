@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.infra.agent.acapy;
 
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
@@ -40,6 +56,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The type Acapy client v 6.
+ */
 @Service
 public class ACAPYClientV6 implements ACAPYClient {
 
@@ -55,6 +74,14 @@ public class ACAPYClientV6 implements ACAPYClient {
 
     private final ACAPYCredentialFactory acapyCredentialFactory;
 
+    /**
+     * Instantiates a new Acapy client v 6.
+     *
+     * @param logger                   the logger
+     * @param acapyConfiguration       the acapy configuration
+     * @param credentialsConfiguration the credentials configuration
+     * @param acapyCredentialFactory   the acapy credential factory
+     */
     public ACAPYClientV6(Logger logger, ACAPYConfiguration acapyConfiguration,
         CredentialsConfiguration credentialsConfiguration,
         ACAPYCredentialFactory acapyCredentialFactory) {

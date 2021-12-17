@@ -1,4 +1,35 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.aop.configuration.db.mongodb;
+
+import com.bka.ssi.controller.accreditation.company.aop.exceptions.MongoDbConfigurationException;
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.converters.ZonedDateTimeReadConverter;
+import com.bka.ssi.controller.accreditation.company.infra.db.mongo.converters.ZonedDateTimeWriteConverter;
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -9,27 +40,13 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import com.bka.ssi.controller.accreditation.company.aop.exceptions.MongoDbConfigurationException;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.converters.ZonedDateTimeReadConverter;
-import com.bka.ssi.controller.accreditation.company.infra.db.mongo.converters.ZonedDateTimeWriteConverter;
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
-import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-
+/**
+ * The type Mongo db configuration.
+ */
 @Configuration
 public class MongoDbConfiguration extends AbstractMongoClientConfiguration {
 
@@ -62,6 +79,12 @@ public class MongoDbConfiguration extends AbstractMongoClientConfiguration {
     private final Logger logger;
     private final List<Converter<?, ?>> converters = new ArrayList<>();
 
+    /**
+     * Instantiates a new Mongo db configuration.
+     *
+     * @param resourceLoader the resource loader
+     * @param logger         the logger
+     */
     public MongoDbConfiguration(ResourceLoader resourceLoader,
         Logger logger) {
         this.resourceLoader = resourceLoader;
@@ -132,7 +155,7 @@ public class MongoDbConfiguration extends AbstractMongoClientConfiguration {
     public MongoCustomConversions customConversions() {
         converters.add(new ZonedDateTimeWriteConverter());
         converters.add(new ZonedDateTimeReadConverter());
-        
+
         return new MongoCustomConversions(converters);
     }
 }

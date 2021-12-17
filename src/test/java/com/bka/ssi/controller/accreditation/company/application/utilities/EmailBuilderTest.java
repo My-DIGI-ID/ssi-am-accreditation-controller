@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.utilities;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +36,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 public class EmailBuilderTest {
@@ -27,6 +45,7 @@ public class EmailBuilderTest {
     private final static Logger logger = LoggerFactory.getLogger(EmailBuilderTest.class);
     private static EmailBuilder emailBuilder;
     private static QrCodeGenerator qrCodeGenerator;
+    private final static int qrSize = 300;
     private static EmployeeBuilder employeeBuilder;
     private static GuestBuilder guestBuilder;
 
@@ -84,15 +103,21 @@ public class EmailBuilderTest {
             fail(e.getMessage());
         }
 
-        String qrCode = null;
+        String qrCodeSvg;
+        byte[] qrCodePng;
+        String qrCodeSvgBase64 = null;
+        String qrCodePngBase64 = null;
         try {
-            qrCode = QrCodeGenerator.generateQrCodeSvg(redirectUrl, 300, 300);
+            qrCodeSvg = QrCodeGenerator.generateQrCodeSvg(redirectUrl, qrSize, qrSize);
+            qrCodeSvgBase64 = Base64.getEncoder().encodeToString(qrCodeSvg.getBytes(StandardCharsets.UTF_8));
+            qrCodePng = QrCodeGenerator.generateQrCodePng(redirectUrl, qrSize, qrSize);
+            qrCodePngBase64 = Base64.getEncoder().encodeToString(qrCodePng);
         } catch (Exception e) {
             fail(e.getMessage());
         }
 
         String actualInvitationEmail =
-            emailBuilder.buildEmployeeInvitationEmail(employee, qrCode);
+            emailBuilder.buildEmployeeInvitationEmail(employee, qrCodeSvgBase64, qrCodePngBase64, qrSize);
 
         assertEquals(
             expectedInvitationEmail.replace("\r\n", " ").replace("\n", " ").replace("\"", "'"),
@@ -133,46 +158,19 @@ public class EmailBuilderTest {
     }
 
     @Test
-    void buildEmployeeInvitationEmailAsMessage() {
-        String qrCode = null;
+    void buildEmployeeInvitationEmailAsMessageQrCode() {
+        String qrCodeSvg = null;
+        String qrCodePng = null;
         try {
-            qrCode = QrCodeGenerator.generateQrCodeSvg(redirectUrl, 300, 300);
+            qrCodeSvg = QrCodeGenerator.generateQrCodeSvg(redirectUrl, qrSize, qrSize);
+            qrCodePng = Arrays.toString(QrCodeGenerator.generateQrCodePng(redirectUrl, qrSize, qrSize));
         } catch (Exception e) {
             fail(e.getMessage());
         }
 
         byte[] email = null;
         try {
-            email = emailBuilder.buildEmployeeInvitationEmailAsMessage(employee, qrCode);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-
-        String emailAsString = new String(email);
-        Assertions.assertNotNull(email);
-        Assertions.assertTrue(emailAsString.contains("To: " +
-            employee.getCredentialOffer().getCredential().getContactInformation().getEmails()
-                .get(0)));
-        Assertions
-            .assertTrue(emailAsString.contains("Subject: Invitation for Employee Credential"));
-        Assertions.assertTrue(emailAsString.contains("MIME-Version: 1.0"));
-        Assertions.assertTrue(emailAsString.contains("Content-Type: multipart/mixed"));
-        Assertions.assertTrue(emailAsString.contains("X-Unsent: 1"));
-        Assertions.assertTrue(emailAsString.contains("Content-Type: text/html; charset=utf-8"));
-    }
-
-    @Test
-    void buildEmployeeInvitationEmailAsMessagePngQrCode() {
-        byte[] qrCode = null;
-        try {
-            qrCode = QrCodeGenerator.generateQrCodePng(redirectUrl, 300, 300);
-        } catch (Exception e) {
-            fail(e.getMessage());
-        }
-
-        byte[] email = null;
-        try {
-            email = emailBuilder.buildEmployeeInvitationEmailAsMessage(employee, qrCode);
+            email = emailBuilder.buildEmployeeInvitationEmailAsMessage(employee, qrCodeSvg, qrCodePng, qrSize);
         } catch (Exception e) {
             fail(e.getMessage());
         }

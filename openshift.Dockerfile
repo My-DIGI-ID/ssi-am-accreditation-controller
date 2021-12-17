@@ -22,11 +22,19 @@ COPY --from=MAVEN_BUILD /build/target/accreditation.company-0.0.1-SNAPSHOT.jar /
 COPY --from=MAVEN_BUILD /build/src/main/resources/templates/email/invitation/*.html /data/templates/
 COPY --from=MAVEN_BUILD /build/src/main/resources/i18n/ui/* /app/resources/i18n/ui/
 
-# PDB - For OpenShift - nothing runs with ROOT 
-RUN chmod 777 -R /app && chmod 777 -R /app/*  && chmod -R 777 /data && chmod -R 777 /data/*
+# For OpenShift - nothing runs with ROOT
+#RUN chmod -R 777 /app && \
+# chmod -R 777 /app/*  && \
+# chmod -R 777 /data && \
+# chmod -R 777 /data/*
+RUN chgrp -R 0 /app && chmod -R g=u /app && \
+    chgrp -R 0 /data && chmod -R g=u /data && \
+    chgrp -R 0 /app/* && chmod -R g=u /app/* && \
+    chgrp -R 0 /data/* && chmod -R g=u /data/*
+
 EXPOSE 8080
 
 # For debugging
 #RUN apk --no-cache add curl
 
-ENTRYPOINT ["java", "-jar", "accreditation.company-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Dlog4j2.formatMsgNoLookups=true","-jar", "accreditation.company-0.0.1-SNAPSHOT.jar"]

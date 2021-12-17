@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.testutilities.accreditation.guest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,13 +80,13 @@ public class GuestAccreditationPrivateInfoInputDtoBuilder {
         this.companyStreet = this.companyStreet != null ? this.companyStreet : "companyStreet";
         this.companyCity = this.companyCity != null ? this.companyCity : "companyCity";
         this.companyPostCode =
-            this.companyPostCode != null ? this.companyPostCode : "companyPostCode";
+            this.companyPostCode != null ? this.companyPostCode : "10015";
         this.acceptedDocument =
             this.acceptedDocument != null ? this.acceptedDocument : "acceptedDocument";
         this.primaryPhoneNumber =
-            this.primaryPhoneNumber != null ? this.primaryPhoneNumber : "primaryPhoneNumber";
+            this.primaryPhoneNumber != null ? this.primaryPhoneNumber : "0123456789";
         this.secondaryPhoneNumber =
-            this.secondaryPhoneNumber != null ? this.secondaryPhoneNumber : "secondaryPhoneNumber";
+            this.secondaryPhoneNumber != null ? this.secondaryPhoneNumber : "9876543210";
 
         return this.build();
     }

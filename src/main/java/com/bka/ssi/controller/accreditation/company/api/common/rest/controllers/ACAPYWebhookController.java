@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.common.rest.controllers;
 
 import com.bka.ssi.controller.accreditation.company.aop.configuration.agents.ACAPYConfiguration;
@@ -19,6 +35,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The type Acapy webhook controller.
+ */
 @Tag(name = "ACAPY Webhook Controller", description = "Handling requests from ACAPY agent")
 @RestController()
 @SecurityRequirement(name = "api_key_webhook_api")
@@ -33,12 +52,25 @@ public class ACAPYWebhookController {
     private final Logger logger;
     private final WebhookServiceFactory webhookServiceFactory;
 
+    /**
+     * Instantiates a new Acapy webhook controller.
+     *
+     * @param logger         the logger
+     * @param webhookService the webhook service
+     */
     public ACAPYWebhookController(Logger logger,
         WebhookServiceFactory webhookService) {
         this.logger = logger;
         this.webhookServiceFactory = webhookService;
     }
 
+    /**
+     * On connection response entity.
+     *
+     * @param inputDto the input dto
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Pairwise Connection Record Updated")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -57,6 +89,13 @@ public class ACAPYWebhookController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * On basic message response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Basic Message Received")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -71,6 +110,13 @@ public class ACAPYWebhookController {
         throw new UnsupportedOperationException("No support planned");
     }
 
+    /**
+     * On forward response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Forward Message Received")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -85,6 +131,13 @@ public class ACAPYWebhookController {
         throw new UnsupportedOperationException("No support planned");
     }
 
+    /**
+     * On issue credential response entity.
+     *
+     * @param inputDto the input dto
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Credential Exchange Record Updated")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -103,6 +156,13 @@ public class ACAPYWebhookController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * On present proof response entity.
+     *
+     * @param inputDto the input dto
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Presentation Exchange Record Updated")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -121,6 +181,13 @@ public class ACAPYWebhookController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * On out of band invitation response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Out-of-Band Invitation")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -135,6 +202,13 @@ public class ACAPYWebhookController {
         throw new UnsupportedOperationException("No support planned");
     }
 
+    /**
+     * On ping response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Ping (debug)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -149,6 +223,13 @@ public class ACAPYWebhookController {
         throw new UnsupportedOperationException("No support planned");
     }
 
+    /**
+     * On issuer cred rev response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Issuer Credential Revocation")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -163,6 +244,13 @@ public class ACAPYWebhookController {
         throw new UnsupportedOperationException("No support planned");
     }
 
+    /**
+     * On revocation registry response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Revocation Registry Record Updated")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",
@@ -178,6 +266,13 @@ public class ACAPYWebhookController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * On problem report response entity.
+     *
+     * @param object the object
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Problem Report")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204",

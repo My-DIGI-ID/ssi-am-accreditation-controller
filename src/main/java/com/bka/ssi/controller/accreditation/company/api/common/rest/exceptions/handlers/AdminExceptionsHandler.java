@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.common.rest.exceptions.handlers;
 
 import com.bka.ssi.controller.accreditation.company.aop.logging.LoggingUtility;
@@ -15,6 +31,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import javax.annotation.Priority;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * The type Admin exceptions handler.
+ */
 @Priority(1)
 @RestControllerAdvice(basePackageClasses = AdminController.class)
 public class AdminExceptionsHandler {
@@ -22,6 +41,12 @@ public class AdminExceptionsHandler {
     private final RestErrorResponseFactory restErrorResponseFactory;
     private final Logger logger;
 
+    /**
+     * Instantiates a new Admin exceptions handler.
+     *
+     * @param restErrorResponseFactory the rest error response factory
+     * @param logger                   the logger
+     */
     public AdminExceptionsHandler(
         RestErrorResponseFactory restErrorResponseFactory,
         Logger logger) {
@@ -30,6 +55,13 @@ public class AdminExceptionsHandler {
         this.logger = logger;
     }
 
+    /**
+     * Handle json parse exception response entity.
+     *
+     * @param ex      the ex
+     * @param request the request
+     * @return the response entity
+     */
     /* ToDo - Make it to a endpoint/method specific exception handler */
     @ExceptionHandler(JsonParseException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)

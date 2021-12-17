@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.utilities;
 
 import com.bka.ssi.controller.accreditation.company.application.exceptions.JsonParseException;
@@ -13,6 +29,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * The type 18 n json parser.
+ */
 @Component
 public class I18nJsonParser {
 
@@ -22,6 +41,14 @@ public class I18nJsonParser {
 
     private final Logger logger;
 
+    /**
+     * Instantiates a new 18 n json parser.
+     *
+     * @param defaultPath the default path
+     * @param path        the path
+     * @param logger      the logger
+     * @throws NotFoundException the not found exception
+     */
     public I18nJsonParser(@Value("src/main/resources/i18n/ui/") String defaultPath,
         @Value("${accreditation.ui.i18n.path}") String path, Logger logger)
         throws NotFoundException {
@@ -92,6 +119,14 @@ public class I18nJsonParser {
         return "/";
     }
 
+    /**
+     * Parse i 18 n json file object.
+     *
+     * @param filename the filename
+     * @return the object
+     * @throws NotFoundException  the not found exception
+     * @throws JsonParseException the json parse exception
+     */
     public Object parseI18nJsonFile(String filename) throws NotFoundException, JsonParseException {
         String fullPath =
             this.getPathWithEndingSlash(this.path) + this.getFileNameWithFileExtension(filename);

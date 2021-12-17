@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.domain.entities.parties;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.Party;
@@ -8,14 +24,32 @@ import com.bka.ssi.controller.accreditation.company.domain.values.CredentialOffe
 
 import java.time.ZonedDateTime;
 
+/**
+ * The type Employee.
+ */
 public class Employee extends Party<EmployeeCredential> {
 
+    /**
+     * Instantiates a new Employee.
+     *
+     * @param id              the id
+     * @param credentialOffer the credential offer
+     * @param createdBy       the created by
+     * @param createAt        the create at
+     */
     public Employee(String id,
         CredentialOffer<EmployeeCredential> credentialOffer, String createdBy,
         ZonedDateTime createAt) {
         super(id, credentialOffer, createdBy, createAt);
     }
 
+    /**
+     * Instantiates a new Employee.
+     *
+     * @param credentialOffer the credential offer
+     * @param createdBy       the created by
+     * @param createAt        the create at
+     */
     public Employee(CredentialOffer<EmployeeCredential> credentialOffer, String createdBy,
         ZonedDateTime createAt) {
         super(credentialOffer, createdBy, createAt);
@@ -38,6 +72,12 @@ public class Employee extends Party<EmployeeCredential> {
         return this;
     }
 
+    /**
+     * Add issued by and issued at to credential metadata employee.
+     *
+     * @param issuedBy the issued by
+     * @return the employee
+     */
     public Employee addIssuedByAndIssuedAtToCredentialMetadata(String issuedBy) {
         CredentialMetadata credentialMetadata = new CredentialMetadata(
             issuedBy,

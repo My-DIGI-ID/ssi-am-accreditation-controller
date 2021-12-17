@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.utilities;
 
 import com.bka.ssi.controller.accreditation.company.application.exceptions.InvalidCsvFileException;
@@ -20,15 +36,34 @@ import java.io.Reader;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * The type Csv builder.
+ */
 @Component
 public class CsvBuilder {
 
     private final Logger logger;
 
+    /**
+     * Instantiates a new Csv builder.
+     *
+     * @param logger the logger
+     */
     public CsvBuilder(Logger logger) {
         this.logger = logger;
     }
 
+    /**
+     * Read csv to list by column name list.
+     *
+     * @param <T>         the type parameter
+     * @param inputStream the input stream
+     * @param clazz       the clazz
+     * @param separator   the separator
+     * @return the list
+     * @throws IOException             the io exception
+     * @throws InvalidCsvFileException the invalid csv file exception
+     */
     public <T> List<T> readCsvToListByColumnName(InputStream inputStream,
         Class clazz, char separator) throws IOException, InvalidCsvFileException {
 
@@ -59,6 +94,17 @@ public class CsvBuilder {
         return output;
     }
 
+    /**
+     * Read csv to list by column position list.
+     *
+     * @param <T>         the type parameter
+     * @param inputStream the input stream
+     * @param clazz       the clazz
+     * @param separator   the separator
+     * @return the list
+     * @throws IOException             the io exception
+     * @throws InvalidCsvFileException the invalid csv file exception
+     */
     public <T> List<T> readCsvToListByColumnPosition(InputStream inputStream,
         Class clazz, char separator) throws IOException, InvalidCsvFileException {
 
@@ -90,6 +136,15 @@ public class CsvBuilder {
         return output;
     }
 
+    /**
+     * Gets header from dto.
+     *
+     * @param <T>   the type parameter
+     * @param clazz the clazz
+     * @param dto   the dto
+     * @return the header from dto
+     * @throws InvalidCsvFileFormatException the invalid csv file format exception
+     */
     public <T> List<String> getHeaderFromDto(Class clazz, T dto)
         throws InvalidCsvFileFormatException {
         try {
@@ -107,6 +162,14 @@ public class CsvBuilder {
         }
     }
 
+    /**
+     * Gets header from csv.
+     *
+     * @param inputStream the input stream
+     * @return the header from csv
+     * @throws IOException                   the io exception
+     * @throws InvalidCsvFileFormatException the invalid csv file format exception
+     */
     public List<String> getHeaderFromCsv(InputStream inputStream)
         throws IOException, InvalidCsvFileFormatException {
         try {
@@ -129,6 +192,14 @@ public class CsvBuilder {
         }
     }
 
+    /**
+     * Validate header boolean.
+     *
+     * @param expectedHeader the expected header
+     * @param actualHeader   the actual header
+     * @return the boolean
+     * @throws InvalidCsvFileFormatException the invalid csv file format exception
+     */
     public boolean validateHeader(List<String> expectedHeader, List<String> actualHeader)
         throws InvalidCsvFileFormatException {
         boolean isValid = expectedHeader.equals(actualHeader);

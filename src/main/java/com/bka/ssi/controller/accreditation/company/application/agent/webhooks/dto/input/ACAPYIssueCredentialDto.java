@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.agent.webhooks.dto.input;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,6 +22,9 @@ import io.github.my_digi_id.acapy_client.model.IndyCredRequest;
 
 import java.util.LinkedHashMap;
 
+/**
+ * The type Acapy issue credential dto.
+ */
 public class ACAPYIssueCredentialDto {
 
     /*
@@ -85,74 +104,164 @@ public class ACAPYIssueCredentialDto {
     @JsonProperty("error_msg")
     private String errorMessage;
 
+    /**
+     * Gets credential exchange id.
+     *
+     * @return the credential exchange id
+     */
     public String getCredentialExchangeId() {
         return credentialExchangeId;
     }
 
+    /**
+     * Gets connection id.
+     *
+     * @return the connection id
+     */
     public String getConnectionId() {
         return connectionId;
     }
 
+    /**
+     * Gets thread id.
+     *
+     * @return the thread id
+     */
     public String getThreadId() {
         return threadId;
     }
 
+    /**
+     * Gets parent thread id.
+     *
+     * @return the parent thread id
+     */
     public String getParentThreadId() {
         return parentThreadId;
     }
 
+    /**
+     * Gets initiator.
+     *
+     * @return the initiator
+     */
     public String getInitiator() {
         return initiator;
     }
 
+    /**
+     * Gets state.
+     *
+     * @return the state
+     */
     public String getState() {
         return state;
     }
 
+    /**
+     * Gets credential definition id.
+     *
+     * @return the credential definition id
+     */
     public String getCredentialDefinitionId() {
         return credentialDefinitionId;
     }
 
+    /**
+     * Gets schema id.
+     *
+     * @return the schema id
+     */
     public String getSchemaId() {
         return schemaId;
     }
 
+    /**
+     * Gets credential proposal dict.
+     *
+     * @return the credential proposal dict
+     */
     public LinkedHashMap<String, Object> getCredentialProposalDict() {
         return credentialProposalDict;
     }
 
+    /**
+     * Gets credential offer.
+     *
+     * @return the credential offer
+     */
     public CredentialOffer getCredentialOffer() {
         return credentialOffer;
     }
 
+    /**
+     * Gets credential request.
+     *
+     * @return the credential request
+     */
     public IndyCredRequest getCredentialRequest() {
         return credentialRequest;
     }
 
+    /**
+     * Gets credential request metadata.
+     *
+     * @return the credential request metadata
+     */
     public String getCredentialRequestMetadata() {
         return credentialRequestMetadata;
     }
 
+    /**
+     * Gets credential id.
+     *
+     * @return the credential id
+     */
     public String getCredentialId() {
         return credentialId;
     }
 
+    /**
+     * Gets raw credential.
+     *
+     * @return the raw credential
+     */
     public String getRawCredential() {
         return rawCredential;
     }
 
+    /**
+     * Gets credential.
+     *
+     * @return the credential
+     */
     public Object getCredential() {
         return credential;
     }
 
+    /**
+     * Gets auto offer.
+     *
+     * @return the auto offer
+     */
     public Boolean getAutoOffer() {
         return autoOffer;
     }
 
+    /**
+     * Gets auto issue.
+     *
+     * @return the auto issue
+     */
     public Boolean getAuto_Issue() {
         return auto_Issue;
     }
 
+    /**
+     * Gets error message.
+     *
+     * @return the error message
+     */
     public String getErrorMessage() {
         return errorMessage;
     }

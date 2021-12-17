@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.domain.entities.accreditations;
 
 import com.bka.ssi.controller.accreditation.company.domain.entities.Accreditation;
@@ -11,6 +27,9 @@ import com.bka.ssi.controller.accreditation.company.domain.values.GuestPrivateIn
 
 import java.time.ZonedDateTime;
 
+/**
+ * The type Guest accreditation.
+ */
 public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationStatus> {
 
     private Correlation basisIdVerificationCorrelation;
@@ -21,6 +40,14 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
           class and use method overloading to cover guest/employee requirements
      */
 
+    /**
+     * Instantiates a new Guest accreditation.
+     *
+     * @param party     the party
+     * @param status    the status
+     * @param invitedBy the invited by
+     * @param invitedAt the invited at
+     */
     public GuestAccreditation(Guest party, GuestAccreditationStatus status, String invitedBy,
         ZonedDateTime invitedAt) {
         super(party, status, invitedBy, invitedAt);
@@ -32,6 +59,15 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         }
     }
 
+    /**
+     * Instantiates a new Guest accreditation.
+     *
+     * @param id        the id
+     * @param party     the party
+     * @param status    the status
+     * @param invitedBy the invited by
+     * @param invitedAt the invited at
+     */
     public GuestAccreditation(String id, Guest party, GuestAccreditationStatus status,
         String invitedBy, ZonedDateTime invitedAt) {
         super(id, party, status, invitedBy, invitedAt);
@@ -43,6 +79,20 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         }
     }
 
+    /**
+     * Instantiates a new Guest accreditation.
+     *
+     * @param id                                 the id
+     * @param party                              the party
+     * @param status                             the status
+     * @param invitedBy                          the invited by
+     * @param invitedAt                          the invited at
+     * @param invitationUrl                      the invitation url
+     * @param invitationEmail                    the invitation email
+     * @param invitationQrCode                   the invitation qr code
+     * @param basisIdVerificationCorrelation     the basis id verification correlation
+     * @param guestCredentialIssuanceCorrelation the guest credential issuance correlation
+     */
     public GuestAccreditation(String id, Guest party, GuestAccreditationStatus status,
         String invitedBy, ZonedDateTime invitedAt, String invitationUrl,
         String invitationEmail, String invitationQrCode,
@@ -60,6 +110,15 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         }
     }
 
+    /**
+     * Initiate accreditation with invitation url and invitation email guest accreditation.
+     *
+     * @param invitationUrl   the invitation url
+     * @param invitationEmail the invitation email
+     * @return the guest accreditation
+     * @throws InvalidAccreditationInitialStateException the invalid accreditation initial state
+     * exception
+     */
     public GuestAccreditation initiateAccreditationWithInvitationUrlAndInvitationEmail(
         String invitationUrl, String invitationEmail)
         throws InvalidAccreditationInitialStateException {
@@ -73,6 +132,12 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Associate invitation qr code with accreditation guest accreditation.
+     *
+     * @param invitationQrCode the invitation qr code
+     * @return the guest accreditation
+     */
     public GuestAccreditation associateInvitationQrCodeWithAccreditation(String
         invitationQrCode) {
         this.invitationQrCode = invitationQrCode;
@@ -80,6 +145,12 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Start basis id verification guest accreditation.
+     *
+     * @param correlation the correlation
+     * @return the guest accreditation
+     */
     public GuestAccreditation startBasisIdVerification(Correlation correlation) {
         this.status = GuestAccreditationStatus.BASIS_ID_VERIFICATION_PENDING;
         this.basisIdVerificationCorrelation = correlation;
@@ -87,6 +158,13 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Complete basis id verification guest accreditation.
+     *
+     * @param correlation the correlation
+     * @param dateOfBirth the date of birth
+     * @return the guest accreditation
+     */
     public GuestAccreditation completeBasisIdVerification(Correlation correlation,
         String dateOfBirth) {
         this.status = GuestAccreditationStatus.BASIS_ID_VALID;
@@ -98,12 +176,29 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Defer accreditation due to invalid basis id guest accreditation.
+     *
+     * @return the guest accreditation
+     */
     public GuestAccreditation deferAccreditationDueToInvalidBasisId() {
         this.status = GuestAccreditationStatus.BASIS_ID_INVALID;
 
         return this;
     }
 
+    /**
+     * Add private information by the guest guest accreditation.
+     *
+     * @param licencePlateNumber   the licence plate number
+     * @param companyStreet        the company street
+     * @param companyCity          the company city
+     * @param companyPostCode      the company post code
+     * @param acceptedDocument     the accepted document
+     * @param primaryPhoneNumber   the primary phone number
+     * @param secondaryPhoneNumber the secondary phone number
+     * @return the guest accreditation
+     */
     public GuestAccreditation addPrivateInformationByTheGuest(
         String licencePlateNumber,
         String companyStreet,
@@ -129,6 +224,12 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Offer accreditation guest accreditation.
+     *
+     * @param correlation the correlation
+     * @return the guest accreditation
+     */
     public GuestAccreditation offerAccreditation(Correlation correlation) {
         this.guestCredentialIssuanceCorrelation = correlation;
         this.status = GuestAccreditationStatus.PENDING;
@@ -136,6 +237,13 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Complete accreditation guest accreditation.
+     *
+     * @param correlation the correlation
+     * @param issuedBy    the issued by
+     * @return the guest accreditation
+     */
     public GuestAccreditation completeAccreditation(Correlation correlation, String issuedBy) {
         this.guestCredentialIssuanceCorrelation = correlation;
         this.status = GuestAccreditationStatus.ACCEPTED;
@@ -144,6 +252,11 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Clean guest information on checkout guest accreditation.
+     *
+     * @return the guest accreditation
+     */
     public GuestAccreditation cleanGuestInformationOnCheckout() {
         this.invitationEmail = "deleted";
         this.getParty().removeCredentialFromCredentialOffer();
@@ -151,17 +264,54 @@ public class GuestAccreditation extends Accreditation<Guest, GuestAccreditationS
         return this;
     }
 
+    /**
+     * Revoke accreditation guest accreditation.
+     *
+     * @return the guest accreditation
+     */
     public GuestAccreditation revokeAccreditation() {
         this.status = GuestAccreditationStatus.REVOKED;
+        this.invitationEmail = "deleted";
+        this.getParty().removeCredentialFromCredentialOffer();
 
         return this;
     }
 
+    /**
+     * Gets basis id verification correlation.
+     *
+     * @return the basis id verification correlation
+     */
     public Correlation getBasisIdVerificationCorrelation() {
         return basisIdVerificationCorrelation;
     }
 
+    /**
+     * Gets guest credential issuance correlation.
+     *
+     * @return the guest credential issuance correlation
+     */
     public Correlation getGuestCredentialIssuanceCorrelation() {
         return guestCredentialIssuanceCorrelation;
+    }
+
+    /**
+     * Check in accreditation guest accreditation.
+     *
+     * @return the guest accreditation
+     */
+    public GuestAccreditation checkInAccreditation() {
+        this.status = GuestAccreditationStatus.CHECK_IN;
+        return this;
+    }
+
+    /**
+     * Check out accreditation guest accreditation.
+     *
+     * @return the guest accreditation
+     */
+    public GuestAccreditation checkOutAccreditation() {
+        this.status = GuestAccreditationStatus.CHECK_OUT;
+        return this;
     }
 }

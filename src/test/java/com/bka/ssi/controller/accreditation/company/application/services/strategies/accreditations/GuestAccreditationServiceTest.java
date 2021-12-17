@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -172,9 +188,9 @@ public class GuestAccreditationServiceTest {
 
         byte[] email = "Test".getBytes();
         Mockito.when(emailBuilder.buildInvitationEmailAsMessage(
-                Mockito.anyList(),
-                Mockito.eq("Invitation for Guest Credential"),
-                Mockito.eq(accreditation.getInvitationEmail())))
+            Mockito.anyList(),
+            Mockito.eq("Invitation for Guest Credential"),
+            Mockito.eq(accreditation.getInvitationEmail())))
             .thenReturn(email);
 
         // When
@@ -247,9 +263,9 @@ public class GuestAccreditationServiceTest {
     void completeVerificationOfBasisId() throws Exception {
         // Given
         Mockito.when(
-                guestAccreditationRepository
-                    .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                        Mockito.anyString(), Mockito.anyString()))
+            guestAccreditationRepository
+                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                    Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         BasisIdPresentation basisIdPresentation = Mockito.mock(BasisIdPresentation.class);
@@ -290,9 +306,9 @@ public class GuestAccreditationServiceTest {
     void shouldDeferOnInvalidBasisId() throws Exception {
         // Given
         Mockito.when(
-                guestAccreditationRepository
-                    .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                        Mockito.anyString(), Mockito.anyString()))
+            guestAccreditationRepository
+                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                    Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -310,9 +326,9 @@ public class GuestAccreditationServiceTest {
     void shouldDeferIfPresentationMismatch() throws Exception {
         // Given
         Mockito.when(
-                guestAccreditationRepository
-                    .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
-                        Mockito.anyString(), Mockito.anyString()))
+            guestAccreditationRepository
+                .findByBasisIdVerificationCorrelationConnectionIdAndBasisIdVerificationCorrelationThreadId(
+                    Mockito.anyString(), Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(basisIdPresentationUtility.isPresentationAndGuestMatchLoosely(Mockito.any(),
@@ -403,7 +419,7 @@ public class GuestAccreditationServiceTest {
 
         Correlation guestCorrelation = new Correlation(expectedUUID);
         Mockito.when(
-                acapyClient.issueCredential(Mockito.any(), Mockito.anyString()))
+            acapyClient.issueCredential(Mockito.any(), Mockito.anyString()))
             .thenReturn(guestCorrelation);
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -461,7 +477,8 @@ public class GuestAccreditationServiceTest {
     }
 
     @Test
-    void shouldThrowInvalidAccreditationStateChangeException() throws Exception {
+    void shouldThrowInvalidAccreditationStateChangeExceptionWhenOfferedInvalidAccreditations()
+        throws Exception {
         // Given
         GuestAccreditationBuilder builder = new GuestAccreditationBuilder();
         builder.invitedBy = "unittest";
@@ -509,8 +526,8 @@ public class GuestAccreditationServiceTest {
             .thenReturn(correlation);
 
         Mockito.when(
-                guestAccreditationRepository
-                    .findByGuestCredentialIssuanceCorrelationConnectionId(Mockito.anyString()))
+            guestAccreditationRepository
+                .findByGuestCredentialIssuanceCorrelationConnectionId(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -534,7 +551,7 @@ public class GuestAccreditationServiceTest {
         GuestAccreditation accreditationWithValidBasisId = builder.buildGuestAccreditation();
 
         Mockito.when(
-                guestAccreditationRepository.findById(Mockito.anyString()))
+            guestAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditationWithValidBasisId));
 
         // When
@@ -556,7 +573,7 @@ public class GuestAccreditationServiceTest {
         GuestAccreditation accreditationWithInValidBasisId = builder.buildGuestAccreditation();
 
         Mockito.when(
-                guestAccreditationRepository.findById(Mockito.anyString()))
+            guestAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditationWithInValidBasisId));
 
         // Then
@@ -591,16 +608,16 @@ public class GuestAccreditationServiceTest {
     void getUniqueAccreditationByPartyParams() throws Exception {
         // Given
         Mockito.when(
-                guestAccreditationRepository.findByPartyParams(
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.any(ZonedDateTime.class),
-                    Mockito.any(ZonedDateTime.class),
-                    Mockito.anyString()
-                ))
+            guestAccreditationRepository.findByPartyParams(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.any(ZonedDateTime.class),
+                Mockito.any(ZonedDateTime.class),
+                Mockito.anyString()
+            ))
             .thenReturn(Optional.of(accreditation));
 
         // When
@@ -623,16 +640,16 @@ public class GuestAccreditationServiceTest {
     void shouldThrowNotFoundIfNoUniqueAccreditation() throws Exception {
         // Given
         Mockito.when(
-                guestAccreditationRepository.findByPartyParams(
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.anyString(),
-                    Mockito.any(ZonedDateTime.class),
-                    Mockito.any(ZonedDateTime.class),
-                    Mockito.anyString()
-                ))
+            guestAccreditationRepository.findByPartyParams(
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.anyString(),
+                Mockito.any(ZonedDateTime.class),
+                Mockito.any(ZonedDateTime.class),
+                Mockito.anyString()
+            ))
             .thenReturn(Optional.empty());
 
         // Then
@@ -655,7 +672,7 @@ public class GuestAccreditationServiceTest {
     void cleanGuestInformationOnCheckout() throws Exception {
         // Given
         Mockito.when(
-                guestAccreditationRepository.findById(Mockito.anyString()))
+            guestAccreditationRepository.findById(Mockito.anyString()))
             .thenReturn(Optional.of(accreditation));
 
         Mockito.when(guestAccreditationRepository.save(Mockito.any()))
@@ -746,6 +763,12 @@ public class GuestAccreditationServiceTest {
         builder.status = GuestAccreditationStatus.REVOKED;
         GuestAccreditation revokedBasisIdAccreditation = builder.buildGuestAccreditation();
 
+        builder.status = GuestAccreditationStatus.CHECK_OUT;
+        GuestAccreditation checkedOutAccreditation = builder.buildGuestAccreditation();
+
+        builder.status = GuestAccreditationStatus.CHECK_IN;
+        GuestAccreditation checkedInAccreditation = builder.buildGuestAccreditation();
+
         List<GuestAccreditation> openList =
             Arrays.asList(accreditation);
 
@@ -767,6 +790,12 @@ public class GuestAccreditationServiceTest {
         List<GuestAccreditation> invalidBasisIdList =
             Arrays.asList(invalidBasisIdAccreditation);
 
+        List<GuestAccreditation> checkedInList =
+            Arrays.asList(checkedInAccreditation);
+
+        List<GuestAccreditation> checkedOutList =
+            Arrays.asList(checkedOutAccreditation);
+
         List<GuestAccreditation> revokedList =
             Arrays.asList(revokedBasisIdAccreditation);
 
@@ -781,6 +810,8 @@ public class GuestAccreditationServiceTest {
                 put(GuestAccreditationStatus.BASIS_ID_VERIFICATION_PENDING,
                     verificationPendingList);
                 put(GuestAccreditationStatus.BASIS_ID_VALID, validBasisIdList);
+                put(GuestAccreditationStatus.CHECK_IN, checkedInList);
+                put(GuestAccreditationStatus.CHECK_OUT, checkedOutList);
             }};
 
         Mockito.when(guestAccreditationRepository.findAllByStatus(GuestAccreditationStatus.OPEN))
@@ -817,6 +848,15 @@ public class GuestAccreditationServiceTest {
                 .findAllByStatus(GuestAccreditationStatus.BASIS_ID_VALID))
             .thenReturn(validBasisIdList);
 
+        Mockito
+            .when(guestAccreditationRepository
+                .findAllByStatus(GuestAccreditationStatus.CHECK_OUT))
+            .thenReturn(checkedOutList);
+
+        Mockito
+            .when(guestAccreditationRepository
+                .findAllByStatus(GuestAccreditationStatus.CHECK_IN))
+            .thenReturn(checkedInList);
 
         // When
         Map<GuestAccreditationStatus, List<GuestAccreditation>> returnedMap =
@@ -830,7 +870,7 @@ public class GuestAccreditationServiceTest {
     void countOfAccreditationsGroupedByStatus() {
         //Given
         Mockito.when(
-                guestAccreditationRepository.countByStatus(Mockito.any(GuestAccreditationStatus.class)))
+            guestAccreditationRepository.countByStatus(Mockito.any(GuestAccreditationStatus.class)))
             .thenReturn(
                 (long) 3);
 
@@ -846,6 +886,8 @@ public class GuestAccreditationServiceTest {
             put(GuestAccreditationStatus.BASIS_ID_VERIFICATION_PENDING,
                 (long) 3);
             put(GuestAccreditationStatus.BASIS_ID_VALID, (long) 3);
+            put(GuestAccreditationStatus.CHECK_IN, (long) 3);
+            put(GuestAccreditationStatus.CHECK_OUT, (long) 3);
         }};
 
         // When
@@ -880,8 +922,8 @@ public class GuestAccreditationServiceTest {
         guestAccreditationList.add(accreditation);
 
         Mockito.when(
-                guestAccreditationRepository
-                    .findAllByInvitedByAndValidStatus(Mockito.anyString(), Mockito.anyList()))
+            guestAccreditationRepository
+                .findAllByInvitedByAndValidStatus(Mockito.anyString(), Mockito.anyList()))
             .thenReturn(guestAccreditationList);
 
         // When
@@ -890,5 +932,79 @@ public class GuestAccreditationServiceTest {
 
         // Then
         assertEquals(guestAccreditationList, returnedAccreditationList);
+    }
+
+    @Test
+    void shouldUpdateAcceptedAccreditation() throws Exception {
+        // Given
+        GuestAccreditationBuilder builder = new GuestAccreditationBuilder();
+        builder.invitedBy = "unittest";
+        builder.status = GuestAccreditationStatus.ACCEPTED;
+        GuestAccreditation accreditation = builder.buildGuestAccreditation();
+
+        Mockito.when(
+            guestAccreditationRepository
+                .findById(Mockito.anyString()))
+            .thenReturn(Optional.of(accreditation));
+
+        Mockito.when(guestAccreditationRepository.save(Mockito.any()))
+            .thenReturn(accreditation);
+
+        // When
+        GuestAccreditation returnedAccreditation =
+            accreditationService.updateAccreditationStatus("accreditationId",
+                GuestAccreditationStatus.CHECK_IN);
+
+        // Then
+        assertEquals(GuestAccreditationStatus.CHECK_IN, returnedAccreditation.getStatus());
+    }
+
+    @Test
+    void shouldUpdateCheckedInAccreditation() throws Exception {
+        // Given
+        GuestAccreditationBuilder builder = new GuestAccreditationBuilder();
+        builder.invitedBy = "unittest";
+        builder.status = GuestAccreditationStatus.CHECK_IN;
+        GuestAccreditation accreditation = builder.buildGuestAccreditation();
+
+        Mockito.when(
+            guestAccreditationRepository
+                .findById(Mockito.anyString()))
+            .thenReturn(Optional.of(accreditation));
+
+        Mockito.when(guestAccreditationRepository.save(Mockito.any()))
+            .thenReturn(accreditation);
+
+        // When
+        GuestAccreditation returnedAccreditation =
+            accreditationService.updateAccreditationStatus("accreditationId",
+                GuestAccreditationStatus.CHECK_OUT);
+
+        // Then
+        assertEquals(GuestAccreditationStatus.CHECK_OUT, returnedAccreditation.getStatus());
+    }
+
+    @Test
+    void shouldThrowInvalidAccreditationStateChangeExceptionOnInvalidUpdates() throws Exception {
+        // Given
+        GuestAccreditationBuilder builder = new GuestAccreditationBuilder();
+        builder.invitedBy = "unittest";
+        builder.status = GuestAccreditationStatus.OPEN;
+        GuestAccreditation accreditation = builder.buildGuestAccreditation();
+
+        Mockito.when(
+            guestAccreditationRepository
+                .findById(Mockito.anyString()))
+            .thenReturn(Optional.of(accreditation));
+
+        Mockito.when(guestAccreditationRepository.save(Mockito.any()))
+            .thenReturn(accreditation);
+
+        // Then
+        assertThrows(InvalidAccreditationStateChangeException.class, () -> {
+            // When
+            accreditationService.updateAccreditationStatus("accreditationId",
+                GuestAccreditationStatus.CHECK_OUT);
+        });
     }
 }

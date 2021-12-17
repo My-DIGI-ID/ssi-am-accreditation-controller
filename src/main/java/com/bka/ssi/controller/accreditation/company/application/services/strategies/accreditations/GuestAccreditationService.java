@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations;
 
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
@@ -34,11 +50,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+/**
+ * The type Guest accreditation service.
+ */
 @Service
 public class GuestAccreditationService
     extends AccreditationService<GuestAccreditation, Guest, GuestAccreditationStatus> {
@@ -56,6 +72,19 @@ public class GuestAccreditationService
     private final UrlBuilder urlBuilder;
     private final BasisIdPresentationUtility basisIdPresentationUtility;
 
+    /**
+     * Instantiates a new Guest accreditation service.
+     *
+     * @param guestAccreditationRepository the guest accreditation repository
+     * @param guestAccreditationFactory    the guest accreditation factory
+     * @param logger                       the logger
+     * @param emailBuilder                 the email builder
+     * @param urlBuilder                   the url builder
+     * @param acapyClient                  the acapy client
+     * @param authenticationService        the authentication service
+     * @param basisIdPresentationUtility   the basis id presentation utility
+     * @param guestRepository              the guest repository
+     */
     public GuestAccreditationService(
         @Qualifier("guestAccreditationMongoDbFacade")
             GuestAccreditationRepository guestAccreditationRepository,
@@ -177,6 +206,14 @@ public class GuestAccreditationService
         return savedAccreditation;
     }
 
+    /**
+     * Verify basis id.
+     *
+     * @param accreditationId the accreditation id
+     * @param connectionId    the connection id
+     * @throws NotFoundException the not found exception
+     * @throws Exception         the exception
+     */
     public void verifyBasisId(String accreditationId, String connectionId)
         throws NotFoundException, Exception {
         logger.info("Verify basis id for accreditation with id {}", accreditationId);
@@ -193,6 +230,16 @@ public class GuestAccreditationService
         this.accreditationRepository.save(accreditation);
     }
 
+    /**
+     * Complete verification of basis id.
+     *
+     * @param connectionId           the connection id
+     * @param threadId               the thread id
+     * @param presentationExchangeId the presentation exchange id
+     * @param verified               the verified
+     * @throws NotFoundException the not found exception
+     * @throws Exception         the exception
+     */
     public void completeVerificationOfBasisId(String connectionId, String threadId,
         String presentationExchangeId, String verified) throws NotFoundException, Exception {
 
@@ -250,6 +297,14 @@ public class GuestAccreditationService
         this.accreditationRepository.save(accreditation);
     }
 
+    /**
+     * Append with proprietary information from guest guest accreditation.
+     *
+     * @param accreditationId the accreditation id
+     * @param inputDto        the input dto
+     * @return the guest accreditation
+     * @throws Exception the exception
+     */
     public GuestAccreditation appendWithProprietaryInformationFromGuest(String accreditationId,
         GuestAccreditationPrivateInfoInputDto inputDto) throws Exception {
 
@@ -338,6 +393,13 @@ public class GuestAccreditationService
     }
 
 
+    /**
+     * Is guest basis id validation completed boolean.
+     *
+     * @param accreditationId the accreditation id
+     * @return the boolean
+     * @throws Exception the exception
+     */
     public boolean isGuestBasisIdValidationCompleted(String accreditationId) throws Exception {
         GuestAccreditation accreditation = this.accreditationRepository.findById(accreditationId)
             .orElseThrow(NotFoundException::new);
@@ -357,6 +419,20 @@ public class GuestAccreditationService
         return new AccreditationCompletedSpecification().isSatisfiedBy(accreditation);
     }
 
+    /**
+     * Gets unique accreditation by party params.
+     *
+     * @param referenceBasisId the reference basis id
+     * @param firstName        the first name
+     * @param lastName         the last name
+     * @param dateOfBirth      the date of birth
+     * @param companyName      the company name
+     * @param validFrom        the valid from
+     * @param validUntil       the valid until
+     * @param invitedBy        the invited by
+     * @return the unique accreditation by party params
+     * @throws Exception the exception
+     */
     public GuestAccreditation getUniqueAccreditationByPartyParams(
         String referenceBasisId, String firstName, String lastName, String dateOfBirth,
         String companyName, ZonedDateTime validFrom, ZonedDateTime validUntil, String invitedBy)
@@ -377,6 +453,13 @@ public class GuestAccreditationService
         return accreditation;
     }
 
+    /**
+     * Clean guest information on checkout guest accreditation.
+     *
+     * @param accreditationId the accreditation id
+     * @return the guest accreditation
+     * @throws Exception the exception
+     */
     public GuestAccreditation cleanGuestInformationOnCheckout(String accreditationId)
         throws Exception {
         logger.info("Clean information from accreditation with id {}", accreditationId);
@@ -393,6 +476,12 @@ public class GuestAccreditationService
         return savedAccreditation;
     }
 
+    /**
+     * Gets all accreditations grouped by status.
+     *
+     * @return the all accreditations grouped by status
+     * @throws Exception the exception
+     */
     public Map<GuestAccreditationStatus, List<GuestAccreditation>> getAllAccreditationsGroupedByStatus()
         throws Exception {
         Map<GuestAccreditationStatus, List<GuestAccreditation>>
@@ -406,6 +495,11 @@ public class GuestAccreditationService
         return accreditationsGroupedByStatus;
     }
 
+    /**
+     * Count of accreditations grouped by status map.
+     *
+     * @return the map
+     */
     public Map<GuestAccreditationStatus, Long> countOfAccreditationsGroupedByStatus() {
         Map<GuestAccreditationStatus, Long>
             countOfAccreditationsGroupedByStatus = new HashMap<>();
@@ -450,5 +544,46 @@ public class GuestAccreditationService
         /* ToDo - clarify if CANCELLED or BASIS_ID_INVALID should be excluded */
         return this.accreditationRepository.findAllByInvitedByAndValidStatus(userName,
             Arrays.asList(GuestAccreditationStatus.REVOKED));
+    }
+
+    @Override
+    public GuestAccreditation updateAccreditationStatus(String accreditationId,
+        GuestAccreditationStatus status)
+        throws NotFoundException, Exception {
+        GuestAccreditation accreditation = this.accreditationRepository
+            .findById(accreditationId)
+            .orElseThrow(NotFoundException::new);
+
+        switch (status) {
+            case CHECK_IN:
+                checkForValidStatusUpdate(accreditation, status);
+                accreditation.checkInAccreditation();
+                break;
+            case CHECK_OUT:
+                checkForValidStatusUpdate(accreditation, status);
+                accreditation.checkOutAccreditation();
+                break;
+            default:
+                throw new InvalidAccreditationStateChangeException("Error updating accreditation"
+                    + "status");
+        }
+        return this.accreditationRepository.save(accreditation);
+    }
+
+    private void checkForValidStatusUpdate(GuestAccreditation accreditation,
+        GuestAccreditationStatus newStatus) throws InvalidAccreditationStateChangeException {
+        if (accreditation.getStatus() == GuestAccreditationStatus.ACCEPTED) {
+            switch (newStatus) {
+                case CHECK_IN:
+                    return;
+            }
+        } else if (accreditation.getStatus() == GuestAccreditationStatus.CHECK_IN) {
+            switch (newStatus) {
+                case CHECK_OUT:
+                    return;
+            }
+        }
+        throw new InvalidAccreditationStateChangeException("Error updating "
+            + "accreditation");
     }
 }

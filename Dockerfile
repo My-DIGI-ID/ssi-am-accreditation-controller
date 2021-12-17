@@ -16,4 +16,5 @@ WORKDIR /app
 
 COPY --from=MAVEN_BUILD /build/target/accreditation.company-0.0.1-SNAPSHOT.jar /app/
 
-ENTRYPOINT ["java", "-jar", "accreditation.company-0.0.1-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-Dlog4j2.formatMsgNoLookups=true","-jar", "accreditation.company-0.0.1-SNAPSHOT.jar"]
+

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.parties;
 
 import com.bka.ssi.controller.accreditation.company.api.v2.rest.dto.output.parties.GuestOpenOutputDto;
@@ -31,6 +47,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 
+/**
+ * The type Guest party controller.
+ */
 @Tag(name = "Guest Party Controller", description = "Handle creation and retrieval of guest as a party")
 @RestController()
 @SecurityRequirement(name = "oauth2_accreditation_party_api")
@@ -42,6 +61,14 @@ public class GuestPartyController {
     private final BearerTokenParser bearerTokenParser;
     private final Logger logger;
 
+    /**
+     * Instantiates a new Guest party controller.
+     *
+     * @param guestPartyService    the guest party service
+     * @param bearerTokenParser    the bearer token parser
+     * @param guestOutputDtoMapper the guest output dto mapper
+     * @param logger               the logger
+     */
     public GuestPartyController(
         GuestPartyService guestPartyService,
         BearerTokenParser bearerTokenParser, GuestOutputDtoMapper guestOutputDtoMapper,
@@ -52,6 +79,13 @@ public class GuestPartyController {
         this.logger = logger;
     }
 
+    /**
+     * Create guest response entity.
+     *
+     * @param inputDto the input dto
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Create guest as a party")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Created new guest as a party",
@@ -73,6 +107,13 @@ public class GuestPartyController {
         return ResponseEntity.status(201).body(outputDto);
     }
 
+    /**
+     * Create guests from csv response entity.
+     *
+     * @param file the file
+     * @return the response entity
+     * @throws Exception the exception
+     */
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
     @Operation(summary = "Create guests as parties by CSV")
     @ApiResponses(value = {
@@ -97,6 +138,12 @@ public class GuestPartyController {
         return ResponseEntity.status(201).body(outputDtos);
     }
 
+    /**
+     * Gets all guests.
+     *
+     * @return the all guests
+     * @throws Exception the exception
+     */
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
     @Operation(summary = "Get all guests as parties")
     @ApiResponses(value = {
@@ -120,6 +167,13 @@ public class GuestPartyController {
         return ResponseEntity.ok(outputDtos);
     }
 
+    /**
+     * Gets guest by id.
+     *
+     * @param guestId the guest id
+     * @return the guest by id
+     * @throws Exception the exception
+     */
     @Operation(summary = "Get guest as a party by Id")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved guest as a party",
@@ -142,6 +196,14 @@ public class GuestPartyController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Update guest response entity.
+     *
+     * @param inputDto the input dto
+     * @param guestId  the guest id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Update guest as a party")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Updated guest as a party",
@@ -165,6 +227,13 @@ public class GuestPartyController {
         return ResponseEntity.status(200).body(updatedGuestOutputDTO);
     }
 
+    /**
+     * Delete guest response entity.
+     *
+     * @param guestId the guest id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Delete guest party")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Delete guest party", content = @Content)

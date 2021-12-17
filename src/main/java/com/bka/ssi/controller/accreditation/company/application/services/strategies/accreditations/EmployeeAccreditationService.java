@@ -1,5 +1,23 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 import com.bka.ssi.controller.accreditation.company.application.agent.ACAPYClient;
@@ -25,6 +43,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * The type Employee accreditation service.
+ */
 @Service
 public class EmployeeAccreditationService
     extends AccreditationService<EmployeeAccreditation, Employee, EmployeeAccreditationStatus> {
@@ -36,6 +57,17 @@ public class EmployeeAccreditationService
     private final EmailBuilder emailBuilder;
     private final UrlBuilder urlBuilder;
 
+    /**
+     * Instantiates a new Employee accreditation service.
+     *
+     * @param logger                          the logger
+     * @param employeeAccreditationRepository the employee accreditation repository
+     * @param employeeAccreditationFactory    the employee accreditation factory
+     * @param acapyClient                     the acapy client
+     * @param emailBuilder                    the email builder
+     * @param urlBuilder                      the url builder
+     * @param employeeRepository              the employee repository
+     */
     public EmployeeAccreditationService(Logger logger,
         @Qualifier("employeeAccreditationMongoDbFacade")
             EmployeeAccreditationRepository employeeAccreditationRepository,
@@ -78,13 +110,17 @@ public class EmployeeAccreditationService
             this.acapyClient.createConnectionInvitation(accreditation.getId());
         String connectionUrl = connectionInvitation.getInvitationUrl();
 
-        String connectionQrCode =
-            QrCodeGenerator.generateQrCodeSvg(connectionUrl, qrSize, qrSize);
+        byte[] connectionQrCodePng = QrCodeGenerator.generateQrCodePng(connectionUrl, qrSize, qrSize);
+        String connectionQrCodeSvg = QrCodeGenerator.generateQrCodeSvg(connectionUrl, qrSize, qrSize);
+
+        String connectionQrCodeSvgBase64encoded = Base64.getEncoder().encodeToString(connectionQrCodeSvg.getBytes(StandardCharsets.UTF_8));
+        String connectionQrCodePngBase64encoded = Base64.getEncoder().encodeToString(connectionQrCodePng);
+
         String invitationEmail =
             this.emailBuilder.buildEmployeeInvitationEmail(accreditation.getParty(),
-                connectionQrCode);
+                    connectionQrCodeSvgBase64encoded, connectionQrCodePngBase64encoded, qrSize);
 
-        accreditation.initiateAccreditation(connectionUrl, invitationEmail, connectionQrCode,
+        accreditation.initiateAccreditation(connectionUrl, invitationEmail, connectionQrCodeSvg,
             connectionInvitation.getConnectionId());
         accreditation = this.accreditationRepository.save(accreditation);
 

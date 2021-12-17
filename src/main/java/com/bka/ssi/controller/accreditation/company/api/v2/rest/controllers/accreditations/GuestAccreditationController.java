@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.api.v2.rest.controllers.accreditations;
 
 import com.bka.ssi.controller.accreditation.company.aop.configuration.security.ApiKeyConfiguration;
@@ -14,6 +30,7 @@ import com.bka.ssi.controller.accreditation.company.application.security.utiliti
 import com.bka.ssi.controller.accreditation.company.application.services.dto.input.accreditations.GuestAccreditationPrivateInfoInputDto;
 import com.bka.ssi.controller.accreditation.company.application.services.strategies.accreditations.GuestAccreditationService;
 import com.bka.ssi.controller.accreditation.company.domain.entities.accreditations.GuestAccreditation;
+import com.bka.ssi.controller.accreditation.company.domain.enums.GuestAccreditationStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -44,6 +61,9 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.validation.Valid;
 
+/**
+ * The type Guest accreditation controller.
+ */
 @Tag(name = "Guest accreditation controller", description = "Managing guest accreditation process")
 @RestController()
 @RequestMapping(value = {"/api/v2/accreditation/guest", "/api/accreditation/guest"})
@@ -55,6 +75,15 @@ public class GuestAccreditationController {
     private final BearerTokenParser bearerTokenParser;
     private final Logger logger;
 
+    /**
+     * Instantiates a new Guest accreditation controller.
+     *
+     * @param guestAccreditationService         the guest accreditation service
+     * @param guestAccreditationOutputDtoMapper the guest accreditation output dto mapper
+     * @param authenticationService             the authentication service
+     * @param bearerTokenParser                 the bearer token parser
+     * @param logger                            the logger
+     */
     public GuestAccreditationController(
         GuestAccreditationService guestAccreditationService,
         GuestAccreditationOutputDtoMapper guestAccreditationOutputDtoMapper,
@@ -67,6 +96,13 @@ public class GuestAccreditationController {
         this.logger = logger;
     }
 
+    /**
+     * Initiate accreditation with invitation email response entity.
+     *
+     * @param partyId the party id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Create accreditation with invitation email for guest",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
@@ -100,6 +136,13 @@ public class GuestAccreditationController {
         }
     }
 
+    /**
+     * Initiate accreditation with qr code response entity.
+     *
+     * @param partyId the party id
+     * @return the response entity
+     * @throws UnsupportedOperationException the unsupported operation exception
+     */
     /* Out of MVP Scope */
     @Operation(summary = "Create accreditation directly with QR code for guest",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
@@ -121,6 +164,13 @@ public class GuestAccreditationController {
                 + "Accreditation");
     }
 
+    /**
+     * Proceed accreditation with qr code response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Proceed with accreditation by generating QR code to "
         + "establish connection with guest's wallet")
     @ApiResponses(value = {
@@ -147,6 +197,12 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Proceed accreditation with deep link response entity.
+     *
+     * @return the response entity
+     * @throws UnsupportedOperationException the unsupported operation exception
+     */
     /* Out of MVP Scope */
     @Operation(summary = "Proceed with accreditation by generating deep link to "
         + "establish connection with guest's wallet")
@@ -167,6 +223,13 @@ public class GuestAccreditationController {
                 + "Accreditation");
     }
 
+    /**
+     * Validate basis id process completion response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Polling endpoint to check if BasisId processing is complete")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "BasisId process status validated",
@@ -206,6 +269,14 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Add proprietary information from guest response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @param inputDto        the input dto
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Adding proprietary information by guest to accreditation")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Appended additional information about "
@@ -232,6 +303,13 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Accept accreditation terms and conditions response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws UnsupportedOperationException the unsupported operation exception
+     */
     @Operation(summary = "Consent terms and conditions by guest")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Updated accreditation according to "
@@ -250,6 +328,13 @@ public class GuestAccreditationController {
             "Operation acceptAccreditationTermsAndConditions is not supported");
     }
 
+    /**
+     * Offer accreditation response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Offering accreditation to guest")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Accreditation offered",
@@ -273,6 +358,13 @@ public class GuestAccreditationController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Validate accreditation process completion response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Polling endpoint to check if accreditation is complete")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Accreditation completed",
@@ -299,6 +391,13 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Gets open accreditation by id.
+     *
+     * @param accreditationId the accreditation id
+     * @return the open accreditation by id
+     * @throws Exception the exception
+     */
     @Operation(summary = "Get open accreditation instance by Id",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
     @ApiResponses(value = {
@@ -325,6 +424,13 @@ public class GuestAccreditationController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Gets private accreditation by id.
+     *
+     * @param accreditationId the accreditation id
+     * @return the private accreditation by id
+     * @throws Exception the exception
+     */
     @Operation(summary = "Get private accreditation instance by Id")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Retrieved private accreditation instance",
@@ -349,6 +455,20 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Gets unique accreditation by party params.
+     *
+     * @param referenceBasisId the reference basis id
+     * @param firstName        the first name
+     * @param lastName         the last name
+     * @param dateOfBirth      the date of birth
+     * @param companyName      the company name
+     * @param validFrom        the valid from
+     * @param validUntil       the valid until
+     * @param invitedBy        the invited by
+     * @return the unique accreditation by party params
+     * @throws Exception the exception
+     */
     /* Warning! Technical debt.
      * In target architecture this endpoint will not be needed - it is a workaround.
      * It is required for Verification Controller to get information about specific accreditation
@@ -393,6 +513,13 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Cleanup guest information on checkout response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     /* Warning! Technical debt.
      * In target architecture this endpoint will not be needed - it is a workaround.
      * It is required for Verification Controller to cleanup personal information about guest
@@ -422,6 +549,13 @@ public class GuestAccreditationController {
         return ResponseEntity.status(200).body(outputDto);
     }
 
+    /**
+     * Revoke accreditation response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     /* Technical Debt.: endpoints /revoke/checkout/{accreditationId} and /revoke/{accreditationId}
      * only differ by the security guard. /revoke/{accreditationId} is protected by keycloak as IAM
      * and /revoke/checkout/{accreditationId} by API Key.
@@ -449,6 +583,13 @@ public class GuestAccreditationController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Revoke accreditation on checkout response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @return the response entity
+     * @throws Exception the exception
+     */
     @Operation(summary = "Revoke accreditation of guest",
         security = @SecurityRequirement(name = "api_key_accr_veri_api"))
     @ApiResponses(value = {
@@ -472,6 +613,12 @@ public class GuestAccreditationController {
         return ResponseEntity.ok(outputDto);
     }
 
+    /**
+     * Gets all accreditations.
+     *
+     * @return the all accreditations
+     * @throws Exception the exception
+     */
     /* TODO - BKAACMGT-165 - Currently content type of response is \*\/\* */
     @Operation(summary = "Get all guest accreditations",
         security = @SecurityRequirement(name = "oauth2_accreditation_party_api"))
@@ -495,4 +642,40 @@ public class GuestAccreditationController {
         logger.info("end: getting all guest accreditations");
         return ResponseEntity.ok(outputDtos);
     }
+
+
+    /**
+     * Proceed accreditation with qr code response entity.
+     *
+     * @param accreditationId the accreditation id
+     * @param status          the status
+     * @return the response entity
+     * @throws Exception the exception
+     */
+    @Operation(summary = "Update accreditation status on checkin",
+        security = @SecurityRequirement(name = "api_key_accr_veri_api"))
+    @ApiResponses(value = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated accreditation status",
+            content = {@Content(mediaType = "application/json",
+                schema = @Schema(implementation = GuestAccreditationOpenOutputDto.class))})
+    })
+    @PatchMapping(path = "/update/{accreditationId}", produces =
+        {MediaType.APPLICATION_JSON_VALUE})
+    @APIKeyProtectedTransaction(id = ApiKeyConfiguration.API_KEY_ID)
+    public ResponseEntity<GuestAccreditationOpenOutputDto> proceedAccreditationWithQrCode(
+        @PathVariable String accreditationId, @RequestParam GuestAccreditationStatus status)
+        throws Exception {
+        logger.info("start: updating accreditation status for guest");
+
+        GuestAccreditation guestAccreditation =
+            guestAccreditationService.updateAccreditationStatus(accreditationId, status);
+        GuestAccreditationOpenOutputDto outputDto = mapper
+            .entityToPrivateDto(guestAccreditation);
+
+        logger.info("end: proceeding with accreditation for guest via qr code connection offer");
+        return ResponseEntity.status(200).body(outputDto);
+    }
+
 }

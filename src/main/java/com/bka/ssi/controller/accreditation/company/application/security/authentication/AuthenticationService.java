@@ -1,3 +1,19 @@
+/*
+ * Copyright 2021 Bundesrepublik Deutschland
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.bka.ssi.controller.accreditation.company.application.security.authentication;
 
 import com.bka.ssi.controller.accreditation.company.application.exceptions.NotFoundException;
@@ -15,6 +31,9 @@ import java.time.ZonedDateTime;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The type Authentication service.
+ */
 @Service
 public class AuthenticationService {
 
@@ -25,6 +44,14 @@ public class AuthenticationService {
     @Value("${accreditation.guest.token.lifetime}")
     private Integer guestTokenLifetime;
 
+    /**
+     * Instantiates a new Authentication service.
+     *
+     * @param ssoClient                  the sso client
+     * @param guestAccessTokenRepository the guest access token repository
+     * @param registry                   the registry
+     * @param logger                     the logger
+     */
     public AuthenticationService(
         SSOClient ssoClient,
         @Qualifier("guestAccessTokenMongoDbFacade")
@@ -38,6 +65,13 @@ public class AuthenticationService {
         this.logger = logger;
     }
 
+    /**
+     * Verify sso token boolean.
+     *
+     * @param token the token
+     * @return the boolean
+     * @throws UnauthenticatedException the unauthenticated exception
+     */
     public boolean verifySSOToken(String token) throws UnauthenticatedException {
         logger.info("Verifying SSO token");
 
@@ -62,6 +96,13 @@ public class AuthenticationService {
         return true;
     }
 
+    /**
+     * Issue guest access token guest token.
+     *
+     * @param accreditationId the accreditation id
+     * @return the guest token
+     * @throws UnauthenticatedException the unauthenticated exception
+     */
     public GuestToken issueGuestAccessToken(String accreditationId)
         throws UnauthenticatedException {
         logger.info("Issuing guest access token");
@@ -83,6 +124,13 @@ public class AuthenticationService {
         return savedToken;
     }
 
+    /**
+     * Verify guest access token boolean.
+     *
+     * @param id the id
+     * @return the boolean
+     * @throws UnauthenticatedException the unauthenticated exception
+     */
     public boolean verifyGuestAccessToken(String id) throws UnauthenticatedException {
         logger.info("Verifying guest access token");
 
@@ -115,11 +163,24 @@ public class AuthenticationService {
         return true;
     }
 
+    /**
+     * Invalidate guest access token.
+     *
+     * @param accreditationId the accreditation id
+     */
     public void invalidateGuestAccessToken(String accreditationId) {
         logger.info("Invalidating guest access token");
         repository.deleteByAccreditationId(accreditationId);
     }
 
+    /**
+     * Verify api key boolean.
+     *
+     * @param id     the id
+     * @param apiKey the api key
+     * @return the boolean
+     * @throws UnauthenticatedException the unauthenticated exception
+     */
     public boolean verifyApiKey(String id, String apiKey) throws UnauthenticatedException {
         logger.info("Verifying api key");
 
@@ -142,6 +203,11 @@ public class AuthenticationService {
         return true;
     }
 
+    /**
+     * Current time zoned date time.
+     *
+     * @return the zoned date time
+     */
     public ZonedDateTime currentTime() {
         return ZonedDateTime.now();
     }
